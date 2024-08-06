@@ -1,4 +1,4 @@
-#include "../include/push_relabel_serial_basic.cuh"
+#include "../include/push_relabel_serial_basic.hpp"
 
 using namespace std;
 
@@ -85,6 +85,7 @@ int executePushRelabel(string filename){
     cout<<n<<endl;
     cout<<capacity.size()<<endl;
     return 0;
+    
     s = 0; // Sorgente
     t = n-1; // Destinazione
 

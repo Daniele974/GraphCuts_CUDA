@@ -1,5 +1,5 @@
 #include "include/file_manager.hpp"
-#include "include/push_relabel_serial_basic.cuh"
+#include "include/push_relabel_serial_basic.hpp"
 
 using namespace std;
 

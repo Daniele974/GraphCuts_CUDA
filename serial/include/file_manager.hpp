@@ -6,4 +6,4 @@
 
 using namespace std;
 
-int readGraphFromFile(string, int*, vector<vector<int>>*);
+int readGraphFromFile(string filename, int *n, vector<vector<int>> *capacity);
