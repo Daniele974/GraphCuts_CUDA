@@ -35,7 +35,7 @@ int readGraphFromFile(string filename, int *n, vector<vector<int>> *capacity)
         }else if(line[0] == 'e' && numbers.size() > 2){ 
             (*capacity)[numbers[0]][numbers[1]] = numbers[2];
         }else{
-            cout << "Error in line " << lineno << endl;
+            if(!line.empty()) cout << "Error in line " << lineno << endl;
         }
         numbers.clear();
     }

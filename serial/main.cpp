@@ -5,7 +5,7 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-    string filename = "input_data/input.txt";
+    string filename = "../input_data/input.txt";
     int maxflow = executePushRelabel(filename);
     cout<<"Max flow: " <<maxflow <<endl;
     return 0;

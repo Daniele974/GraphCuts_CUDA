@@ -82,10 +82,7 @@ int executePushRelabel(string filename){
 
     // Inizializzazione grafo
     readGraphFromFile(filename, &n, &capacity);
-    cout<<n<<endl;
-    cout<<capacity.size()<<endl;
-    return 0;
-    
+        
     s = 0; // Sorgente
     t = n-1; // Destinazione
 
