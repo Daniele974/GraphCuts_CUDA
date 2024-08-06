@@ -17,4 +17,7 @@ push_relabel_serial_basic.o: src/push_relabel_serial_basic.cu
 	$(NVCC) -c src/push_relabel_serial_basic.cu -o push_relabel_serial_basic.o
 
 clean:
-	rm -f *.o pr
+	rm *.o
+
+cleanwin:
+	del *.o
