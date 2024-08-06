@@ -1,6 +1,4 @@
-#include <iostream>
-#include <vector>
-#include <queue>
+#include "../include/push_relabel_serial_basic.hpp"
 
 using namespace std;
 
@@ -45,7 +43,7 @@ void relabel(int u)
         height[u] = d + 1;
 }
 
-void push_relabel(int u)
+void pushRelabel(int u)
 {
     if (u != s && u != t) {
 
@@ -80,25 +78,16 @@ void push_relabel(int u)
 }
 
 
-int main(int argc, char *argv[]){
+int executePushRelabel(string filename){
 
     // Inizializzazione grafo
-    n = 4; // Numero di nodi
+    readGraphFromFile(filename, &n, &capacity);
+        
     s = 0; // Sorgente
     t = n-1; // Destinazione
 
-    // Inizializzazione capacità archi
-    capacity.assign(n, vector<int>(n, 0)); // Inizializzo la matrice delle capacità a 0
-
     // Inizializzazione flusso archi
     flow.assign(n, vector<int>(n, 0)); // Inizializzo la matrice dei flussi a 0
-
-    // Settaggio capacità archi
-    capacity[s][1] = 2;
-    capacity[s][2] = 4;
-    capacity[1][2] = 3;
-    capacity[1][t] = 1;
-    capacity[2][t] = 5;
 
     // Inizializzazione altezze
     height.assign(n, 0);
@@ -125,13 +114,13 @@ int main(int argc, char *argv[]){
     while(!active_nodes.empty()){
         int u = active_nodes.front();
         active_nodes.pop();
-        push_relabel(u);
+        pushRelabel(u);
     }
 
     if(debug) cout << "Calcolo flusso massimo completato" << endl;
 
     // Restituzione flusso massimo
-    cout << "Flusso massimo: " << excess[t] << endl;
+    if(debug) cout << "Flusso massimo: " << excess[t] << endl;
 
-    return 0;
+    return excess[t];
 }
