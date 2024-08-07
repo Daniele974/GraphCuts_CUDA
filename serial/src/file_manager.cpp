@@ -3,7 +3,7 @@
 using namespace std;
 using namespace rapidjson;
 
-int readGraphFromFile(string filename, int *n, vector<vector<int>> *capacity)
+int readGraphFromFile(string filename, int &n, vector<vector<int>> &capacity)
 {
     /// Apertura file
     ifstream file(filename);
@@ -31,10 +31,10 @@ int readGraphFromFile(string filename, int *n, vector<vector<int>> *capacity)
             numbers.push_back(stoi(match.str()));
         }
         if (line[0] == 'n' && numbers.size() > 0) {
-            *n = numbers[0];
-            (*capacity).resize(*n, vector<int>(*n, 0));
+            n = numbers[0];
+            capacity.resize(n, vector<int>(n, 0));
         }else if(line[0] == 'e' && numbers.size() > 2){ 
-            (*capacity)[numbers[0]][numbers[1]] = numbers[2];
+            capacity[numbers[0]][numbers[1]] = numbers[2];
         }else{
             if(!line.empty()) cout << "Error in line " << lineno << endl;
         }
