@@ -100,7 +100,7 @@ vector<int> findMinCutSet() {
 }
 
 
-int executePushRelabel(string filename){
+int executePushRelabel(string filename, string outputFilename){
 
     // Inizializzazione grafo
     readGraphFromFile(filename, n, capacity);
@@ -161,7 +161,7 @@ int executePushRelabel(string filename){
     auto totalTime = chrono::duration_cast<chrono::microseconds>(end - start);
     cout<<"Tempo totale: "<<totalTime.count()<<" us"<<endl;
 
-    writeResultsToFile("results/graph1_results.json", excess[t], minCut, initializationTime, executionTime, totalTime);
+    writeResultsToFile(outputFilename, excess[t], minCut, initializationTime, executionTime, totalTime);
     
     return excess[t];
 }
