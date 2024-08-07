@@ -5,8 +5,15 @@ using namespace std;
 
 int main(int argc, char *argv[])
 {
-    string filename = "../input_data/input.txt";
-    int maxflow = executePushRelabel(filename);
+    if (argc != 3)
+    {
+        cout << "Utilizzo: ./prserial <input_file> <output_file>" << endl;
+        return 1;
+    }
+    
+    string filename = argv[1];
+    string output = argv[2];
+    int maxflow = executePushRelabel(filename, output);
     cout<<"Max flow: " <<maxflow <<endl;
     return 0;
 }

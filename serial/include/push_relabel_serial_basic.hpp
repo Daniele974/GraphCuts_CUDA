@@ -11,4 +11,4 @@ void push(int, int);
 void relabel(int);
 void pushRelabel(int);
 vector<int> findMinCutSet();
-int executePushRelabel(string);
+int executePushRelabel(string, string);
