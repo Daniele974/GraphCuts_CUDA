@@ -77,11 +77,33 @@ void pushRelabel(int u)
     }
 }
 
+vector<int> findMinCutSet() {
+    vector<int> minCutSet;
+    queue<int> q;
+    vector<bool> visited(n, false);
+    minCutSet.push_back(s);
+    q.push(s);
+    visited[s] = true;
+    while (!q.empty()) {
+        int u = q.front();
+        q.pop();
+        for (int v = 0; v < n; ++v) {
+            if (!visited[v] && capacity[u][v] - flow[u][v] > 0) {
+                minCutSet.push_back(v);
+                q.push(v);
+                visited[v] = true;
+            }
+        }
+    }
+
+    return minCutSet;
+}
+
 
 int executePushRelabel(string filename){
 
     // Inizializzazione grafo
-    readGraphFromFile(filename, &n, &capacity);
+    readGraphFromFile(filename, n, capacity);
 
     const auto start = chrono::high_resolution_clock::now();
 
@@ -120,9 +142,11 @@ int executePushRelabel(string filename){
         active_nodes.pop();
         pushRelabel(u);
     }
-
+    
     const auto end = chrono::high_resolution_clock::now();
-
+    
+    vector<int> minCut = findMinCutSet();
+    
     if(debug) cout << "Calcolo flusso massimo completato" << endl;
 
     // Restituzione flusso massimo
@@ -136,8 +160,6 @@ int executePushRelabel(string filename){
 
     auto totalTime = chrono::duration_cast<chrono::microseconds>(end - start);
     cout<<"Tempo totale: "<<totalTime.count()<<" us"<<endl;
-
-    vector<int> minCut = {1,2,3,4,5};
 
     writeResultsToFile("results/graph1_results.json", excess[t], minCut, initializationTime, executionTime, totalTime);
     

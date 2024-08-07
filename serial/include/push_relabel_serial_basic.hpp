@@ -10,4 +10,6 @@ using namespace std;
 void push(int, int);
 void relabel(int);
 void pushRelabel(int);
+//void bfs(vector<bool>&);
+vector<int> findMinCutSet();
 int executePushRelabel(string);
