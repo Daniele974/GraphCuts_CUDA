@@ -22,4 +22,4 @@ clean:
 	rm -f *.o pr
 
 cleanwin:
-	del *.o pr.exe
+	del *.o *.exe *.exp *.lib 
