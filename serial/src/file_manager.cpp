@@ -74,15 +74,3 @@ int writeResultsToFile(string filename, int maxFlow, vector<int> minCut, chrono:
 
     return 0;
 }
-
-string vectorToString(const vector<int> *vec)
-{
-    ostringstream oss;
-    oss << "[";
-    for (int i = 0; i < (*vec).size(); ++i){
-        if (i != 0) oss << ",";
-        oss << (*vec)[i];
-    }
-    oss << "]";
-    return oss.str();
-}
