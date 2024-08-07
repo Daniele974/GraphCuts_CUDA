@@ -82,7 +82,9 @@ int executePushRelabel(string filename){
 
     // Inizializzazione grafo
     readGraphFromFile(filename, &n, &capacity);
-        
+
+    const auto start = chrono::high_resolution_clock::now();
+
     s = 0; // Sorgente
     t = n-1; // Destinazione
 
@@ -110,6 +112,8 @@ int executePushRelabel(string filename){
 
     if(debug) cout << "Inizializzazione flusso completata" << endl;
 
+    const auto endInitialization = chrono::high_resolution_clock::now();
+    
     // Calcolo flusso massimo
     while(!active_nodes.empty()){
         int u = active_nodes.front();
@@ -117,10 +121,21 @@ int executePushRelabel(string filename){
         pushRelabel(u);
     }
 
+    const auto end = chrono::high_resolution_clock::now();
+
     if(debug) cout << "Calcolo flusso massimo completato" << endl;
 
     // Restituzione flusso massimo
     if(debug) cout << "Flusso massimo: " << excess[t] << endl;
 
+    auto initializationTime = chrono::duration_cast<chrono::microseconds>(endInitialization - start);
+    cout<<"Tempo inizializzazione: "<<initializationTime.count()<<" us"<<endl;
+
+    auto executionTime = chrono::duration_cast<chrono::microseconds>(end - endInitialization);
+    cout<<"Tempo esecuzione: "<<executionTime.count()<<" us"<<endl;
+
+    auto totalTime = chrono::duration_cast<chrono::microseconds>(end - start);
+    cout<<"Tempo totale: "<<totalTime.count()<<" us"<<endl;
+    
     return excess[t];
 }
