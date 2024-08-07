@@ -136,6 +136,10 @@ int executePushRelabel(string filename){
 
     auto totalTime = chrono::duration_cast<chrono::microseconds>(end - start);
     cout<<"Tempo totale: "<<totalTime.count()<<" us"<<endl;
+
+    vector<int> minCut = {1,2,3,4,5};
+
+    writeResultsToFile("results/graph1_results.json", excess[t], minCut, initializationTime, executionTime, totalTime);
     
     return excess[t];
 }
