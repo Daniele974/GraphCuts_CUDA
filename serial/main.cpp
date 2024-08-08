@@ -13,7 +13,8 @@ int main(int argc, char *argv[])
     
     string filename = argv[1];
     string output = argv[2];
+    cout<<"Eseguendo file: " <<filename <<"...";
     int maxflow = executePushRelabel(filename, output);
-    cout<<"Max flow: " <<maxflow <<endl;
+    cout<<"Finito!"<<endl;
     return 0;
 }

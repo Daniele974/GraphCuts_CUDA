@@ -10,5 +10,6 @@ using namespace std;
 void push(int, int);
 void relabel(int);
 void pushRelabel(int);
-vector<int> findMinCutSet();
+vector<int> findMinCutSetFromS();
+vector<int> findMinCutSetFromT();
 int executePushRelabel(string, string);
