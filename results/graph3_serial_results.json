@@ -1,1 +1,1 @@
-{"maxFlow":30,"minCut":[9,5,7,8,6,1,2,4],"initializationTime":0.000009,"executionTime":0.000018,"totalTime":0.000027}
+{"maxFlow":6,"minCut":[3],"initializationTime":0.000004,"executionTime":0.000002,"totalTime":0.000006}
