@@ -77,7 +77,7 @@ void pushRelabel(int u)
     }
 }
 
-vector<int> findMinCutSet() {
+vector<int> findMinCutSetFromS() {
     vector<int> minCutSet;
     queue<int> q;
     vector<bool> visited(n, false);
@@ -99,6 +99,27 @@ vector<int> findMinCutSet() {
     return minCutSet;
 }
 
+vector<int> findMinCutSetFromT() {
+    vector<int> minCutSet;
+    queue<int> q;
+    vector<bool> visited(n, false);
+    minCutSet.push_back(t);
+    q.push(t);
+    visited[t] = true;
+    while (!q.empty()) {
+        int u = q.front();
+        q.pop();
+        for (int v = 0; v < n; ++v) {
+            if (!visited[v] && capacity[v][u] - flow[v][u] > 0) {
+                minCutSet.push_back(v);
+                q.push(v);
+                visited[v] = true;
+            }
+        }
+    }
+
+    return minCutSet;
+}
 
 int executePushRelabel(string filename, string outputFilename){
 
@@ -145,7 +166,7 @@ int executePushRelabel(string filename, string outputFilename){
     
     const auto end = chrono::high_resolution_clock::now();
     
-    vector<int> minCut = findMinCutSet();
+    vector<int> minCut = findMinCutSetFromT();
     
     if(debug) cout << "Calcolo flusso massimo completato" << endl;
 
@@ -153,13 +174,13 @@ int executePushRelabel(string filename, string outputFilename){
     if(debug) cout << "Flusso massimo: " << excess[t] << endl;
 
     auto initializationTime = chrono::duration_cast<chrono::microseconds>(endInitialization - start);
-    cout<<"Tempo inizializzazione: "<<initializationTime.count()<<" us"<<endl;
+    if(debug) cout<<"Tempo inizializzazione: "<<initializationTime.count()<<" us"<<endl;
 
     auto executionTime = chrono::duration_cast<chrono::microseconds>(end - endInitialization);
-    cout<<"Tempo esecuzione: "<<executionTime.count()<<" us"<<endl;
+    if(debug) cout<<"Tempo esecuzione: "<<executionTime.count()<<" us"<<endl;
 
     auto totalTime = chrono::duration_cast<chrono::microseconds>(end - start);
-    cout<<"Tempo totale: "<<totalTime.count()<<" us"<<endl;
+    if(debug) cout<<"Tempo totale: "<<totalTime.count()<<" us"<<endl;
 
     writeResultsToFile(outputFilename, excess[t], minCut, initializationTime, executionTime, totalTime);
     
