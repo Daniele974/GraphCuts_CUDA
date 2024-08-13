@@ -71,3 +71,6 @@ GRAFO 11 n=500000 196 min
 Valore del taglio minimo: 120
 
 ---------------------------------
+
+GRAFO 12 n=1000000  min
+Valore del taglio minimo: 
