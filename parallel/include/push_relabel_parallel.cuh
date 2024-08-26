@@ -1,14 +1,12 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <cuda_runtime.h>
-#include <vector>
-#include <iostream>
 #include <list>
+#include <vector>
 #include "utils.hpp"
+#include "file_manager.hpp"
 
 #define INF 1000000
 
-#define _DEBUG 0
+#define _DEBUG 1
 
 void initialize(int *capacity, int *excess, int *height, int *residual, int *totalExcess, int n, int s);
 

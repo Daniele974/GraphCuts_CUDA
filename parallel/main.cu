@@ -9,7 +9,7 @@ int main(int argc, char **argv){
     
     std::string filename = argv[1];
     std::string output = argv[2];
-    std::cout<<"Eseguendo file: " <<filename <<"...";
+    std::cout<<"Eseguendo file: " <<filename <<"..."<<std::endl;
     std::cout.flush(); //per "forzare" la stampa su terminale
     int maxflow = executePushRelabel(filename, output);
     std::cout<<"Finito!"<<std::endl;

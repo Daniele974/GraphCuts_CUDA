@@ -32,8 +32,8 @@ testserial: prserial serial/testserial.sh
 
 
 
-prparallel: parallel/main.o parallel/push_relabel_parallel.o parallel/utils.o
-	$(NVCC) $(NVCCOPTS) parallel/main.o parallel/push_relabel_parallel.o parallel/utils.o -o parallel/prparallel
+prparallel: parallel/main.o parallel/push_relabel_parallel.o parallel/utils.o parallel/file_manager.o
+	$(NVCC) $(NVCCOPTS) parallel/main.o parallel/push_relabel_parallel.o parallel/utils.o parallel/file_manager.o -o parallel/prparallel
 
 parallel/main.o: parallel/main.cu
 	$(NVCC) $(NVCCOPTS) -c parallel/main.cu -o parallel/main.o
@@ -43,3 +43,6 @@ parallel/push_relabel_parallel.o: parallel/src/push_relabel_parallel.cu
 
 parallel/utils.o: parallel/src/utils.cpp
 	$(CC) $(CCOPTS) -c parallel/src/utils.cpp -o parallel/utils.o
+
+parallel/file_manager.o: parallel/src/file_manager.cpp
+	$(CC) $(CCOPTS) -c parallel/src/file_manager.cpp -o parallel/file_manager.o
