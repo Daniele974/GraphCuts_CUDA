@@ -1,16 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <cuda_runtime.h>
-#include <vector>
-#include <iostream>
-#include <list>
-#include "include/utils.hpp"
-
-#define INF 1000000
-
-#define _DEBUG 0
-
-
+#include "../include/push_relabel_parallel.cuh"
 
 void initialize(int *capacity, int *excess, int *height, int *residual, int *totalExcess, int n, int s){
     for (int i = 0; i < n; i++){
@@ -162,7 +150,7 @@ int pushRelabel(int *capacity, int *excess, int *height, int *residual, int *d_c
     return excess[t];
 }
 
-int main(int argc, char const *argv[]){
+int executePushRelabel(){
     int n = 4;
     int s = 0;
     int t = n-1;

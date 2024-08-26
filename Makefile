@@ -32,11 +32,14 @@ testserial: prserial serial/testserial.sh
 
 
 
-prparallel: parallel/push_relabel_parallel.o parallel/utils.o
-	$(NVCC) $(NVCCOPTS) parallel/push_relabel_parallel.o parallel/utils.o -o parallel/prparallel
+prparallel: parallel/main.o parallel/push_relabel_parallel.o parallel/utils.o
+	$(NVCC) $(NVCCOPTS) parallel/main.o parallel/push_relabel_parallel.o parallel/utils.o -o parallel/prparallel
 
-parallel/push_relabel_parallel.o: parallel/push_relabel_parallel.cu
-	$(NVCC) $(NVCCOPTS) -c parallel/push_relabel_parallel.cu -o parallel/push_relabel_parallel.o
+parallel/main.o: parallel/main.cu
+	$(NVCC) $(NVCCOPTS) -c parallel/main.cu -o parallel/main.o
+
+parallel/push_relabel_parallel.o: parallel/src/push_relabel_parallel.cu
+	$(NVCC) $(NVCCOPTS) -c parallel/src/push_relabel_parallel.cu -o parallel/push_relabel_parallel.o
 
 parallel/utils.o: parallel/src/utils.cpp
 	$(CC) $(CCOPTS) -c parallel/src/utils.cpp -o parallel/utils.o
