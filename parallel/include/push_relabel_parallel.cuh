@@ -18,4 +18,4 @@ void globalRelabel(int *capacity, int *excess, int *height, int *residual, int *
 
 int pushRelabel(int *capacity, int *excess, int *height, int *residual, int *d_capacity, int *d_excess, int *d_height, int *d_residual, int *totalExcess, int n, int s, int t);
 
-int executePushRelabel();
+int executePushRelabel(std::string filename, std::string output);

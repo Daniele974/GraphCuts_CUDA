@@ -150,11 +150,14 @@ int pushRelabel(int *capacity, int *excess, int *height, int *residual, int *d_c
     return excess[t];
 }
 
-int executePushRelabel(){
+int executePushRelabel(std::string filename, std::string output){
     int n = 4;
+    int *capacity = (int *)malloc(n*n*sizeof(int));
+
+    // Lettura grafo da file
+
     int s = 0;
     int t = n-1;
-    int *capacity = (int *)malloc(n*n*sizeof(int));
     int *flow = (int *)malloc(n*n*sizeof(int));
     int *excess = (int *)malloc(n*sizeof(int));
     int *height = (int *)malloc(n*sizeof(int));
