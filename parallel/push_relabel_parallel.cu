@@ -4,40 +4,13 @@
 #include <vector>
 #include <iostream>
 #include <list>
-
-using namespace std;
+#include "include/utils.hpp"
 
 #define INF 1000000
 
 #define _DEBUG 0
 
-void printMatrix(int *matrix, int n){
-    for (int i = 0; i < n; i++){
-        for (int j = 0; j < n; j++){
-            cout<<matrix[i*n + j]<<" ";
-        }
-        cout<<endl;
-    }
-}
 
-void printArray(int *array, int n){
-    for (int i = 0; i < n; i++){
-        cout<<array[i]<<" ";
-    }
-    cout<<endl;
-}
-
-void printStatus(int *capacity, int *excess, int *height, int *residual, int *totalExcess, int n){
-    cout<<"Capacity"<<endl;
-    printMatrix(capacity, n);
-    cout<<"Excess"<<endl;
-    printArray(excess, n);
-    cout<<"Height"<<endl;
-    printArray(height, n);
-    cout<<"Residual"<<endl;
-    printMatrix(residual, n);
-    cout<<"Total Excess: "<<*totalExcess<<endl;
-}
 
 void initialize(int *capacity, int *excess, int *height, int *residual, int *totalExcess, int n, int s){
     for (int i = 0; i < n; i++){
@@ -116,7 +89,7 @@ void globalRelabel(int *capacity, int *excess, int *height, int *residual, int *
         }
     }
     
-    list<int> queue;
+    std::list<int> queue;
     int x, y, current;
     
     for (int i = 0; i < n; i++){
@@ -167,11 +140,11 @@ int pushRelabel(int *capacity, int *excess, int *height, int *residual, int *d_c
     
     while ((excess[s]+excess[t])<*totalExcess){
         
-        if(_DEBUG) cout << "Push..." << endl;
+        if(_DEBUG) std::cout << "Push..." << std::endl;
         cudaMemcpy(d_height, height, n*sizeof(int), cudaMemcpyHostToDevice);
         pushKernel<<<gridSize, blockSize>>>(d_capacity, d_excess, d_height, d_residual, n);
         cudaDeviceSynchronize();
-        if(_DEBUG) cout << "Push done" << endl;
+        if(_DEBUG) std::cout << "Push done" << std::endl;
 
         cudaMemcpy(excess, d_excess, n*sizeof(int), cudaMemcpyDeviceToHost);
         cudaMemcpy(height, d_height, n*sizeof(int), cudaMemcpyDeviceToHost);
@@ -179,9 +152,9 @@ int pushRelabel(int *capacity, int *excess, int *height, int *residual, int *d_c
 
         if(_DEBUG) printStatus(capacity, excess, height, residual, totalExcess, n);
 
-        if(_DEBUG) cout << "Global relabel..." << endl;
+        if(_DEBUG) std::cout << "Global relabel..." << std::endl;
         globalRelabel(capacity, excess, height, residual, totalExcess, scanned, mark, n, t);
-        if(_DEBUG) cout << "Global relabel done" << endl;
+        if(_DEBUG) std::cout << "Global relabel done" << std::endl;
         
         if(_DEBUG) printStatus(capacity, excess, height, residual, totalExcess, n);
         
@@ -227,7 +200,7 @@ int main(int argc, char const *argv[]){
 
     initialize(capacity, excess, height, residual, totalExcess, n, s);
 
-    if(_DEBUG) cout << "Initialization done" << endl;
+    if(_DEBUG) std::cout << "Initialization done" << std::endl;
     if(_DEBUG) printStatus(capacity, excess, height, residual, totalExcess, n);
     
     cudaMemcpy(d_capacity, capacity, n*n*sizeof(int), cudaMemcpyHostToDevice);
@@ -235,10 +208,10 @@ int main(int argc, char const *argv[]){
     cudaMemcpy(d_height, height, n*sizeof(int), cudaMemcpyHostToDevice);
     cudaMemcpy(d_residual, residual, n*n*sizeof(int), cudaMemcpyHostToDevice);
     
-    if(_DEBUG) cout << "Push relabel..." << endl;
+    if(_DEBUG) std::cout << "Push relabel..." << std::endl;
     int maxFlow = pushRelabel(capacity, excess, height, residual, d_capacity, d_excess, d_height, d_residual, totalExcess, n, s, t);
-    if(_DEBUG) cout << "Push relabel done" << endl;
-    cout<<"Max flow: "<<maxFlow<<endl;
+    if(_DEBUG) std::cout << "Push relabel done" << std::endl;
+    std::cout<<"Max flow: "<<maxFlow<<std::endl;
 
 
     cudaFree(d_capacity);
