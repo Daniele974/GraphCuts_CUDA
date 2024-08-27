@@ -150,6 +150,28 @@ int pushRelabel(int *capacity, int *excess, int *height, int *residual, int *d_c
     return excess[t];
 }
 
+std::vector<int> findMinCutSetFromT(int n, int t, int *residual){
+    std::vector<int> minCutSet;
+    std::queue<int> q;
+    std::vector<bool> visited(n, false);
+    minCutSet.push_back(t);
+    q.push(t);
+    visited[t] = true;
+    while (!q.empty()) {
+        int u = q.front();
+        q.pop();
+        for (int v = 0; v < n; ++v) {
+            if (!visited[v] && residual[v*n + u] > 0) {
+                minCutSet.push_back(v);
+                q.push(v);
+                visited[v] = true;
+            }
+        }
+    }
+
+    return minCutSet;
+}
+
 int executePushRelabel(std::string filename, std::string output){
     int n = 0;
     int *capacity = nullptr;
@@ -197,7 +219,7 @@ int executePushRelabel(std::string filename, std::string output){
     auto executionTime = std::chrono::duration_cast<std::chrono::microseconds>(end - endInitialization);
     auto totalTime = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 
-    std::vector<int> minCut = std::vector<int>();
+    std::vector<int> minCut = findMinCutSetFromT(n, t, residual);
     writeResultsToFile(output, excess[t], minCut, initializationTime, executionTime, totalTime);
 
     cudaFree(d_capacity);

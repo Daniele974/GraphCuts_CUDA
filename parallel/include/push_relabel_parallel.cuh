@@ -1,6 +1,7 @@
 #include <cuda_runtime.h>
 #include <list>
 #include <vector>
+#include <queue>
 #include "utils.hpp"
 #include "file_manager.hpp"
 
@@ -15,5 +16,7 @@ __global__ void pushKernel(int *d_capacity, int *d_excess, int *d_height, int *d
 void globalRelabel(int *capacity, int *excess, int *height, int *residual, int *totalExcess, bool *scanned, bool *mark, int n, int t);
 
 int pushRelabel(int *capacity, int *excess, int *height, int *residual, int *d_capacity, int *d_excess, int *d_height, int *d_residual, int *totalExcess, int n, int s, int t);
+
+std::vector<int> findMinCutSetFromT(int n, int t, int *residual);
 
 int executePushRelabel(std::string filename, std::string output);
