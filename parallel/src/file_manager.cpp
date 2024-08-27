@@ -2,7 +2,7 @@
 
 bool debug = false;
 
-int readGraphFromFile(std::string filename, int &n, int *capacity)
+int readGraphFromFile(std::string filename, int &n, int **capacity)
 {
     /// Apertura file
     std::ifstream file(filename);
@@ -43,11 +43,13 @@ int readGraphFromFile(std::string filename, int &n, int *capacity)
         if(linewords[0] == "n" && linewords.size() > 1){
             if (debug) std::cout << "n: " << linewords[1] << std::endl;
             n = std::stoi(linewords[1]);
-            capacity = (int *)malloc(n * n * sizeof(int));
+
+            (*capacity) = (int *)malloc(n * n * sizeof(int));
+            std::fill_n(*capacity, n * n, 0);
         }
         else if(linewords[0] == "e" && linewords.size() > 3){
-            if (debug) std::cout << "e: " << linewords[1] << " " << linewords[2] << " " << linewords[3] << std::endl;
-            capacity[std::stoi(linewords[1]) * n + std::stoi(linewords[2])] = std::stoi(linewords[3]);
+            if (debug) std::cout << "e: " << std::stoi(linewords[1]) << " " << std::stoi(linewords[2]) << " " << std::stoi(linewords[3]) << std::endl;
+            (*capacity)[std::stoi(linewords[1]) * n + std::stoi(linewords[2])] = std::stoi(linewords[3]);
         }
         else{
             if(!linewords.empty()) std::cout << "Error in line " << lineno << std::endl;

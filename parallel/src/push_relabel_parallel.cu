@@ -152,10 +152,10 @@ int pushRelabel(int *capacity, int *excess, int *height, int *residual, int *d_c
 
 int executePushRelabel(std::string filename, std::string output){
     int n = 0;
-    int *capacity = (int *)malloc(n*n*sizeof(int));
+    int *capacity = nullptr;
 
     // Lettura grafo da file
-    readGraphFromFile(filename, n, capacity);
+    readGraphFromFile(filename, n, &capacity);
 
     int s = 0;
     int t = n-1;

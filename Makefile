@@ -46,3 +46,9 @@ parallel/utils.o: parallel/src/utils.cpp
 
 parallel/file_manager.o: parallel/src/file_manager.cpp
 	$(CC) $(CCOPTS) -c parallel/src/file_manager.cpp -o parallel/file_manager.o
+
+test:
+	make prparallel
+	./parallel/prparallel "input_data/graph1.txt" "results/graph1_parallel_results.json"
+	sleep 3
+	make clean
