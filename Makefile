@@ -52,6 +52,7 @@ testparallel: prparallel parallel/testparallel.sh
 
 
 test: test.sh all
+	chmod +x test.sh
 	./test.sh
 
 
