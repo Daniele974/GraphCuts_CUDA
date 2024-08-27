@@ -6,7 +6,7 @@
 
 #define INF 1000000
 
-#define _DEBUG 1
+#define _DEBUG 0
 
 void initialize(int *capacity, int *excess, int *height, int *residual, int *totalExcess, int n, int s);
 

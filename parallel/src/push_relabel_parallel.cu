@@ -157,6 +157,8 @@ int executePushRelabel(std::string filename, std::string output){
     // Lettura grafo da file
     readGraphFromFile(filename, n, &capacity);
 
+    const auto start = std::chrono::high_resolution_clock::now();
+
     int s = 0;
     int t = n-1;
     int *flow = (int *)malloc(n*n*sizeof(int));
@@ -177,6 +179,8 @@ int executePushRelabel(std::string filename, std::string output){
     if(_DEBUG) std::cout << "Initialization done" << std::endl;
     if(_DEBUG) printStatus(capacity, excess, height, residual, totalExcess, n);
     
+    const auto endInitialization = std::chrono::high_resolution_clock::now();
+
     cudaMemcpy(d_capacity, capacity, n*n*sizeof(int), cudaMemcpyHostToDevice);
     cudaMemcpy(d_excess, excess, n*sizeof(int), cudaMemcpyHostToDevice);
     cudaMemcpy(d_height, height, n*sizeof(int), cudaMemcpyHostToDevice);
@@ -184,9 +188,17 @@ int executePushRelabel(std::string filename, std::string output){
     
     if(_DEBUG) std::cout << "Push relabel..." << std::endl;
     int maxFlow = pushRelabel(capacity, excess, height, residual, d_capacity, d_excess, d_height, d_residual, totalExcess, n, s, t);
+    const auto end = std::chrono::high_resolution_clock::now();
     if(_DEBUG) std::cout << "Push relabel done" << std::endl;
+    
     std::cout<<"Max flow: "<<maxFlow<<std::endl;
 
+    auto initializationTime = std::chrono::duration_cast<std::chrono::microseconds>(endInitialization - start);
+    auto executionTime = std::chrono::duration_cast<std::chrono::microseconds>(end - endInitialization);
+    auto totalTime = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+
+    std::vector<int> minCut = std::vector<int>();
+    writeResultsToFile(output, excess[t], minCut, initializationTime, executionTime, totalTime);
 
     cudaFree(d_capacity);
     cudaFree(d_excess);
