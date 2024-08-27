@@ -4,7 +4,7 @@ CCOPTS =
 NVCC = nvcc
 NVCCOPTS = -std=c++14
 
-all: prserial
+all: prserial prparallel
 
 prserial: serial/main.o serial/file_manager.o serial/push_relabel_serial_basic.o
 	$(CC) $(CCOPTS) serial/main.o serial/file_manager.o serial/push_relabel_serial_basic.o -o serial/prserial
@@ -46,6 +46,12 @@ parallel/utils.o: parallel/src/utils.cpp
 
 parallel/file_manager.o: parallel/src/file_manager.cpp
 	$(CC) $(CCOPTS) -c parallel/src/file_manager.cpp -o parallel/file_manager.o
+
+testparallel: prparallel parallel/testparallel.sh
+	./parallel/testparallel.sh
+
+
+
 
 test:
 	make prparallel
