@@ -27,6 +27,7 @@ cleanwin:
 	del /s *.o *.exe *.exp *.lib 
 
 testserial: prserial serial/testserial.sh
+	chmod +x ./serial/testserial.sh
 	./serial/testserial.sh
 
 
@@ -48,6 +49,7 @@ parallel/file_manager.o: parallel/src/file_manager.cpp
 	$(CC) $(CCOPTS) -c parallel/src/file_manager.cpp -o parallel/file_manager.o
 
 testparallel: prparallel parallel/testparallel.sh
+	chmod +x ./parallel/testparallel.sh
 	./parallel/testparallel.sh
 
 
