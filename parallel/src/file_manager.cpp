@@ -2,8 +2,7 @@
 
 bool debug = false;
 
-int readGraphFromFile(std::string filename, int &n, int **capacity)
-{
+int readGraphFromFile(std::string filename, int &n, int **capacity){
     /// Apertura file
     std::ifstream file(filename);
     if (!file.is_open()) {
@@ -59,6 +58,35 @@ int readGraphFromFile(std::string filename, int &n, int **capacity)
     }
     
     file.close();
+
+    return 0;
+}
+
+int writeResultsToFile(std::string filename, int maxFlow, std::vector<int> minCut, std::chrono::duration<double> initializationTime, std::chrono::duration<double> executionTime, std::chrono::duration<double> totalTime){
+    // Creazione del documento JSON 
+    rapidjson::Document d; 
+    d.SetObject(); 
+
+    // Aggiunta campi al documento 
+    d.AddMember("maxFlow", maxFlow, d.GetAllocator()); 
+    rapidjson::Value minCutSet(rapidjson::kArrayType);
+    for (int i = 0; i < minCut.size(); i++) minCutSet.PushBack(minCut[i], d.GetAllocator());
+    d.AddMember("minCut", minCutSet, d.GetAllocator());
+    d.AddMember("initializationTime", initializationTime.count(), d.GetAllocator());
+    d.AddMember("executionTime", executionTime.count(), d.GetAllocator());
+    d.AddMember("totalTime", totalTime.count(), d.GetAllocator());
+    
+    // Apertura file di output
+    std::ofstream file(filename); 
+    if (!file.is_open()) {
+        std::cout << "Errore apertura file" << std::endl;
+        return 1;
+    }
+    rapidjson::OStreamWrapper osw(file);
+  
+    // Scrittura dei dati JSON nel file
+    rapidjson::Writer<rapidjson::OStreamWrapper> writer(osw); 
+    d.Accept(writer); 
 
     return 0;
 }
