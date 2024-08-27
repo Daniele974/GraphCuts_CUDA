@@ -53,7 +53,7 @@ testparallel: prparallel parallel/testparallel.sh
 
 
 
-test:
+devtest:
 	make prparallel
 	./parallel/prparallel "input_data/graph1.txt" "results/graph1_parallel_results.json"
 	sleep 3
