@@ -213,7 +213,7 @@ int executePushRelabel(std::string filename, std::string output){
     const auto end = std::chrono::high_resolution_clock::now();
     if(_DEBUG) std::cout << "Push relabel done" << std::endl;
     
-    std::cout<<"Max flow: "<<maxFlow<<std::endl;
+    //std::cout<<"Max flow: "<<maxFlow<<std::endl;
 
     auto initializationTime = std::chrono::duration_cast<std::chrono::microseconds>(endInitialization - start);
     auto executionTime = std::chrono::duration_cast<std::chrono::microseconds>(end - endInitialization);

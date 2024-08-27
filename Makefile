@@ -51,6 +51,8 @@ testparallel: prparallel parallel/testparallel.sh
 	./parallel/testparallel.sh
 
 
+test: test.sh all
+	./test.sh
 
 
 devtest:
