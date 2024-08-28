@@ -36,11 +36,17 @@ testserial: prserial serial/testserial.sh
 prparallel: parallel/main.o parallel/push_relabel_parallel.o parallel/utils.o parallel/file_manager.o
 	$(NVCC) $(NVCCOPTS) parallel/main.o parallel/push_relabel_parallel.o parallel/utils.o parallel/file_manager.o -o parallel/prparallel
 
+prparallel2: parallel/main.o parallel/push_relabel_parallel2.o parallel/utils.o parallel/file_manager2.o
+	$(NVCC) $(NVCCOPTS) parallel/main.o parallel/push_relabel_parallel2.o parallel/utils.o parallel/file_manager2.o -o parallel/prparallel2
+
 parallel/main.o: parallel/main.cu
 	$(NVCC) $(NVCCOPTS) -c parallel/main.cu -o parallel/main.o
 
 parallel/push_relabel_parallel.o: parallel/src/push_relabel_parallel.cu
 	$(NVCC) $(NVCCOPTS) -c parallel/src/push_relabel_parallel.cu -o parallel/push_relabel_parallel.o
+
+parallel/push_relabel_parallel2.o: parallel/src/push_relabel_parallel2.cu
+	$(NVCC) $(NVCCOPTS) -c parallel/src/push_relabel_parallel2.cu -o parallel/push_relabel_parallel2.o
 
 parallel/utils.o: parallel/src/utils.cpp
 	$(CC) $(CCOPTS) -c parallel/src/utils.cpp -o parallel/utils.o
@@ -48,9 +54,16 @@ parallel/utils.o: parallel/src/utils.cpp
 parallel/file_manager.o: parallel/src/file_manager.cpp
 	$(CC) $(CCOPTS) -c parallel/src/file_manager.cpp -o parallel/file_manager.o
 
+parallel/file_manager2.o: parallel/src/file_manager2.cu
+	$(NVCC) $(NVCCOPTS) -c parallel/src/file_manager2.cu -o parallel/file_manager2.o
+
 testparallel: prparallel parallel/testparallel.sh
 	chmod +x ./parallel/testparallel.sh
 	./parallel/testparallel.sh
+
+testparallel2: prparallel2 parallel/testparallel2.sh
+	chmod +x ./parallel/testparallel2.sh
+	./parallel/testparallel2.sh
 
 
 test: test.sh all
