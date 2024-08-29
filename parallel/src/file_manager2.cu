@@ -1,4 +1,4 @@
-#include "../include/file_manager.hpp"
+#include "../include/file_manager2.cuh"
 
 bool debug = false;
 
@@ -43,7 +43,7 @@ int readGraphFromFile(std::string filename, int &n, int **capacity){
             if (debug) std::cout << "n: " << linewords[1] << std::endl;
             n = std::stoi(linewords[1]);
 
-            (*capacity) = (int *)malloc(n * n * sizeof(int));
+            cudaHostAlloc((void**)capacity, n*n*sizeof(int), cudaHostAllocMapped);
             std::fill_n(*capacity, n * n, 0);
         }
         else if(linewords[0] == "e" && linewords.size() > 3){
@@ -75,7 +75,7 @@ int writeResultsToFile(std::string filename, int maxFlow, std::vector<int> minCu
     d.AddMember("initializationTime", initializationTime.count(), d.GetAllocator());
     d.AddMember("executionTime", executionTime.count(), d.GetAllocator());
     d.AddMember("totalTime", totalTime.count(), d.GetAllocator());
-
+    
     // Generazione del timestamp
     std::time_t t = std::time(nullptr);
     std::tm tm = *std::localtime(&t);
@@ -92,7 +92,7 @@ int writeResultsToFile(std::string filename, int maxFlow, std::vector<int> minCu
  
     // Creare il nuovo nome del file con il timestamp
     filename.insert(pos, "_" + std::string(timestamp));
-    
+
     // Apertura file di output
     std::ofstream file(filename); 
     if (!file.is_open()) {

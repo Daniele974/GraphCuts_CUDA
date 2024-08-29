@@ -12,12 +12,12 @@
 
 ./serial/prserial "input_data/graph7.txt" "results/graph7_serial_results.json"
 
-./serial/prserial "input_data/graph8.txt" "results/graph8_serial_results.json"
+#./serial/prserial "input_data/graph8.txt" "results/graph8_serial_results.json"
 
-./serial/prserial "input_data/graph9.txt" "results/graph9_serial_results.json"
+#./serial/prserial "input_data/graph9.txt" "results/graph9_serial_results.json"
 
-./serial/prserial "input_data/graph10.txt" "results/graph10_serial_results.json"
+#./serial/prserial "input_data/graph10.txt" "results/graph10_serial_results.json"
 
-./serial/prserial "input_data/graph11.txt" "results/graph11_serial_results.json"
+#./serial/prserial "input_data/graph11.txt" "results/graph11_serial_results.json"
 
-./serial/prserial "input_data/graph12.txt" "results/graph12_serial_results.json"
+#./serial/prserial "input_data/graph12.txt" "results/graph12_serial_results.json"
