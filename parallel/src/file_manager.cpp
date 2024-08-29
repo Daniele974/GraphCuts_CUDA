@@ -75,6 +75,23 @@ int writeResultsToFile(std::string filename, int maxFlow, std::vector<int> minCu
     d.AddMember("initializationTime", initializationTime.count(), d.GetAllocator());
     d.AddMember("executionTime", executionTime.count(), d.GetAllocator());
     d.AddMember("totalTime", totalTime.count(), d.GetAllocator());
+
+    // Generazione del timestamp
+    std::time_t t = std::time(nullptr);
+    std::tm tm = *std::localtime(&t);
+ 
+    // Formattazione del timestamp
+    char timestamp[20];
+    std::strftime(timestamp, sizeof(timestamp), "%Y%m%d%H%M%S", &tm);
+ 
+    // Trovare la posizione dell'estensione .json
+    size_t pos = filename.find_last_of('.');
+    if (pos == std::string::npos) {
+        pos = filename.length();  // Se non c'è un'estensione, appenderlo alla fine
+    }
+ 
+    // Creare il nuovo nome del file con il timestamp
+    filename.insert(pos, "_" + std::string(timestamp));
     
     // Apertura file di output
     std::ofstream file(filename); 

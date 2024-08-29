@@ -1,6 +1,6 @@
 // VERSIONE CON GLOBAL MEMORY PAGED LOCKED E MAPPED
 
-#include "../include/push_relabel_parallel.cuh"
+#include "../include/push_relabel_parallel2.cuh"
 
 void initialize(int *capacity, int *excess, int *height, int *residual, int *totalExcess, int n, int s){
     for (int i = 0; i < n; i++){
@@ -181,10 +181,11 @@ int executePushRelabel(std::string filename, std::string output){
         std::cout << "Host memory mapping non supportato" << std::endl;
         exit(0);
     }
+    /*
     if(prop.unifiedAddressing){
         std::cout << "Unified addressing supportato" << std::endl;
         exit(0);
-    }
+    }*/
     //cudaSetDeviceFlags(cudaDeviceMapHost);
 
     int n = 0;
@@ -201,9 +202,9 @@ int executePushRelabel(std::string filename, std::string output){
     int *totalExcess = (int *)malloc(sizeof(int));
 
     // Page locked memory
-    cudaHostAlloc(&excess, n*sizeof(int), cudaHostAllocMapped);
-    cudaHostAlloc(&height, n*sizeof(int), cudaHostAllocMapped);
-    cudaHostAlloc(&residual, n*n*sizeof(int), cudaHostAllocMapped);
+    cudaHostAlloc((void**)&excess, n*sizeof(int), cudaHostAllocMapped);
+    cudaHostAlloc((void**)&height, n*sizeof(int), cudaHostAllocMapped);
+    cudaHostAlloc((void**)&residual, n*n*sizeof(int), cudaHostAllocMapped);
 
     initialize(capacity, excess, height, residual, totalExcess, n, s);
 

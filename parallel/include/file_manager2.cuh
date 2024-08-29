@@ -2,6 +2,7 @@
 #include <fstream>
 #include <vector>
 #include <chrono>
+#include <ctime>
 #include "rapidjson/document.h" 
 #include "rapidjson/filewritestream.h" 
 #include "rapidjson/writer.h" 
