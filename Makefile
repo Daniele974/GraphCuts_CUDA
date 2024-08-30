@@ -86,6 +86,7 @@ clean:
 	find . -name "*.o" -type f -delete 
 	find . -name "prserial" -type f -delete 
 	find . -name "prparallel" -type f -delete
+	find . -name "prparallel2" -type f -delete
 
 cleanwin:
 	del /s *.o *.exe *.exp *.lib 
