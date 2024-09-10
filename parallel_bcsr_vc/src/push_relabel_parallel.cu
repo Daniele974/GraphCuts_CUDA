@@ -404,16 +404,24 @@ int executePushRelabel(std::string filename, std::string output){
     cudaMalloc((void**)&d_avq, V*sizeof(int));
     cudaMalloc((void**)&d_cycle, sizeof(int));
     
-    //int e_offset[] = {0,2,3,5,6,8,8};
-    //int e_column[] = {1,2,3,3,4,5,3,5}; //destinations
-    //int e_forwardFlow[] = {3,7,4,2,5,9,3,2};
+    /*
+    int e_offset[] = {0,2,3,5,6,8,8};
+    int e_column[] = {1,2,3,3,4,5,3,5}; //destinations
+    int e_forwardFlow[] = {3,7,4,2,5,9,3,2};
     int e_offset[] = {0,0,1,2,5,6,8};
     int e_column[] = {0,0,1,2,4,2,3,4}; //destinations
     int e_forwardFlow[] = {0,0,0,0,0,0,0,0};
     int e_capacities[] = {3,7,4,2,5,9,3,2};
+    */
+    E = 2*E;
+    int e_offset[] = {0,2,4,7,11,14,16};
+    int e_column[] = {1,2,0,3,0,3,4,1,2,4,5,2,3,5,3,4};
+    int e_capacities[] = {3,7,0,4,0,2,5,0,0,0,9,0,3,2,0,0};
+    int e_forwardFlow[] = {3,7,0,4,0,2,5,0,0,0,9,0,3,2,0,0};
 
     initialize(V, source, sink, height, excess, e_offset, e_column, e_capacities, e_forwardFlow, totalExcess);
 
+    /*
     printf("Total excess: %d\n", *totalExcess);
 
     for (int i = 0; i < V; i++)
@@ -430,6 +438,7 @@ int executePushRelabel(std::string filename, std::string output){
     {
         printf("Height[%d]: %d\n", i, height[i]);
     }
+    */
     
 
 
