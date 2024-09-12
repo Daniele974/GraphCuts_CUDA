@@ -192,12 +192,140 @@ __global__ void globalRelabelKernel(int V, int E, int source, int sink, int *d_h
     grid_group grid = this_grid();
     unsigned int idx = threadIdx.x + blockIdx.x * blockDim.x;
     if(idx == 0){
-        d_status[sink] = 0;
-        *d_queueSize = 0;
+        d_status[sink] = 1;
+        *d_queueSize = 1;
         *d_level = 1;
+        d_queue[0] = sink;
     }
+    
     grid.sync();
+
+    if(idx == 0){
+        printf("Status: ");
+        for(int i = 0; i < V; i++){
+            printf(" %d,", d_status[i]);
+        }
+        printf("\n");
+
+        printf("Queue: ");
+        for(int i = 0; i < *d_queueSize; i++){
+            printf(" %d,", d_queue[i]);
+        }
+        printf("\n");
+
+        printf("Level: %d\n", *d_level);
+
+        printf("Total excess: %d\n", *d_totalExcess);
+    }
+
+    grid.sync();
+
     while(true){
+
+        for (int i = idx; i < V; i += blockDim.x * gridDim.x) {
+            if (d_status[i] == 0) {
+                d_queue[atomicAdd(d_queueSize, 1)] = i;
+            }
+        }
+
+        grid.sync();
+
+        if(idx == 0){
+            printf("DOPO AGGIUNTA FRONTIERA A CODA\n");
+            printf("\tStatus: ");
+            for(int i = 0; i < V; i++){
+                printf(" %d,", d_status[i]);
+            }
+            printf("\n");
+
+            printf("\tQueue: ");
+            for(int i = 0; i < *d_queueSize; i++){
+                printf(" %d,", d_queue[i]);
+            }
+            printf("\n");
+
+            printf("\tExcess: ");
+            for(int i = 0; i < V; i++){
+                printf(" %d,", d_excess[i]);
+            }
+            printf("\n");
+
+            printf("\tFlow: ");
+            for(int i = 0; i < E; i++){
+                printf(" %d,", d_flows[i]);
+            }
+            printf("\n");
+
+            printf("\tLevel: %d\n", *d_level);
+
+            printf("\tTotal excess: %d\n", *d_totalExcess);
+        }
+
+        grid.sync();
+
+        for(int i = idx; i < *d_queueSize; i+= blockDim.x * gridDim.x){
+            int u = d_queue[i];
+            for(int j = d_offset[u]; j < d_offset[u+1]; j++){
+                int v = d_column[j];
+                if(d_status[v] < 0 && d_flows[j] > 0){
+                    d_status[v] = 0;
+                    d_height[v] = *d_level + 1;
+                    *terminate = false;
+                    break;
+                }
+            }
+        }
+        
+        grid.sync();
+
+        if(idx == 0){
+            printf("DOPO ELABORAZIONE CODA\n");
+            printf("\tStatus: ");
+            for(int i = 0; i < V; i++){
+                printf(" %d,", d_status[i]);
+            }
+            printf("\n");
+
+            printf("\tQueue: ");
+            for(int i = 0; i < *d_queueSize; i++){
+                printf(" %d,", d_queue[i]);
+            }
+            printf("\n");
+
+            printf("\tExcess: ");
+            for(int i = 0; i < V; i++){
+                printf(" %d,", d_excess[i]);
+            }
+            printf("\n");
+
+            printf("\tLevel: %d\n", *d_level);
+
+            printf("\tTotal excess: %d\n", *d_totalExcess);
+        }
+
+        grid.sync();
+
+        if(*terminate){
+            break;
+        }
+        
+        grid.sync();        
+
+        if(idx == 0){
+            *d_queueSize = 0;
+            *d_level = *d_level + 1;
+            *terminate = true;
+        }
+
+        grid.sync();
+
+        /*for (int i = idx; i < V; i += blockDim.x * gridDim.x) {
+            if (d_status[i] == -1) {
+                d_queue[atomicAdd(d_queueSize, 1)] = i;
+            }
+        }
+        grid.sync();
+
         for(int i = idx; i < *d_queueSize; i+= blockDim.x * gridDim.x){
             int u = d_queue[i];
             for(int j = d_offset[u]; j < d_offset[u+1]; j++){
@@ -221,6 +349,7 @@ __global__ void globalRelabelKernel(int V, int E, int source, int sink, int *d_h
             *terminate = true;
         }
         grid.sync();
+        */
     }
     grid.sync();
 
@@ -237,7 +366,7 @@ void globalRelabel(int V, int E, int source, int sink, int *height, int *excess,
     for(int u = 0; u < V; u++){
         for(int i = offset[u]; i < offset[u+1]; i++){
             int v = column[i];
-            if(height[u] > height[v+1]){
+            if(height[u] > height[v]+1){
                 int flow;
                 if(excess[u] < forwardFlow[i]){
                     flow = excess[u];
@@ -421,14 +550,14 @@ int executePushRelabel(std::string filename, std::string output){
 
     initialize(V, source, sink, height, excess, e_offset, e_column, e_capacities, e_forwardFlow, totalExcess);
 
-    /*
-    printf("Total excess: %d\n", *totalExcess);
-
+    printf("\n");
+    /*printf("Total excess: %d\n", *totalExcess);
+    
     for (int i = 0; i < V; i++)
     {
         printf("Excess[%d]: %d\n", i, excess[i]);
     }
-
+    
     for (int i = 0; i < E; i++)
     {
         printf("ForwardFlow[%d]: %d\n", i, e_forwardFlow[i]);
@@ -453,7 +582,14 @@ int executePushRelabel(std::string filename, std::string output){
 
     // PUSH RELABEL QUI
     pushRelabel(V, E, source, sink, height, excess, e_offset, e_column, e_capacities, e_forwardFlow, totalExcess, d_height, d_excess, d_offset, d_column, d_capacities, d_flows, d_avq, d_cycle);
-
+    
+    /*
+    printf("Total excess: %d\n", *totalExcess);
+    for (int i = 0; i < V; i++)
+    {
+        printf("Excess[%d]: %d\n", i, excess[i]);
+    }
+    */
 
     cudaFree(d_height);
     cudaFree(d_excess);
