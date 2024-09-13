@@ -19,14 +19,15 @@ static void HandleError(cudaError_t err, const char *file, int line) {
 }
  
 #define HANDLE_ERROR(err) (HandleError(err, __FILE__, __LINE__))
- 
+
+/*
 void checkCUDAError(const char *msg) {
     cudaError_t err = cudaGetLastError();
     if (err != cudaSuccess) {
         fprintf(stderr, "CUDA error: %s: %s.\n", msg, cudaGetErrorString(err));
         exit(EXIT_FAILURE);
     }
-}
+}*/
 
 void initialize(int V, int source, int sink, int *height, int *excess, int *offset, int *column, int *capacities, int *forwardFlow, int *totalExcess){
     for (int i = 0; i < V; i++){
@@ -222,6 +223,7 @@ __global__ void globalRelabelKernel(int V, int E, int source, int sink, int *d_h
         *d_level = 1;
     }
     
+    /*
     grid.sync();
 
     if(idx == 0){
@@ -245,7 +247,7 @@ __global__ void globalRelabelKernel(int V, int E, int source, int sink, int *d_h
         printf("Level: %d\n", *d_level);
 
         printf("Total excess: %d\n", *d_totalExcess);
-    }
+    } */
 
     grid.sync();
 
@@ -408,35 +410,37 @@ void globalRelabel(int V, int E, int source, int sink, int *height, int *excess,
             }
         }
     }
+    /*
     printf("ForwardFlow POST FOR: ");
         for(int i = 0; i < E; i++){
             printf(" %d,", forwardFlow[i]);
         }
         printf("\n");
+    */
     int *d_status, *d_queue, *d_level, *d_totalExcess, *d_queueSize;
     bool *terminate;
 
-    cudaMalloc((void**)&d_status, V*sizeof(int));
-    cudaMalloc((void**)&d_queue, V*sizeof(int));
-    cudaMalloc((void**)&d_level, sizeof(int));
-    cudaMalloc((void**)&d_totalExcess, sizeof(int));
-    cudaMalloc((void**)&d_queueSize, sizeof(int));
-    cudaMalloc((void**)&terminate, sizeof(bool));
+    HANDLE_ERROR(cudaMalloc((void**)&d_status, V*sizeof(int)));
+    HANDLE_ERROR(cudaMalloc((void**)&d_queue, V*sizeof(int)));
+    HANDLE_ERROR(cudaMalloc((void**)&d_level, sizeof(int)));
+    HANDLE_ERROR(cudaMalloc((void**)&d_totalExcess, sizeof(int)));
+    HANDLE_ERROR(cudaMalloc((void**)&d_queueSize, sizeof(int)));
+    HANDLE_ERROR(cudaMalloc((void**)&terminate, sizeof(bool)));
 
-    cudaMemset(d_status, -1, V*sizeof(int));
-    cudaMemset(d_queue, 0, V*sizeof(int));
-    cudaMemset(d_level, 0, sizeof(int));
-    cudaMemset(d_queueSize, 0, sizeof(int));
-    cudaMemset(terminate, true, sizeof(bool));
+    HANDLE_ERROR(cudaMemset(d_status, -1, V*sizeof(int)));
+    HANDLE_ERROR(cudaMemset(d_queue, 0, V*sizeof(int)));
+    HANDLE_ERROR(cudaMemset(d_level, 0, sizeof(int)));
+    HANDLE_ERROR(cudaMemset(d_queueSize, 0, sizeof(int)));
+    HANDLE_ERROR(cudaMemset(terminate, true, sizeof(bool)));
 
     HANDLE_ERROR(cudaMemcpy(d_height, height, V*sizeof(int), cudaMemcpyHostToDevice));
     HANDLE_ERROR(cudaMemcpy(d_excess, excess, V*sizeof(int), cudaMemcpyHostToDevice));
     HANDLE_ERROR(cudaMemcpy(d_flows, forwardFlow, E*sizeof(int), cudaMemcpyHostToDevice));
-    cudaMemcpy(d_totalExcess, totalExcess, sizeof(int), cudaMemcpyHostToDevice);
+    HANDLE_ERROR(cudaMemcpy(d_totalExcess, totalExcess, sizeof(int), cudaMemcpyHostToDevice));
 
     //Configurazione GPU
     int device = -1;
-    cudaGetDevice(&device);
+    HANDLE_ERROR(cudaGetDevice(&device));
     cudaDeviceProp prop;
     cudaGetDeviceProperties(&prop, device);
     dim3 num_blocks(prop.multiProcessorCount * numBlocksPerSM);
@@ -453,20 +457,20 @@ void globalRelabel(int V, int E, int source, int sink, int *height, int *excess,
     }
     cudaDeviceSynchronize();
 
-    cudaMemcpy(height, d_height, V*sizeof(int), cudaMemcpyDeviceToHost);
-    cudaMemcpy(excess, d_excess, V*sizeof(int), cudaMemcpyDeviceToHost);
-    cudaMemcpy(forwardFlow, d_flows, E*sizeof(int), cudaMemcpyDeviceToHost);
-    cudaMemcpy(totalExcess, d_totalExcess, sizeof(int), cudaMemcpyDeviceToHost);
+    HANDLE_ERROR(cudaMemcpy(height, d_height, V*sizeof(int), cudaMemcpyDeviceToHost));
+    HANDLE_ERROR(cudaMemcpy(excess, d_excess, V*sizeof(int), cudaMemcpyDeviceToHost));
+    HANDLE_ERROR(cudaMemcpy(forwardFlow, d_flows, E*sizeof(int), cudaMemcpyDeviceToHost));
+    HANDLE_ERROR(cudaMemcpy(totalExcess, d_totalExcess, sizeof(int), cudaMemcpyDeviceToHost));
 
-    cudaFree(d_status);
-    cudaFree(d_queue);
-    cudaFree(d_level);
-    cudaFree(d_totalExcess);
-    cudaFree(d_queueSize);
-    cudaFree(terminate);
+    HANDLE_ERROR(cudaFree(d_status));
+    HANDLE_ERROR(cudaFree(d_queue));
+    HANDLE_ERROR(cudaFree(d_level));
+    HANDLE_ERROR(cudaFree(d_totalExcess));
+    HANDLE_ERROR(cudaFree(d_queueSize));
+    HANDLE_ERROR(cudaFree(terminate));
 }
 
-void pushRelabel(int V, int E, int source, int sink, int *height, int *excess, int *offset, int *column, int *capacities, int *forwardFlow, int *totalExcess, 
+int pushRelabel(int V, int E, int source, int sink, int *height, int *excess, int *offset, int *column, int *capacities, int *forwardFlow, int *totalExcess, 
                 int *d_height, int *d_excess, int *d_offset, int *d_column, int *d_capacities, int *d_flows, int *d_avq, int *d_cycle){
     bool *mark, *scanned;
     mark = (bool *)malloc(V*sizeof(bool));
@@ -474,15 +478,13 @@ void pushRelabel(int V, int E, int source, int sink, int *height, int *excess, i
 
     //Configurazione GPU
     int device = -1;
-    cudaGetDevice(&device);
+    HANDLE_ERROR(cudaGetDevice(&device));
     cudaDeviceProp prop;
     cudaGetDeviceProperties(&prop, device);
     dim3 num_blocks(prop.multiProcessorCount * numBlocksPerSM);
     dim3 block_size(numThreadsPerBlock);  
 
     size_t sharedMemSize = 3 * block_size.x * sizeof(int);
-
-    //void* original_kernel_args[] = {&V, &source, &sink, &d_height, &d_excess, &d_offset, &d_column, &d_capacities, &d_flows};
 
     void* kernel_args[] = {&V, &source, &sink, &d_height, &d_excess, 
                         &d_offset, &d_column, &d_capacities, &d_flows, &d_avq, &d_cycle}; 
@@ -492,10 +494,10 @@ void pushRelabel(int V, int E, int source, int sink, int *height, int *excess, i
     }
 
     while(excess[source] + excess[sink] < *totalExcess){
-        cudaMemcpy(d_height, height, V*sizeof(int), cudaMemcpyHostToDevice);
-        cudaMemcpy(d_excess, excess, V*sizeof(int), cudaMemcpyHostToDevice);
+        HANDLE_ERROR(cudaMemcpy(d_height, height, V*sizeof(int), cudaMemcpyHostToDevice));
+        HANDLE_ERROR(cudaMemcpy(d_excess, excess, V*sizeof(int), cudaMemcpyHostToDevice));
         HANDLE_ERROR(cudaMemcpy(d_flows, forwardFlow, E*sizeof(int), cudaMemcpyHostToDevice));
-        cudaMemset(d_cycle, V, sizeof(int));
+        HANDLE_ERROR(cudaMemset(d_cycle, V, sizeof(int)));
         
         cudaError_t cudaStatus;
         cudaStatus = cudaLaunchCooperativeKernel((void*)pushKernel, num_blocks, block_size, kernel_args, sharedMemSize, 0);
@@ -506,19 +508,20 @@ void pushRelabel(int V, int E, int source, int sink, int *height, int *excess, i
         }
         cudaDeviceSynchronize();
 
-        cudaMemcpy(height, d_height, V*sizeof(int), cudaMemcpyDeviceToHost);
-        cudaMemcpy(excess, d_excess, V*sizeof(int), cudaMemcpyDeviceToHost);
+        HANDLE_ERROR(cudaMemcpy(height, d_height, V*sizeof(int), cudaMemcpyDeviceToHost));
+        HANDLE_ERROR(cudaMemcpy(excess, d_excess, V*sizeof(int), cudaMemcpyDeviceToHost));
         HANDLE_ERROR(cudaMemcpy(forwardFlow, d_flows, E*sizeof(int), cudaMemcpyDeviceToHost));
-
+        /*
         printf("ForwardFlow: ");
         for(int i = 0; i < E; i++){
             printf(" %d,", forwardFlow[i]);
         }
         printf("\n");
+        */
 
         globalRelabel(V, E, source, sink, height, excess, offset, column, capacities, forwardFlow, d_height, d_excess, d_offset, d_column, d_capacities, d_flows, totalExcess, mark, scanned); 
     }
-    printf("MaxFlow: %d\n", excess[sink]);
+    return excess[sink];
 }
 
 std::vector<int> findMinCutSetFromT(int n, int t, int *residual){
@@ -544,13 +547,46 @@ std::vector<int> findMinCutSetFromT(int n, int t, int *residual){
 }
 
 int executePushRelabel(std::string filename, std::string output){
-    // Lettura grafo da file
-    //readGraphFromFile(filename, n, &capacity);
+    /*
     int V = 6;
     int E = 8;
     E = 2*E;
     int source = 0;
     int sink = 5;
+    */
+
+    int V, E, source, sink;
+    int *offset, *column, *capacities, *forwardFlow;
+    readBCSRGraphFromFile(filename, V, E, source, sink, &offset, &column, &capacities, &forwardFlow);
+    
+    /*
+    printf("V: %d\n", V);
+    printf("E: %d\n", E);
+    printf("Source: %d\n", source);
+    printf("Sink: %d\n", sink);
+    printf("Offset: ");
+    for(int i = 0; i < V+1; i++){
+        printf(" %d,", offset[i]);
+    }
+    printf("\n");
+    printf("Column: ");
+    for(int i = 0; i < E; i++){
+        printf(" %d,", column[i]);
+    }
+    printf("\n");
+    printf("Capacity: ");
+    for(int i = 0; i < E; i++){
+        printf(" %d,", capacity[i]);
+    }
+    printf("\n");
+    printf("ForwardFlow: ");
+    for(int i = 0; i < E; i++){
+        printf(" %d,", forwardFlow[i]);
+    }
+    printf("\n");
+
+    return 0;
+    */
 
     int *height, *excess,  *totalExcess, *avq;
     int cycle = V;
@@ -566,80 +602,46 @@ int executePushRelabel(std::string filename, std::string output){
         avq[i] = 0;
     }
 
-    cudaMalloc((void**)&d_height, V*sizeof(int));
-    cudaMalloc((void**)&d_excess, V*sizeof(int));
-    cudaMalloc((void**)&d_column, E*sizeof(int));
-    cudaMalloc((void**)&d_offset, (V+1)*sizeof(int));
-    cudaMalloc((void**)&d_capacities, E*sizeof(int));
-    cudaMalloc((void**)&d_flows, E*sizeof(int));
-    cudaMalloc((void**)&d_avq, V*sizeof(int));
-    cudaMalloc((void**)&d_cycle, sizeof(int));
+    HANDLE_ERROR(cudaMalloc((void**)&d_height, V*sizeof(int)));
+    HANDLE_ERROR(cudaMalloc((void**)&d_excess, V*sizeof(int)));
+    HANDLE_ERROR(cudaMalloc((void**)&d_column, E*sizeof(int)));
+    HANDLE_ERROR(cudaMalloc((void**)&d_offset, (V+1)*sizeof(int)));
+    HANDLE_ERROR(cudaMalloc((void**)&d_capacities, E*sizeof(int)));
+    HANDLE_ERROR(cudaMalloc((void**)&d_flows, E*sizeof(int)));
+    HANDLE_ERROR(cudaMalloc((void**)&d_avq, V*sizeof(int)));
+    HANDLE_ERROR(cudaMalloc((void**)&d_cycle, sizeof(int)));
     
-    /*
-    int e_offset[] = {0,2,3,5,6,8,8};
-    int e_column[] = {1,2,3,3,4,5,3,5}; //destinations
-    int e_forwardFlow[] = {3,7,4,2,5,9,3,2};
-    int e_offset[] = {0,0,1,2,5,6,8};
-    int e_column[] = {0,0,1,2,4,2,3,4}; //destinations
-    int e_forwardFlow[] = {0,0,0,0,0,0,0,0};
-    int e_capacities[] = {3,7,4,2,5,9,3,2};
-    */
+    /*  
     int e_offset[] = {0,2,4,7,11,14,16};
     int e_column[] = {1,2,0,3,0,3,4,1,2,4,5,2,3,5,3,4};
     int e_capacities[] = {3,7,0,4,0,2,5,0,0,0,9,0,3,2,0,0};
     int e_forwardFlow[] = {3,7,0,4,0,2,5,0,0,0,9,0,3,2,0,0};
-
-    initialize(V, source, sink, height, excess, e_offset, e_column, e_capacities, e_forwardFlow, totalExcess);
-
-    printf("\n");
-    /*printf("Total excess: %d\n", *totalExcess);
-    
-    for (int i = 0; i < V; i++)
-    {
-        printf("Excess[%d]: %d\n", i, excess[i]);
-    }
-    
-    for (int i = 0; i < E; i++)
-    {
-        printf("ForwardFlow[%d]: %d\n", i, e_forwardFlow[i]);
-    }
-
-    for (int i = 0; i < V; i++)
-    {
-        printf("Height[%d]: %d\n", i, height[i]);
-    }
     */
-    
+   
+    //initialize(V, source, sink, height, excess, e_offset, e_column, e_capacities, e_forwardFlow, totalExcess);
+    initialize(V, source, sink, height, excess, offset, column, capacities, forwardFlow, totalExcess);
 
-
-    cudaMemcpy(d_height, height, V*sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_excess, excess, V*sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_offset, e_offset, (V+1)*sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_column, e_column, E*sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_capacities, e_capacities, E*sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_flows, e_forwardFlow, E*sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_avq, avq, V*sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_cycle, &cycle, sizeof(int), cudaMemcpyHostToDevice);
+    HANDLE_ERROR(cudaMemcpy(d_height, height, V*sizeof(int), cudaMemcpyHostToDevice));
+    HANDLE_ERROR(cudaMemcpy(d_excess, excess, V*sizeof(int), cudaMemcpyHostToDevice));
+    HANDLE_ERROR(cudaMemcpy(d_offset, offset, (V+1)*sizeof(int), cudaMemcpyHostToDevice));
+    HANDLE_ERROR(cudaMemcpy(d_column, column, E*sizeof(int), cudaMemcpyHostToDevice));
+    HANDLE_ERROR(cudaMemcpy(d_capacities, capacities, E*sizeof(int), cudaMemcpyHostToDevice));
+    HANDLE_ERROR(cudaMemcpy(d_flows, forwardFlow, E*sizeof(int), cudaMemcpyHostToDevice));
+    HANDLE_ERROR(cudaMemcpy(d_avq, avq, V*sizeof(int), cudaMemcpyHostToDevice));
+    HANDLE_ERROR(cudaMemcpy(d_cycle, &cycle, sizeof(int), cudaMemcpyHostToDevice));
 
     // PUSH RELABEL QUI
-    pushRelabel(V, E, source, sink, height, excess, e_offset, e_column, e_capacities, e_forwardFlow, totalExcess, d_height, d_excess, d_offset, d_column, d_capacities, d_flows, d_avq, d_cycle);
+    int maxFlow = pushRelabel(V, E, source, sink, height, excess, offset, column, capacities, forwardFlow, totalExcess, d_height, d_excess, d_offset, d_column, d_capacities, d_flows, d_avq, d_cycle);
+    printf("Max flow: %d\n", maxFlow);
     
-    /*
-    printf("Total excess: %d\n", *totalExcess);
-    for (int i = 0; i < V; i++)
-    {
-        printf("Excess[%d]: %d\n", i, excess[i]);
-    }
-    */
-
-    cudaFree(d_height);
-    cudaFree(d_excess);
-    cudaFree(d_offset);
-    cudaFree(d_column);
-    cudaFree(d_capacities);
-    cudaFree(d_flows);
-    cudaFree(d_avq);
-    cudaFree(d_cycle);
+    HANDLE_ERROR(cudaFree(d_height));
+    HANDLE_ERROR(cudaFree(d_excess));
+    HANDLE_ERROR(cudaFree(d_offset));
+    HANDLE_ERROR(cudaFree(d_column));
+    HANDLE_ERROR(cudaFree(d_capacities));
+    HANDLE_ERROR(cudaFree(d_flows));
+    HANDLE_ERROR(cudaFree(d_avq));
+    HANDLE_ERROR(cudaFree(d_cycle));
 
     free(height);
     free(excess);
