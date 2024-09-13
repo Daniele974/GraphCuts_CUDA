@@ -103,6 +103,7 @@ clean:
 	find . -name "prserial" -type f -delete 
 	find . -name "prparallel" -type f -delete
 	find . -name "prparallel2" -type f -delete
+	find . -name "prparallelbcsr" -type f -delete
 
 cleanwin:
 	del /s *.o *.exe *.exp *.lib 
