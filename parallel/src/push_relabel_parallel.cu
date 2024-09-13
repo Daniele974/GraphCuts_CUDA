@@ -66,7 +66,7 @@ __global__ void pushKernel(int *d_capacity, int *d_excess, int *d_height, int *d
 void globalRelabel(int *capacity, int *excess, int *height, int *residual, int *totalExcess, bool *scanned, bool *mark, int n, int t){
     for (int u = 0; u < n; u++){
         for (int v = 0; v < n; v++){
-            if(capacity[u*n + v] > 0){
+            if(capacity[u*n + v] > 0){  //TODO: capacity o residual?
                 if(height[u] > height[v] + 1){
                     excess[u] = excess[u] - residual[u*n + v];
                     excess[v] = excess[v] + residual[u*n + v];
@@ -127,7 +127,7 @@ int pushRelabel(int *capacity, int *excess, int *height, int *residual, int *d_c
     dim3 gridSize((n + blockSize.x - 1) / blockSize.x);
     
     while ((excess[s]+excess[t])<*totalExcess){
-        
+
         if(_DEBUG) std::cout << "Push..." << std::endl;
         cudaMemcpy(d_height, height, n*sizeof(int), cudaMemcpyHostToDevice);
         pushKernel<<<gridSize, blockSize>>>(d_capacity, d_excess, d_height, d_residual, n);
