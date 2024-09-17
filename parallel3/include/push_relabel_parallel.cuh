@@ -21,18 +21,7 @@ static void HandleError(cudaError_t err, const char *file, int line) {
  
 #define HANDLE_ERROR(err) (HandleError(err, __FILE__, __LINE__))
 
-
-//#define number_of_nodes *V
-//#define number_of_edges *E
-//#define threads_per_block 256
-//#define numBlocksPerSM 1
-//#define numThreadsPerBlock 1024
-//#define number_of_blocks_nodes ((number_of_nodes/threads_per_block) + 1)
-//#define number_of_blocks_edges ((number_of_edges/threads_per_block) + 1)
-#define INF INT_MAX
-//#define IDX(x,y) ( ( (x)*(number_of_nodes) ) + (y) )
-//#define KERNEL_CYCLES V
-//#define ull unsigned long long
+#define INF 1000000000
 
 void preflow(int V, int source, int sink, int *capacities, int *residual, int *height, int *excess, int *totalExcess);
 __global__ void push_relabel_kernel(int V, int source, int sink, int *d_capacities, int *d_residual, int *d_height,int *d_excess);
