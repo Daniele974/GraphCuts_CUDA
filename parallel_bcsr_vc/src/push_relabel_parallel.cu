@@ -557,7 +557,8 @@ int executePushRelabel(std::string filename, std::string output){
 
     int V, E, source, sink;
     int *offset, *column, *capacities, *forwardFlow;
-    readBCSRGraphFromFile(filename, V, E, source, sink, &offset, &column, &capacities, &forwardFlow);
+    //readBCSRGraphFromFile(filename, V, E, source, sink, &offset, &column, &capacities, &forwardFlow);
+    readBCSRGraphFromDIMACS(filename, V, E, source, sink, &offset, &column, &capacities, &forwardFlow);
     
     /*
     printf("V: %d\n", V);
