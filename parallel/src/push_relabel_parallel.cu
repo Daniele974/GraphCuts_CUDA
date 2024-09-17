@@ -127,7 +127,7 @@ int pushRelabel(int *capacity, int *excess, int *height, int *residual, int *d_c
     dim3 gridSize((n + blockSize.x - 1) / blockSize.x);
     
     while ((excess[s]+excess[t])<*totalExcess){
-
+        std::cout << "Total excess: " << *totalExcess << " Excess S " <<excess[s] << " Excess T " << excess[t] << std::endl;
         if(_DEBUG) std::cout << "Push..." << std::endl;
         cudaMemcpy(d_height, height, n*sizeof(int), cudaMemcpyHostToDevice);
         pushKernel<<<gridSize, blockSize>>>(d_capacity, d_excess, d_height, d_residual, n);

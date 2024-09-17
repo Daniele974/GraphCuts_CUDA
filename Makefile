@@ -63,6 +63,22 @@ parallel_bcsr_vc/utils.o: parallel_bcsr_vc/src/utils.cpp
 parallel_bcsr_vc/file_manager.o: parallel_bcsr_vc/src/file_manager.cpp
 	$(CC) $(CCOPTS) -c parallel_bcsr_vc/src/file_manager.cpp -o parallel_bcsr_vc/file_manager.o
 
+# PARALLEL 3
+prparallel3: parallel3/main.o parallel3/push_relabel_parallel.o parallel3/utils.o parallel3/file_manager.o
+	$(NVCC) $(NVCCOPTS) parallel3/main.o parallel3/push_relabel_parallel.o parallel3/utils.o parallel3/file_manager.o -o parallel3/prparallel3
+
+parallel3/main.o: parallel3/main.cu
+	$(NVCC) $(NVCCOPTS) -c parallel3/main.cu -o parallel3/main.o
+
+parallel3/push_relabel_parallel.o: parallel3/src/push_relabel_parallel.cu
+	$(NVCC) $(NVCCOPTS) -c parallel3/src/push_relabel_parallel.cu -o parallel3/push_relabel_parallel.o
+
+parallel3/utils.o: parallel3/src/utils.cpp
+	$(CC) $(CCOPTS) -c parallel3/src/utils.cpp -o parallel3/utils.o
+
+parallel3/file_manager.o: parallel3/src/file_manager.cpp
+	$(CC) $(CCOPTS) -c parallel3/src/file_manager.cpp -o parallel3/file_manager.o
+
 # TEST
 n ?= 1
 
