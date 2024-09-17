@@ -29,7 +29,7 @@ void preflow(int V, int source, int sink, int *capacities, int *residual, int *h
 
 }
 
-__global__ void push_relabel_kernel(int V, int source, int sink, int *d_capacities, int *d_residual, int *d_height,int *d_excess){
+__global__ void pushRelabelKernel(int V, int source, int sink, int *d_capacities, int *d_residual, int *d_height,int *d_excess){
     grid_group grid = this_grid();
     unsigned int idx = (blockIdx.x*blockDim.x) + threadIdx.x;
 
@@ -85,7 +85,7 @@ __global__ void push_relabel_kernel(int V, int source, int sink, int *d_capaciti
     }
 }
 
-void global_relabel(int V, int source, int sink, int *capacities, int *residual, int *height, int *excess, int *totalExcess, bool *mark, bool *scanned){
+void globalRelabel(int V, int source, int sink, int *capacities, int *residual, int *height, int *excess, int *totalExcess, bool *mark, bool *scanned){
     for(int u = 0; u < V; u++){
         for(int v = 0; v < V; v++){
             if(capacities[u*V + v] > 0)
@@ -155,7 +155,7 @@ void global_relabel(int V, int source, int sink, int *capacities, int *residual,
     }
 }
 
-void push_relabel(int V, int source, int sink, int *capacities, int *residual, int *height, int *excess, int *totalExcess, int *d_capacities, int *d_residual, int *d_height, int *d_excess){
+void pushRelabel(int V, int source, int sink, int *capacities, int *residual, int *height, int *excess, int *totalExcess, int *d_capacities, int *d_residual, int *d_height, int *d_excess){
     
     // Dichiarazione delle variabili per global relabel
     bool *mark,*scanned;
@@ -186,7 +186,7 @@ void push_relabel(int V, int source, int sink, int *capacities, int *residual, i
         HANDLE_ERROR(cudaMemcpy(d_residual,residual,V*V*sizeof(int),cudaMemcpyHostToDevice));
 
         cudaError_t cudaStatus;
-        cudaStatus = cudaLaunchCooperativeKernel((void*)push_relabel_kernel, num_blocks, block_size, kernel_args, 0, 0);
+        cudaStatus = cudaLaunchCooperativeKernel((void*)pushRelabelKernel, num_blocks, block_size, kernel_args, 0, 0);
         if (cudaStatus != cudaSuccess) {
             fprintf(stderr, "cudaLaunchCooperativeKernel failed: %s\n", cudaGetErrorString(cudaStatus));
             // Handle the error, for example, by cleaning up resources and exiting
@@ -207,7 +207,7 @@ void push_relabel(int V, int source, int sink, int *capacities, int *residual, i
         HANDLE_ERROR(cudaMemcpy(residual,d_residual,V*V*sizeof(int),cudaMemcpyDeviceToHost));
         
         // Global relabel
-        global_relabel(V,source,sink,capacities,residual,height,excess,totalExcess,mark,scanned);
+        globalRelabel(V,source,sink,capacities,residual,height,excess,totalExcess,mark,scanned);
     }
 }
 
@@ -260,7 +260,7 @@ int executePushRelabel(std::string filename, std::string output){
     HANDLE_ERROR(cudaMemcpy(d_capacities,capacities,V*V*sizeof(int),cudaMemcpyHostToDevice));
     HANDLE_ERROR(cudaMemcpy(d_residual,residual,V*V*sizeof(int),cudaMemcpyHostToDevice));
 
-    push_relabel(V,source,sink,capacities,residual,height,excess,totalExcess,d_capacities,d_residual,d_height,d_excess);
+    pushRelabel(V,source,sink,capacities,residual,height,excess,totalExcess,d_capacities,d_residual,d_height,d_excess);
     
 
     // Stampa del flusso massimo
