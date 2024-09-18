@@ -503,10 +503,11 @@ int executePushRelabel(std::string filename, std::string output){
     // Terzo evento per la misurazione del tempo
     cudaEventRecord(endEvent, 0);
     
-    printf("Max flow: %d\n", maxFlow);  //TODO: rimuovere dopo scrittura su file
-    
     // Attendo la fine dell'evento endEvent
     cudaEventSynchronize(endEvent);
+
+    // Calcolo del taglio minimo
+    std::vector<int> minCut = {0};  //TODO: implementare funzione per trovare il taglio minimo
     
     // Misurazione del tempo
     float initializationTime = 0.0f;
@@ -521,6 +522,9 @@ int executePushRelabel(std::string filename, std::string output){
     cudaEventDestroy(endInitializationEvent);
     cudaEventDestroy(endEvent);
     
+    // Scrittura risultati su file
+    writeResultsToFile(output, maxFlow, minCut, initializationTime, executionTime, totalTime);
+
     // Liberazione memoria device
     HANDLE_ERROR(cudaFree(d_height));
     HANDLE_ERROR(cudaFree(d_excess));
