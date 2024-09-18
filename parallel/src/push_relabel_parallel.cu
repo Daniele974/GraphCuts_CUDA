@@ -212,7 +212,13 @@ void pushRelabel(int V, int source, int sink, int *capacities, int *residual, in
 }
 
 int executePushRelabel(std::string filename, std::string output){
-    
+    //Dichiarazione degli eventi per la misurazione del tempo
+    cudaEvent_t startEvent, endInitializationEvent, endEvent;
+    cudaEventCreate(&startEvent);
+    cudaEventCreate(&endInitializationEvent);
+    cudaEventCreate(&endEvent);
+
+
     // Dichiarazione delle variabili host
     int V, E, source, sink;
     int *capacities, *residual, *height, *excess;
@@ -223,6 +229,8 @@ int executePushRelabel(std::string filename, std::string output){
 
     // Lettura del grafo da file
     readGraphFromFile(filename, V, &capacities);
+
+    cudaEventRecord(startEvent, 0);
     
     // Inizializzazione delle variabili source e sink
     source = 0;
@@ -260,16 +268,21 @@ int executePushRelabel(std::string filename, std::string output){
     HANDLE_ERROR(cudaMemcpy(d_capacities,capacities,V*V*sizeof(int),cudaMemcpyHostToDevice));
     HANDLE_ERROR(cudaMemcpy(d_residual,residual,V*V*sizeof(int),cudaMemcpyHostToDevice));
 
+    cudaEventRecord(endInitializationEvent, 0);
     pushRelabel(V,source,sink,capacities,residual,height,excess,totalExcess,d_capacities,d_residual,d_height,d_excess);
-    
-    //TODO: cambiare i valori con misurazioni effettive
-    auto start = std::chrono::high_resolution_clock::now();
-    auto endInitialization = std::chrono::high_resolution_clock::now();
-    auto end = std::chrono::high_resolution_clock::now();
-    
-    auto initializationTime = std::chrono::duration_cast<std::chrono::microseconds>(endInitialization - start);
-    auto executionTime = std::chrono::duration_cast<std::chrono::microseconds>(end - endInitialization);
-    auto totalTime = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    cudaEventRecord(endEvent, 0);
+
+    // Misurazione del tempo
+    cudaEventSynchronize(endEvent);
+    float initializationTime = 0.0f;
+    float executionTime = 0.0f;
+    float totalTime = 0.0f;
+    cudaEventElapsedTime(&initializationTime, startEvent, endInitializationEvent);
+    cudaEventElapsedTime(&executionTime, endInitializationEvent, endEvent);
+    cudaEventElapsedTime(&totalTime, startEvent, endEvent);
+    cudaEventDestroy(startEvent);
+    cudaEventDestroy(endInitializationEvent);
+    cudaEventDestroy(endEvent);
     
     //std::vector<int> minCut = findMinCutSetFromT(V, sink, residual);
     //TODO: cambiare mincut con valori effettivi
