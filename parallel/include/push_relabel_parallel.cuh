@@ -1,22 +1,30 @@
 #include <cuda_runtime.h>
+#include <cooperative_groups.h>
 #include <list>
 #include <vector>
 #include <queue>
+
+#include <iostream>
+#include <string.h>
+
 #include "utils.hpp"
 #include "file_manager.hpp"
 
-#define INF 1000000
-
 #define _DEBUG 0
 
-void initialize(int *capacity, int *excess, int *height, int *residual, int *totalExcess, int n, int s);
+static void HandleError(cudaError_t err, const char *file, int line) {
+    if (err != cudaSuccess) {
+        printf("%s in %s at line %d\n", cudaGetErrorString(err), file, line);
+        exit(EXIT_FAILURE);
+    }
+}
+ 
+#define HANDLE_ERROR(err) (HandleError(err, __FILE__, __LINE__))
 
-__global__ void pushKernel(int *d_capacity, int *d_excess, int *d_height, int *d_residual, int n);
+#define INF 1000000000
 
-void globalRelabel(int *capacity, int *excess, int *height, int *residual, int *totalExcess, bool *scanned, bool *mark, int n, int t);
-
-int pushRelabel(int *capacity, int *excess, int *height, int *residual, int *d_capacity, int *d_excess, int *d_height, int *d_residual, int *totalExcess, int n, int s, int t);
-
-std::vector<int> findMinCutSetFromT(int n, int t, int *residual);
-
+void preflow(int V, int source, int sink, int *capacities, int *residual, int *height, int *excess, int *totalExcess);
+__global__ void pushRelabelKernel(int V, int source, int sink, int *d_capacities, int *d_residual, int *d_height,int *d_excess);
+void globalRelabel(int V, int source, int sink, int *capacities, int *residual, int *height, int *excess, int *totalExcess, bool *mark, bool *scanned);
+void pushRelabel(int V, int source, int sink, int *capacities, int *residual, int *height, int *excess, int *totalExcess, int *d_capacities, int *d_residual, int *d_height, int *d_excess);
 int executePushRelabel(std::string filename, std::string output);

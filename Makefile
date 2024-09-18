@@ -4,7 +4,7 @@ CCOPTS =
 NVCC = nvcc
 NVCCOPTS = -std=c++14
 
-all: prserial prparallel
+all: prserial prparallel prparallelbcsr
 
 # SERIAL
 prserial: serial/main.o serial/file_manager.o serial/push_relabel_serial_basic.o
@@ -23,29 +23,17 @@ serial/push_relabel_serial_basic.o: serial/src/push_relabel_serial_basic.cpp
 prparallel: parallel/main.o parallel/push_relabel_parallel.o parallel/utils.o parallel/file_manager.o
 	$(NVCC) $(NVCCOPTS) parallel/main.o parallel/push_relabel_parallel.o parallel/utils.o parallel/file_manager.o -o parallel/prparallel
 
-prparallel2: parallel/main2.o parallel/push_relabel_parallel2.o parallel/utils.o parallel/file_manager2.o
-	$(NVCC) $(NVCCOPTS) parallel/main2.o parallel/push_relabel_parallel2.o parallel/utils.o parallel/file_manager2.o -o parallel/prparallel2
-
 parallel/main.o: parallel/main.cu
 	$(NVCC) $(NVCCOPTS) -c parallel/main.cu -o parallel/main.o
 
-parallel/main2.o: parallel/main2.cu
-	$(NVCC) $(NVCCOPTS) -c parallel/main2.cu -o parallel/main2.o
-
 parallel/push_relabel_parallel.o: parallel/src/push_relabel_parallel.cu
 	$(NVCC) $(NVCCOPTS) -c parallel/src/push_relabel_parallel.cu -o parallel/push_relabel_parallel.o
-
-parallel/push_relabel_parallel2.o: parallel/src/push_relabel_parallel2.cu
-	$(NVCC) $(NVCCOPTS) -c parallel/src/push_relabel_parallel2.cu -o parallel/push_relabel_parallel2.o
 
 parallel/utils.o: parallel/src/utils.cpp
 	$(CC) $(CCOPTS) -c parallel/src/utils.cpp -o parallel/utils.o
 
 parallel/file_manager.o: parallel/src/file_manager.cpp
 	$(CC) $(CCOPTS) -c parallel/src/file_manager.cpp -o parallel/file_manager.o
-
-parallel/file_manager2.o: parallel/src/file_manager2.cu
-	$(NVCC) $(NVCCOPTS) -c parallel/src/file_manager2.cu -o parallel/file_manager2.o
 
 # PARALLEL BCSR
 prparallelbcsr: parallel_bcsr_vc/main.o parallel_bcsr_vc/push_relabel_parallel.o parallel_bcsr_vc/utils.o parallel_bcsr_vc/file_manager.o
@@ -63,21 +51,34 @@ parallel_bcsr_vc/utils.o: parallel_bcsr_vc/src/utils.cpp
 parallel_bcsr_vc/file_manager.o: parallel_bcsr_vc/src/file_manager.cpp
 	$(CC) $(CCOPTS) -c parallel_bcsr_vc/src/file_manager.cpp -o parallel_bcsr_vc/file_manager.o
 
-# PARALLEL 3
-prparallel3: parallel3/main.o parallel3/push_relabel_parallel.o parallel3/utils.o parallel3/file_manager.o
-	$(NVCC) $(NVCCOPTS) parallel3/main.o parallel3/push_relabel_parallel.o parallel3/utils.o parallel3/file_manager.o -o parallel3/prparallel3
+# PARALLEL OLD
+prparallelOld: parallel_old/main.o parallel_old/push_relabel_parallel.o parallel_old/utils.o parallel_old/file_manager.o
+	$(NVCC) $(NVCCOPTS) parallel_old/main.o parallel_old/push_relabel_parallel.o parallel_old/utils.o parallel_old/file_manager.o -o parallel_old/prparallel_old
 
-parallel3/main.o: parallel3/main.cu
-	$(NVCC) $(NVCCOPTS) -c parallel3/main.cu -o parallel3/main.o
+prparallel2: parallel_old/main2.o parallel_old/push_relabel_parallel2.o parallel_old/utils.o parallel_old/file_manager2.o
+	$(NVCC) $(NVCCOPTS) parallel_old/main2.o parallel_old/push_relabel_parallel2.o parallel_old/utils.o parallel_old/file_manager2.o -o parallel_old/prparallel2
 
-parallel3/push_relabel_parallel.o: parallel3/src/push_relabel_parallel.cu
-	$(NVCC) $(NVCCOPTS) -c parallel3/src/push_relabel_parallel.cu -o parallel3/push_relabel_parallel.o
+parallel_old/main.o: parallel_old/main.cu
+	$(NVCC) $(NVCCOPTS) -c parallel_old/main.cu -o parallel_old/main.o
 
-parallel3/utils.o: parallel3/src/utils.cpp
-	$(CC) $(CCOPTS) -c parallel3/src/utils.cpp -o parallel3/utils.o
+parallel_old/main2.o: parallel_old/main2.cu
+	$(NVCC) $(NVCCOPTS) -c parallel_old/main2.cu -o parallel_old/main2.o
 
-parallel3/file_manager.o: parallel3/src/file_manager.cpp
-	$(CC) $(CCOPTS) -c parallel3/src/file_manager.cpp -o parallel3/file_manager.o
+parallel_old/push_relabel_parallel.o: parallel_old/src/push_relabel_parallel.cu
+	$(NVCC) $(NVCCOPTS) -c parallel_old/src/push_relabel_parallel.cu -o parallel_old/push_relabel_parallel.o
+
+parallel_old/push_relabel_parallel2.o: parallel_old/src/push_relabel_parallel2.cu
+	$(NVCC) $(NVCCOPTS) -c parallel_old/src/push_relabel_parallel2.cu -o parallel_old/push_relabel_parallel2.o
+
+parallel_old/file_manager.o: parallel_old/src/file_manager.cpp
+	$(CC) $(CCOPTS) -c parallel_old/src/file_manager.cpp -o parallel_old/file_manager.o
+
+parallel_old/file_manager2.o: parallel_old/src/file_manager2.cu
+	$(NVCC) $(NVCCOPTS) -c parallel_old/src/file_manager2.cu -o parallel_old/file_manager2.o
+
+parallel_old/utils.o: parallel_old/src/utils.cpp
+	$(CC) $(CCOPTS) -c parallel_old/src/utils.cpp -o parallel_old/utils.o
+
 
 # TEST
 n ?= 1
@@ -104,23 +105,23 @@ testparallel: prparallel parallel/testparallel.sh
 	done; \
 	true
 
-testparallel2: prparallel2 parallel/testparallel2.sh
-	chmod +x ./parallel/testparallel2.sh
-	n=$(n); \
-	while [ $${n} -gt 0 ] ; do \
-		./parallel/testparallel2.sh; \
-		n=`expr $$n - 1`; \
-	done; \
-	true
+# testparallel2: prparallel2 parallel/testparallel2.sh
+# 	chmod +x ./parallel/testparallel2.sh
+# 	n=$(n); \
+# 	while [ $${n} -gt 0 ] ; do \
+# 		./parallel/testparallel2.sh; \
+# 		n=`expr $$n - 1`; \
+# 	done; \
+# 	true
 
 # CLEAN
 clean:
 	find . -name "*.o" -type f -delete 
 	find . -name "prserial" -type f -delete 
 	find . -name "prparallel" -type f -delete
-	find . -name "prparallel2" -type f -delete
-	find . -name "prparallel3" -type f -delete
 	find . -name "prparallelbcsr" -type f -delete
+	find . -name "prparallelOld" -type f -delete
+	find . -name "prparallel2" -type f -delete
 
 cleanwin:
 	del /s *.o *.exe *.exp *.lib 
@@ -134,5 +135,5 @@ cleanserialresults:
 cleanparallelresults:
 	find ./results -name "*parallel_*.json" -type f -delete
 
-cleanparallel2results:
-	find ./results -name "*parallel2_*.json" -type f -delete
+# cleanparallel2results:
+# 	find ./results -name "*parallel2_*.json" -type f -delete
