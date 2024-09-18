@@ -211,6 +211,28 @@ void pushRelabel(int V, int source, int sink, int *capacities, int *residual, in
     }
 }
 
+std::vector<int> findMinCutSetFromT(int n, int t, int *residual){
+    std::vector<int> minCutSet;
+    std::queue<int> q;
+    std::vector<bool> visited(n, false);
+    minCutSet.push_back(t);
+    q.push(t);
+    visited[t] = true;
+    while (!q.empty()) {
+        int u = q.front();
+        q.pop();
+        for (int v = 0; v < n; ++v) {
+            if (!visited[v] && residual[v*n + u] > 0) {
+                minCutSet.push_back(v);
+                q.push(v);
+                visited[v] = true;
+            }
+        }
+    }
+
+    return minCutSet;
+}
+
 int executePushRelabel(std::string filename, std::string output){
     //Dichiarazione degli eventi per la misurazione del tempo
     cudaEvent_t startEvent, endInitializationEvent, endEvent;
@@ -284,9 +306,10 @@ int executePushRelabel(std::string filename, std::string output){
     cudaEventDestroy(endInitializationEvent);
     cudaEventDestroy(endEvent);
     
-    //std::vector<int> minCut = findMinCutSetFromT(V, sink, residual);
-    //TODO: cambiare mincut con valori effettivi
-    std::vector<int> minCut = {0};
+    // Calcolo del min cut set
+    std::vector<int> minCut = findMinCutSetFromT(V, sink, residual);
+
+    // Scrittura dei risultati su file
     writeResultsToFile(output, excess[sink], minCut, initializationTime, executionTime, totalTime);
     
     // Liberazione della memoria
