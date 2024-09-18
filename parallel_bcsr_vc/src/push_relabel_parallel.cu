@@ -128,7 +128,7 @@ template <unsigned int tileSize> __device__  int tiledSearchNeighbor(thread_bloc
     return minV;
 }
 
-__global__ void pushKernel(int V, int source, int sink, int *d_height, int *d_excess, int *d_offset, int *d_column, int *d_capacities, int *d_flows, int *d_avq, int *d_cycle){
+__global__ void pushKernel(int V, int source, int sink, int *d_height, int *d_excess, int *d_offset, int *d_column, int *d_capacities, int *d_flows, int *d_avq){
     grid_group grid = this_grid();
     thread_block block = this_thread_block();
     const int tileSize = 32;
@@ -354,7 +354,7 @@ void globalRelabel(int V, int E, int source, int sink, int *height, int *excess,
 }
 
 int pushRelabel(int V, int E, int source, int sink, int *height, int *excess, int *offset, int *column, int *capacities, int *forwardFlow, int *totalExcess, 
-                int *d_height, int *d_excess, int *d_offset, int *d_column, int *d_capacities, int *d_flows, int *d_avq, int *d_cycle){
+                int *d_height, int *d_excess, int *d_offset, int *d_column, int *d_capacities, int *d_flows, int *d_avq){
     
     // Allocazione memoria per strutture per global relabel
     bool *mark, *scanned;
@@ -378,7 +378,7 @@ int pushRelabel(int V, int E, int source, int sink, int *height, int *excess, in
 
     // Configurazione argomenti kernel push
     void* kernel_args[] = {&V, &source, &sink, &d_height, &d_excess, 
-                        &d_offset, &d_column, &d_capacities, &d_flows, &d_avq, &d_cycle}; 
+                        &d_offset, &d_column, &d_capacities, &d_flows, &d_avq};
     
 
     while(excess[source] + excess[sink] < *totalExcess){
@@ -387,7 +387,6 @@ int pushRelabel(int V, int E, int source, int sink, int *height, int *excess, in
         HANDLE_ERROR(cudaMemcpy(d_height, height, V*sizeof(int), cudaMemcpyHostToDevice));
         HANDLE_ERROR(cudaMemcpy(d_excess, excess, V*sizeof(int), cudaMemcpyHostToDevice));
         HANDLE_ERROR(cudaMemcpy(d_flows, forwardFlow, E*sizeof(int), cudaMemcpyHostToDevice));
-        HANDLE_ERROR(cudaMemset(d_cycle, V, sizeof(int)));
         
         // Lancio kernel push
         cudaError_t cudaStatus;
@@ -444,8 +443,6 @@ int executePushRelabel(std::string filename, std::string output){
     //TODO: implementare selezione automatica in base a estensione file
     //readBCSRGraphFromFile(filename, V, E, source, sink, &offset, &column, &capacities, &forwardFlow);
     readBCSRGraphFromDIMACSFile(filename, V, E, source, sink, &offset, &column, &capacities, &forwardFlow);
-    
-    int cycle = V;  //TODO: rimuovere?
 
     // Allocazione memoria host
     height = (int *)malloc(V*sizeof(int));
@@ -459,7 +456,7 @@ int executePushRelabel(std::string filename, std::string output){
     }
 
     // Dichiarazione variabili device
-    int *d_height, *d_excess, *d_column, *d_offset, *d_capacities, *d_flows, *d_avq, *d_cycle;
+    int *d_height, *d_excess, *d_column, *d_offset, *d_capacities, *d_flows, *d_avq;
 
     // Allocazione memoria device
     HANDLE_ERROR(cudaMalloc((void**)&d_height, V*sizeof(int)));
@@ -469,7 +466,6 @@ int executePushRelabel(std::string filename, std::string output){
     HANDLE_ERROR(cudaMalloc((void**)&d_capacities, E*sizeof(int)));
     HANDLE_ERROR(cudaMalloc((void**)&d_flows, E*sizeof(int)));
     HANDLE_ERROR(cudaMalloc((void**)&d_avq, V*sizeof(int)));
-    HANDLE_ERROR(cudaMalloc((void**)&d_cycle, sizeof(int)));
     
     /* Dati di esempio  
     int e_offset[] = {0,2,4,7,11,14,16};
@@ -488,10 +484,9 @@ int executePushRelabel(std::string filename, std::string output){
     HANDLE_ERROR(cudaMemcpy(d_capacities, capacities, E*sizeof(int), cudaMemcpyHostToDevice));
     HANDLE_ERROR(cudaMemcpy(d_flows, forwardFlow, E*sizeof(int), cudaMemcpyHostToDevice));
     HANDLE_ERROR(cudaMemcpy(d_avq, avq, V*sizeof(int), cudaMemcpyHostToDevice));
-    HANDLE_ERROR(cudaMemcpy(d_cycle, &cycle, sizeof(int), cudaMemcpyHostToDevice));
 
     // Algoritmo push-relabel
-    int maxFlow = pushRelabel(V, E, source, sink, height, excess, offset, column, capacities, forwardFlow, totalExcess, d_height, d_excess, d_offset, d_column, d_capacities, d_flows, d_avq, d_cycle);
+    int maxFlow = pushRelabel(V, E, source, sink, height, excess, offset, column, capacities, forwardFlow, totalExcess, d_height, d_excess, d_offset, d_column, d_capacities, d_flows, d_avq);//, d_cycle); //TODO: rimuovere
     printf("Max flow: %d\n", maxFlow);  //TODO: rimuovere dopo test
     
     // Liberazione memoria device
@@ -502,7 +497,6 @@ int executePushRelabel(std::string filename, std::string output){
     HANDLE_ERROR(cudaFree(d_capacities));
     HANDLE_ERROR(cudaFree(d_flows));
     HANDLE_ERROR(cudaFree(d_avq));
-    HANDLE_ERROR(cudaFree(d_cycle));
 
     // Liberazione memoria host
     free(height);
