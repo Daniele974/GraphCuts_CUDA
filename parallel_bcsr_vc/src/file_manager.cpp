@@ -328,7 +328,7 @@ int readGraphFromFileOLD(std::string filename, int &n, int **capacity){
     return 0;
 }
 
-int writeResultsToFile(std::string filename, int maxFlow, std::vector<int> minCut, std::chrono::duration<double> initializationTime, std::chrono::duration<double> executionTime, std::chrono::duration<double> totalTime){
+int writeResultsToFile(std::string filename, int maxFlow, std::vector<int> minCut, float initializationTime, float executionTime, float totalTime){
     // Creazione del documento JSON 
     rapidjson::Document d; 
     d.SetObject(); 
@@ -338,9 +338,9 @@ int writeResultsToFile(std::string filename, int maxFlow, std::vector<int> minCu
     rapidjson::Value minCutSet(rapidjson::kArrayType);
     for (int i = 0; i < minCut.size(); i++) minCutSet.PushBack(minCut[i], d.GetAllocator());
     d.AddMember("minCut", minCutSet, d.GetAllocator());
-    d.AddMember("initializationTime", initializationTime.count(), d.GetAllocator());
-    d.AddMember("executionTime", executionTime.count(), d.GetAllocator());
-    d.AddMember("totalTime", totalTime.count(), d.GetAllocator());
+    d.AddMember("initializationTime", initializationTime, d.GetAllocator());
+    d.AddMember("executionTime", executionTime, d.GetAllocator());
+    d.AddMember("totalTime", totalTime, d.GetAllocator());
 
     // Generazione del timestamp
     std::time_t t = std::time(nullptr);
