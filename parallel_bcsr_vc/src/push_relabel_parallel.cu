@@ -516,10 +516,6 @@ int executePushRelabel(std::string filename, std::string output){
     cudaEventElapsedTime(&executionTime, endInitializationEvent, endEvent);
     cudaEventElapsedTime(&totalTime, startEvent, endEvent);
 
-    printf("Initialization time: %f ms\n", initializationTime);
-    printf("Execution time: %f ms\n", executionTime);
-    printf("Total time: %f ms\n", totalTime);
-
     // Distruzione degli eventi
     cudaEventDestroy(startEvent);
     cudaEventDestroy(endInitializationEvent);
