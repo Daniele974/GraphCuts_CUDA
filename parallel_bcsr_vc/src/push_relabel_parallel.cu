@@ -1,53 +1,35 @@
 #include "../include/push_relabel_parallel.cuh"
-#include <cooperative_groups.h>
 
-//TODO: da spostare in include
-#define threads_per_block 256
-#define numBlocksPerSM 1
-#define numThreadsPerBlock 1024
-
-using namespace cooperative_groups;
-namespace cg = cooperative_groups; 
-
+// Variabile globale per dimensione coda avq
 __device__ unsigned int avqSize;
 
-static void HandleError(cudaError_t err, const char *file, int line) {
-    if (err != cudaSuccess) {
-        printf("%s in %s at line %d\n", cudaGetErrorString(err), file, line);
-        exit(EXIT_FAILURE);
-    }
-}
- 
-#define HANDLE_ERROR(err) (HandleError(err, __FILE__, __LINE__))
-
-/*
-void checkCUDAError(const char *msg) {
-    cudaError_t err = cudaGetLastError();
-    if (err != cudaSuccess) {
-        fprintf(stderr, "CUDA error: %s: %s.\n", msg, cudaGetErrorString(err));
-        exit(EXIT_FAILURE);
-    }
-}*/
-
-void initialize(int V, int source, int sink, int *height, int *excess, int *offset, int *column, int *capacities, int *forwardFlow, int *totalExcess){
+void preflow(int V, int source, int sink, int *height, int *excess, int *offset, int *column, int *capacities, int *forwardFlow, int *totalExcess){
+    
+    // Inizializzazione altezze e eccedenze dei nodi
     for (int i = 0; i < V; i++){
         height[i] = 0;
         excess[i] = 0;
     }
+
+    // Inizializzazione altezza del nodo sorgente
     height[source] = V;
+
+    // Inizializzazione totalExcess
     *totalExcess = 0;
 
+    // Inizializzazione flusso iniziale (da sorgente a vicini)
     for(int i = offset[source]; i < offset[source+1]; i++){
         int neighbor = column[i];
         if(capacities[i] > 0){
             forwardFlow[i] = 0;
-            // ciclo per gestire archi da vicini di source a source
+            
             for(int j = offset[neighbor]; j < offset[neighbor+1]; j++){
                 if(column[j] == source){
                     forwardFlow[j] = capacities[i];
                     break;
                 }
             }
+
             excess[neighbor] = capacities[i];
             *totalExcess = *totalExcess + excess[neighbor];
         }else{
@@ -59,10 +41,12 @@ void initialize(int V, int source, int sink, int *height, int *excess, int *offs
 __device__ void scanActiveVertices(int V, int source, int sink, int *d_height, int *d_excess, int *d_avq){
     unsigned int idx = threadIdx.x + blockIdx.x * blockDim.x;
     grid_group grid = this_grid();
+    
     if(idx == 0){
         avqSize = 0;
     }
     grid.sync();
+    
     for(int u = idx; u < V; u += blockDim.x * gridDim.x){
         if(d_excess[u] > 0 && d_height[u] < V && u != source && u != sink){
             int pos = atomicAdd(&avqSize, 1);
@@ -73,19 +57,22 @@ __device__ void scanActiveVertices(int V, int source, int sink, int *d_height, i
 
 template <unsigned int tileSize> __device__  int tiledSearchNeighbor(thread_block_tile <tileSize> tile, int pos, int *s_height, int *s_vid, int *s_vidx, int *Vindex, int V, int source, int sink, int *d_height, int *d_excess, int *d_offset, int *d_column, int *d_capacities, int *d_flows, int *d_avq){
     unsigned int idx = tile.thread_rank();
-    //int tileId = threadIdx.x / tileSize;
+
     int u = d_avq[pos];
     int degree = d_offset[u+1] - d_offset[u];
     int numIters = (int)ceilf((float)degree / (float)tileSize);
 
+    // Inizializzazione variabili per ricerca vicino con altezza minima
     int minH = INF;
     int minV = -1;
 
+    // Inizializzazione shared memory
     s_height[threadIdx.x] = INF;
     s_vid[threadIdx.x] = -1;
     s_vidx[threadIdx.x] = -2;
     tile.sync();
 
+    // Ricerca vicino con altezza minima
     for(int i = 0; i < numIters; i++){
         int vPos, v;
         if(i*tileSize + idx < degree){
@@ -106,6 +93,8 @@ template <unsigned int tileSize> __device__  int tiledSearchNeighbor(thread_bloc
             s_vidx[threadIdx.x] = -1;
         }
         tile.sync();
+
+        // Reduction per trovare altezza minima (e nodo associato)
         for(int s = tile.size() / 2; s > 0; s >>= 1){
             if(idx < s){
                 if(s_height[threadIdx.x + s] < s_height[threadIdx.x]){
@@ -117,6 +106,8 @@ template <unsigned int tileSize> __device__  int tiledSearchNeighbor(thread_bloc
             tile.sync();
         }
         tile.sync();
+
+        // Aggiornamento altezza minima e nodo associato
         if(idx == 0){
             if(minH > s_height[threadIdx.x]){
                 minH = s_height[threadIdx.x];
@@ -125,11 +116,15 @@ template <unsigned int tileSize> __device__  int tiledSearchNeighbor(thread_bloc
             }
         }
         tile.sync();
+
+        // Reset shared memory per prossima iterazione
         s_height[threadIdx.x] = INF;
         s_vid[threadIdx.x] = -1;
         tile.sync();
     }
     tile.sync();
+
+    // Restituzione nodo con altezza minima
     return minV;
 }
 
@@ -141,18 +136,22 @@ __global__ void pushKernel(int V, int source, int sink, int *d_height, int *d_ex
     int numTilesPerBlock = (blockDim.x + tileSize - 1) / tileSize;
     int numTilesPerGrid = numTilesPerBlock * gridDim.x;
     int tileIdx = blockIdx.x * numTilesPerBlock + block.thread_rank() / tileSize;
-    //int idx = blockIdx.x * blockDim.x + threadIdx.x;
 
+    // Inizializzazione variabili per vicino con altezza minima verso cui eseguire push
     int minV = -1;
     int Vindex = -1;
+
     int cycle = V;
 
+    // Shared memory
     extern __shared__ int shared[];
     int *s_height = shared;
     int *s_vid = (int *)&shared[blockDim.x];
     int *s_vidx = (int *)&s_vid[blockDim.x];
 
     while(cycle > 0){
+
+        // Scansione dei nodi attivi
         scanActiveVertices(V, source, sink, d_height, d_excess, d_avq);
         grid.sync();
 
@@ -165,36 +164,42 @@ __global__ void pushKernel(int V, int source, int sink, int *d_height, int *d_ex
 
         for(int i = tileIdx; i < avqSize; i += numTilesPerGrid){
             int u = d_avq[i];
+
+            // Ricerca vicino con altezza minima
             minV = tiledSearchNeighbor<tileSize>(tile, i, s_height, s_vid, s_vidx, &Vindex, V, source, sink, d_height, d_excess, d_offset, d_column, d_capacities, d_flows, d_avq);
             tile.sync();
             
             if(tile.thread_rank() == 0){
                 if(minV == -1){
                     d_height[u] = V;
-                }else{
+                } else {
                     if(d_height[u] > d_height[minV]){
                         int d;
                         int backwardIdx = -1;
+
                         for(int j = d_offset[minV]; j < d_offset[minV+1]; j++){
                             if(d_column[j] == u){
                                 backwardIdx = j;
                                 break;
                             }
                         }
+
                         if(backwardIdx == -1){
                             printf("Error: backward edge not found\n");
                             return;
                         }
+
                         if(d_excess[u] > d_flows[Vindex]){
                             d = d_flows[Vindex];
-                        }else{
+                        } else {
                             d = d_excess[u];
                         }
+
                         atomicAdd(&d_flows[backwardIdx], d);
                         atomicSub(&d_flows[Vindex], d);
                         atomicAdd(&d_excess[minV], d);
                         atomicSub(&d_excess[u], d);
-                    }else{
+                    } else {
                         d_height[u] = d_height[minV] + 1;
                     }
                 }
@@ -210,147 +215,17 @@ __global__ void globalRelabelKernel(int V, int E, int source, int sink, int *d_h
     grid_group grid = this_grid();
     unsigned int idx = threadIdx.x + blockIdx.x * blockDim.x;
     
-    /*if(idx == 0){
-        d_status[sink] = 1;
-        *d_queueSize = 1;
-        *d_level = 1;
-        d_queue[0] = sink;
-    }*/
-
+    // Inizializzazione coda e altezza per global relabel
     if(idx == 0){
         d_status[sink] = 0;
         *d_queueSize = 0;
         *d_level = 1;
     }
-    
-    /*
-    grid.sync();
-
-    if(idx == 0){
-        printf("ForwardFlow GLOBALKERNEL: ");
-        for(int i = 0; i < E; i++){
-            printf(" %d,", d_flows[i]);
-        }
-        printf("\n");
-        printf("Status: ");
-        for(int i = 0; i < V; i++){
-            printf(" %d,", d_status[i]);
-        }
-        printf("\n");
-
-        printf("Queue: ");
-        for(int i = 0; i < *d_queueSize; i++){
-            printf(" %d,", d_queue[i]);
-        }
-        printf("\n");
-
-        printf("Level: %d\n", *d_level);
-
-        printf("Total excess: %d\n", *d_totalExcess);
-    } */
-
     grid.sync();
 
     while(true){
 
-        /* TODO BLOCCO FATTO DA NOI
-        for (int i = idx; i < V; i += blockDim.x * gridDim.x) {
-            if (d_status[i] == 0) {
-                d_queue[atomicAdd(d_queueSize, 1)] = i;
-            }
-        }
-
-        grid.sync();
-
-        if(idx == 0){
-            printf("DOPO AGGIUNTA FRONTIERA A CODA\n");
-            printf("\tStatus: ");
-            for(int i = 0; i < V; i++){
-                printf(" %d,", d_status[i]);
-            }
-            printf("\n");
-
-            printf("\tQueue: ");
-            for(int i = 0; i < *d_queueSize; i++){
-                printf(" %d,", d_queue[i]);
-            }
-            printf("\n");
-
-            printf("\tExcess: ");
-            for(int i = 0; i < V; i++){
-                printf(" %d,", d_excess[i]);
-            }
-            printf("\n");
-
-            printf("\tFlow: ");
-            for(int i = 0; i < E; i++){
-                printf(" %d,", d_flows[i]);
-            }
-            printf("\n");
-
-            printf("\tLevel: %d\n", *d_level);
-
-            printf("\tTotal excess: %d\n", *d_totalExcess);
-        }
-
-        grid.sync();
-
-        for(int i = idx; i < *d_queueSize; i+= blockDim.x * gridDim.x){
-            int u = d_queue[i];
-            for(int j = d_offset[u]; j < d_offset[u+1]; j++){
-                int v = d_column[j];
-                if(d_status[v] < 0 && d_flows[j] > 0){
-                    d_status[v] = 0;
-                    d_height[v] = *d_level + 1;
-                    *terminate = false;
-                    break;
-                }
-            }
-        }
-        
-        grid.sync();
-
-        if(idx == 0){
-            printf("DOPO ELABORAZIONE CODA\n");
-            printf("\tStatus: ");
-            for(int i = 0; i < V; i++){
-                printf(" %d,", d_status[i]);
-            }
-            printf("\n");
-
-            printf("\tQueue: ");
-            for(int i = 0; i < *d_queueSize; i++){
-                printf(" %d,", d_queue[i]);
-            }
-            printf("\n");
-
-            printf("\tExcess: ");
-            for(int i = 0; i < V; i++){
-                printf(" %d,", d_excess[i]);
-            }
-            printf("\n");
-
-            printf("\tLevel: %d\n", *d_level);
-
-            printf("\tTotal excess: %d\n", *d_totalExcess);
-        }
-
-        grid.sync();
-
-        if(*terminate){
-            break;
-        }
-        
-        grid.sync();        
-
-        if(idx == 0){
-            *d_queueSize = 0;
-            *d_level = *d_level + 1;
-            *terminate = true;
-        }
-
-        grid.sync(); */
-
+        // Inserimento in coda dei nodi nella frontiera
         for (int i = idx; i < V; i += blockDim.x * gridDim.x) {
             if (d_status[i] == -1) {
                 d_queue[atomicAdd(d_queueSize, 1)] = i;
@@ -358,6 +233,7 @@ __global__ void globalRelabelKernel(int V, int E, int source, int sink, int *d_h
         }
         grid.sync();
 
+        // Elaborazione dei nodi nella coda
         for(int i = idx; i < *d_queueSize; i+= blockDim.x * gridDim.x){
             int u = d_queue[i];
             for(int j = d_offset[u]; j < d_offset[u+1]; j++){
@@ -371,10 +247,14 @@ __global__ void globalRelabelKernel(int V, int E, int source, int sink, int *d_h
             }
         }
         grid.sync();
+
+        // Controllo terminazione
         if(*terminate){
             break;
         }
         grid.sync();
+
+        // Reset coda per prossima iterazione
         if(idx == 0){
             *d_queueSize = 0;
             *d_level = *d_level + 1;
@@ -384,6 +264,7 @@ __global__ void globalRelabelKernel(int V, int E, int source, int sink, int *d_h
     }
     grid.sync();
 
+    // Aggiornamento di totalExcess
     for(int i = idx; i < V; i += blockDim.x * gridDim.x){
         if(d_status[i] == -1 && d_excess[i] > 0 && i != source && i != sink){
             atomicSub(d_totalExcess, d_excess[i]);
@@ -394,6 +275,7 @@ __global__ void globalRelabelKernel(int V, int E, int source, int sink, int *d_h
 
 void globalRelabel(int V, int E, int source, int sink, int *height, int *excess, int *offset, int *column, int *capacities, int *forwardFlow, 
                     int *d_height, int *d_excess, int *d_offset, int *d_column, int *d_capacities, int *d_flows, int *totalExcess, bool *mark, bool *scanned){
+    
     for(int u = 0; u < V; u++){
         for(int i = offset[u]; i < offset[u+1]; i++){
             int v = column[i];
@@ -410,16 +292,12 @@ void globalRelabel(int V, int E, int source, int sink, int *height, int *excess,
             }
         }
     }
-    /*
-    printf("ForwardFlow POST FOR: ");
-        for(int i = 0; i < E; i++){
-            printf(" %d,", forwardFlow[i]);
-        }
-        printf("\n");
-    */
+    
+    // Strutture per global relabel
     int *d_status, *d_queue, *d_level, *d_totalExcess, *d_queueSize;
     bool *terminate;
 
+    // Allocazione memoria
     HANDLE_ERROR(cudaMalloc((void**)&d_status, V*sizeof(int)));
     HANDLE_ERROR(cudaMalloc((void**)&d_queue, V*sizeof(int)));
     HANDLE_ERROR(cudaMalloc((void**)&d_level, sizeof(int)));
@@ -427,41 +305,46 @@ void globalRelabel(int V, int E, int source, int sink, int *height, int *excess,
     HANDLE_ERROR(cudaMalloc((void**)&d_queueSize, sizeof(int)));
     HANDLE_ERROR(cudaMalloc((void**)&terminate, sizeof(bool)));
 
+    // Inizializzazione strutture
     HANDLE_ERROR(cudaMemset(d_status, -1, V*sizeof(int)));
     HANDLE_ERROR(cudaMemset(d_queue, 0, V*sizeof(int)));
     HANDLE_ERROR(cudaMemset(d_level, 0, sizeof(int)));
     HANDLE_ERROR(cudaMemset(d_queueSize, 0, sizeof(int)));
     HANDLE_ERROR(cudaMemset(terminate, true, sizeof(bool)));
 
+    // Trasferimento dati da host a device
     HANDLE_ERROR(cudaMemcpy(d_height, height, V*sizeof(int), cudaMemcpyHostToDevice));
     HANDLE_ERROR(cudaMemcpy(d_excess, excess, V*sizeof(int), cudaMemcpyHostToDevice));
     HANDLE_ERROR(cudaMemcpy(d_flows, forwardFlow, E*sizeof(int), cudaMemcpyHostToDevice));
     HANDLE_ERROR(cudaMemcpy(d_totalExcess, totalExcess, sizeof(int), cudaMemcpyHostToDevice));
 
-    //Configurazione GPU
+    // Configurazione GPU
     int device = -1;
     HANDLE_ERROR(cudaGetDevice(&device));
     cudaDeviceProp prop;
     cudaGetDeviceProperties(&prop, device);
-    dim3 num_blocks(prop.multiProcessorCount * numBlocksPerSM);
-    dim3 block_size(numThreadsPerBlock);  
+    dim3 num_blocks(prop.multiProcessorCount * 1);  // 1 blocco per SM
+    dim3 block_size(1024);    
 
+    // Argomenti kernel global relabel
     void *kernel_args[] = {&V, &E, &source, &sink, &d_height, &d_excess, &d_offset, &d_column, &d_capacities, &d_flows, &d_status, &d_queue, &d_queueSize, &d_level, &d_totalExcess, &terminate};
 
+    // Lancio kernel global relabel
     cudaError_t cudaStatus;
     cudaStatus = cudaLaunchCooperativeKernel((void*)globalRelabelKernel, num_blocks, block_size, kernel_args, 0, 0);
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "cudaLaunchCooperativeKernel failed: %s\n", cudaGetErrorString(cudaStatus));
-        // Handle the error, for example, by cleaning up resources and exiting
         exit(1);
     }
     cudaDeviceSynchronize();
 
+    // Trasferimento dati da device a host
     HANDLE_ERROR(cudaMemcpy(height, d_height, V*sizeof(int), cudaMemcpyDeviceToHost));
     HANDLE_ERROR(cudaMemcpy(excess, d_excess, V*sizeof(int), cudaMemcpyDeviceToHost));
     HANDLE_ERROR(cudaMemcpy(forwardFlow, d_flows, E*sizeof(int), cudaMemcpyDeviceToHost));
     HANDLE_ERROR(cudaMemcpy(totalExcess, d_totalExcess, sizeof(int), cudaMemcpyDeviceToHost));
 
+    // Liberazione memoria
     HANDLE_ERROR(cudaFree(d_status));
     HANDLE_ERROR(cudaFree(d_queue));
     HANDLE_ERROR(cudaFree(d_level));
@@ -472,58 +355,63 @@ void globalRelabel(int V, int E, int source, int sink, int *height, int *excess,
 
 int pushRelabel(int V, int E, int source, int sink, int *height, int *excess, int *offset, int *column, int *capacities, int *forwardFlow, int *totalExcess, 
                 int *d_height, int *d_excess, int *d_offset, int *d_column, int *d_capacities, int *d_flows, int *d_avq, int *d_cycle){
+    
+    // Allocazione memoria per strutture per global relabel
     bool *mark, *scanned;
     mark = (bool *)malloc(V*sizeof(bool));
     scanned = (bool *)malloc(V*sizeof(bool));
 
-    //Configurazione GPU
-    int device = -1;
-    HANDLE_ERROR(cudaGetDevice(&device));
-    cudaDeviceProp prop;
-    cudaGetDeviceProperties(&prop, device);
-    dim3 num_blocks(prop.multiProcessorCount * numBlocksPerSM);
-    dim3 block_size(numThreadsPerBlock);  
-
-    size_t sharedMemSize = 3 * block_size.x * sizeof(int);
-
-    void* kernel_args[] = {&V, &source, &sink, &d_height, &d_excess, 
-                        &d_offset, &d_column, &d_capacities, &d_flows, &d_avq, &d_cycle}; 
-    
     for(int i = 0; i < V; i++){
         mark[i] = false;
     }
 
+    // Configurazione GPU
+    int device = -1;
+    HANDLE_ERROR(cudaGetDevice(&device));
+    cudaDeviceProp prop;
+    cudaGetDeviceProperties(&prop, device);
+    dim3 num_blocks(prop.multiProcessorCount * 1);  // 1 blocco per SM
+    dim3 block_size(1024);  
+
+    // Configurazione shared memory per kernel push
+    size_t sharedMemSize = 3 * block_size.x * sizeof(int);
+
+    // Configurazione argomenti kernel push
+    void* kernel_args[] = {&V, &source, &sink, &d_height, &d_excess, 
+                        &d_offset, &d_column, &d_capacities, &d_flows, &d_avq, &d_cycle}; 
+    
+
     while(excess[source] + excess[sink] < *totalExcess){
+
+        // Trasferimento dati da host a device
         HANDLE_ERROR(cudaMemcpy(d_height, height, V*sizeof(int), cudaMemcpyHostToDevice));
         HANDLE_ERROR(cudaMemcpy(d_excess, excess, V*sizeof(int), cudaMemcpyHostToDevice));
         HANDLE_ERROR(cudaMemcpy(d_flows, forwardFlow, E*sizeof(int), cudaMemcpyHostToDevice));
         HANDLE_ERROR(cudaMemset(d_cycle, V, sizeof(int)));
         
+        // Lancio kernel push
         cudaError_t cudaStatus;
         cudaStatus = cudaLaunchCooperativeKernel((void*)pushKernel, num_blocks, block_size, kernel_args, sharedMemSize, 0);
         if (cudaStatus != cudaSuccess) {
             fprintf(stderr, "cudaLaunchCooperativeKernel failed: %s\n", cudaGetErrorString(cudaStatus));
-            // Handle the error, for example, by cleaning up resources and exiting
             exit(1);
         }
         cudaDeviceSynchronize();
 
+        // Trasferimento dati da device a host
         HANDLE_ERROR(cudaMemcpy(height, d_height, V*sizeof(int), cudaMemcpyDeviceToHost));
         HANDLE_ERROR(cudaMemcpy(excess, d_excess, V*sizeof(int), cudaMemcpyDeviceToHost));
         HANDLE_ERROR(cudaMemcpy(forwardFlow, d_flows, E*sizeof(int), cudaMemcpyDeviceToHost));
-        /*
-        printf("ForwardFlow: ");
-        for(int i = 0; i < E; i++){
-            printf(" %d,", forwardFlow[i]);
-        }
-        printf("\n");
-        */
 
+        // Global relabel
         globalRelabel(V, E, source, sink, height, excess, offset, column, capacities, forwardFlow, d_height, d_excess, d_offset, d_column, d_capacities, d_flows, totalExcess, mark, scanned); 
     }
+
+    // Return del flusso massimo
     return excess[sink];
 }
 
+// TODO: da rivedere e adattare
 std::vector<int> findMinCutSetFromT(int n, int t, int *residual){
     std::vector<int> minCutSet;
     std::queue<int> q;
@@ -547,52 +435,19 @@ std::vector<int> findMinCutSetFromT(int n, int t, int *residual){
 }
 
 int executePushRelabel(std::string filename, std::string output){
-    /*
-    int V = 6;
-    int E = 8;
-    E = 2*E;
-    int source = 0;
-    int sink = 5;
-    */
-
+    
+    // Dichiarazione variabili host
     int V, E, source, sink;
     int *offset, *column, *capacities, *forwardFlow;
+    int *height, *excess,  *totalExcess, *avq;
+
+    //TODO: implementare selezione automatica in base a estensione file
     //readBCSRGraphFromFile(filename, V, E, source, sink, &offset, &column, &capacities, &forwardFlow);
     readBCSRGraphFromDIMACSFile(filename, V, E, source, sink, &offset, &column, &capacities, &forwardFlow);
     
-    /*
-    printf("V: %d\n", V);
-    printf("E: %d\n", E);
-    printf("Source: %d\n", source);
-    printf("Sink: %d\n", sink);
-    printf("Offset: ");
-    for(int i = 0; i < V+1; i++){
-        printf(" %d,", offset[i]);
-    }
-    printf("\n");
-    printf("Column: ");
-    for(int i = 0; i < E; i++){
-        printf(" %d,", column[i]);
-    }
-    printf("\n");
-    printf("Capacity: ");
-    for(int i = 0; i < E; i++){
-        printf(" %d,", capacity[i]);
-    }
-    printf("\n");
-    printf("ForwardFlow: ");
-    for(int i = 0; i < E; i++){
-        printf(" %d,", forwardFlow[i]);
-    }
-    printf("\n");
+    int cycle = V;  //TODO: rimuovere?
 
-    return 0;
-    */
-
-    int *height, *excess,  *totalExcess, *avq;
-    int cycle = V;
-    int *d_height, *d_excess, *d_column, *d_offset, *d_capacities, *d_flows, *d_avq, *d_cycle;
-
+    // Allocazione memoria host
     height = (int *)malloc(V*sizeof(int));
     excess = (int *)malloc(V*sizeof(int));
     totalExcess = (int *)malloc(sizeof(int));
@@ -603,6 +458,10 @@ int executePushRelabel(std::string filename, std::string output){
         avq[i] = 0;
     }
 
+    // Dichiarazione variabili device
+    int *d_height, *d_excess, *d_column, *d_offset, *d_capacities, *d_flows, *d_avq, *d_cycle;
+
+    // Allocazione memoria device
     HANDLE_ERROR(cudaMalloc((void**)&d_height, V*sizeof(int)));
     HANDLE_ERROR(cudaMalloc((void**)&d_excess, V*sizeof(int)));
     HANDLE_ERROR(cudaMalloc((void**)&d_column, E*sizeof(int)));
@@ -612,15 +471,15 @@ int executePushRelabel(std::string filename, std::string output){
     HANDLE_ERROR(cudaMalloc((void**)&d_avq, V*sizeof(int)));
     HANDLE_ERROR(cudaMalloc((void**)&d_cycle, sizeof(int)));
     
-    /*  
+    /* Dati di esempio  
     int e_offset[] = {0,2,4,7,11,14,16};
     int e_column[] = {1,2,0,3,0,3,4,1,2,4,5,2,3,5,3,4};
     int e_capacities[] = {3,7,0,4,0,2,5,0,0,0,9,0,3,2,0,0};
     int e_forwardFlow[] = {3,7,0,4,0,2,5,0,0,0,9,0,3,2,0,0};
     */
    
-    //initialize(V, source, sink, height, excess, e_offset, e_column, e_capacities, e_forwardFlow, totalExcess);
-    initialize(V, source, sink, height, excess, offset, column, capacities, forwardFlow, totalExcess);
+    // Preflow
+    preflow(V, source, sink, height, excess, offset, column, capacities, forwardFlow, totalExcess);
 
     HANDLE_ERROR(cudaMemcpy(d_height, height, V*sizeof(int), cudaMemcpyHostToDevice));
     HANDLE_ERROR(cudaMemcpy(d_excess, excess, V*sizeof(int), cudaMemcpyHostToDevice));
@@ -631,10 +490,11 @@ int executePushRelabel(std::string filename, std::string output){
     HANDLE_ERROR(cudaMemcpy(d_avq, avq, V*sizeof(int), cudaMemcpyHostToDevice));
     HANDLE_ERROR(cudaMemcpy(d_cycle, &cycle, sizeof(int), cudaMemcpyHostToDevice));
 
-    // PUSH RELABEL QUI
+    // Algoritmo push-relabel
     int maxFlow = pushRelabel(V, E, source, sink, height, excess, offset, column, capacities, forwardFlow, totalExcess, d_height, d_excess, d_offset, d_column, d_capacities, d_flows, d_avq, d_cycle);
-    printf("Max flow: %d\n", maxFlow);
+    printf("Max flow: %d\n", maxFlow);  //TODO: rimuovere dopo test
     
+    // Liberazione memoria device
     HANDLE_ERROR(cudaFree(d_height));
     HANDLE_ERROR(cudaFree(d_excess));
     HANDLE_ERROR(cudaFree(d_offset));
@@ -644,6 +504,7 @@ int executePushRelabel(std::string filename, std::string output){
     HANDLE_ERROR(cudaFree(d_avq));
     HANDLE_ERROR(cudaFree(d_cycle));
 
+    // Liberazione memoria host
     free(height);
     free(excess);
     free(totalExcess);
