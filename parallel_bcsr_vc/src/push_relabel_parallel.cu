@@ -446,9 +446,15 @@ int executePushRelabel(std::string filename, std::string output){
     int *offset, *column, *capacities, *forwardFlow;
     int *height, *excess,  *totalExcess, *avq;
 
-    //TODO: implementare selezione automatica in base a estensione file
-    //readBCSRGraphFromFile(filename, V, E, source, sink, &offset, &column, &capacities, &forwardFlow);
-    readBCSRGraphFromDIMACSFile(filename, V, E, source, sink, &offset, &column, &capacities, &forwardFlow);
+    // Controllo estensione file e lettura grafo
+    if(filename.find(".txt") != std::string::npos){
+        readBCSRGraphFromFile(filename, V, E, source, sink, &offset, &column, &capacities, &forwardFlow);
+    }else if(filename.find(".max") != std::string::npos){
+        readBCSRGraphFromDIMACSFile(filename, V, E, source, sink, &offset, &column, &capacities, &forwardFlow);
+    }else{
+        std::cerr << "Error: file format not supported" << std::endl;
+        return 1;
+    }
 
     // Primo evento per la misurazione del tempo
     cudaEventRecord(startEvent, 0);
