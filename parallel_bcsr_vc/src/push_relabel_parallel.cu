@@ -487,7 +487,7 @@ int executePushRelabel(std::string filename, std::string output){
 
     // Algoritmo push-relabel
     int maxFlow = pushRelabel(V, E, source, sink, height, excess, offset, column, capacities, forwardFlow, totalExcess, d_height, d_excess, d_offset, d_column, d_capacities, d_flows, d_avq);//, d_cycle); //TODO: rimuovere
-    printf("Max flow: %d\n", maxFlow);  //TODO: rimuovere dopo test
+    printf("Max flow: %d\n", maxFlow);  //TODO: rimuovere dopo scrittura su file
     
     // Liberazione memoria device
     HANDLE_ERROR(cudaFree(d_height));
