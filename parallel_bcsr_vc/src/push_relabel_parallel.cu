@@ -434,6 +434,12 @@ std::vector<int> findMinCutSetFromT(int n, int t, int *residual){
 }
 
 int executePushRelabel(std::string filename, std::string output){
+
+    //Dichiarazione degli eventi per la misurazione del tempo
+    cudaEvent_t startEvent, endInitializationEvent, endEvent;
+    cudaEventCreate(&startEvent);
+    cudaEventCreate(&endInitializationEvent);
+    cudaEventCreate(&endEvent);
     
     // Dichiarazione variabili host
     int V, E, source, sink;
@@ -443,6 +449,9 @@ int executePushRelabel(std::string filename, std::string output){
     //TODO: implementare selezione automatica in base a estensione file
     //readBCSRGraphFromFile(filename, V, E, source, sink, &offset, &column, &capacities, &forwardFlow);
     readBCSRGraphFromDIMACSFile(filename, V, E, source, sink, &offset, &column, &capacities, &forwardFlow);
+
+    // Primo evento per la misurazione del tempo
+    cudaEventRecord(startEvent, 0);
 
     // Allocazione memoria host
     height = (int *)malloc(V*sizeof(int));
@@ -485,9 +494,36 @@ int executePushRelabel(std::string filename, std::string output){
     HANDLE_ERROR(cudaMemcpy(d_flows, forwardFlow, E*sizeof(int), cudaMemcpyHostToDevice));
     HANDLE_ERROR(cudaMemcpy(d_avq, avq, V*sizeof(int), cudaMemcpyHostToDevice));
 
+    // Secondo evento per la misurazione del tempo
+    cudaEventRecord(endInitializationEvent, 0);
+
     // Algoritmo push-relabel
     int maxFlow = pushRelabel(V, E, source, sink, height, excess, offset, column, capacities, forwardFlow, totalExcess, d_height, d_excess, d_offset, d_column, d_capacities, d_flows, d_avq);//, d_cycle); //TODO: rimuovere
+    
+    // Terzo evento per la misurazione del tempo
+    cudaEventRecord(endEvent, 0);
+    
     printf("Max flow: %d\n", maxFlow);  //TODO: rimuovere dopo scrittura su file
+    
+    // Attendo la fine dell'evento endEvent
+    cudaEventSynchronize(endEvent);
+    
+    // Misurazione del tempo
+    float initializationTime = 0.0f;
+    float executionTime = 0.0f;
+    float totalTime = 0.0f;
+    cudaEventElapsedTime(&initializationTime, startEvent, endInitializationEvent);
+    cudaEventElapsedTime(&executionTime, endInitializationEvent, endEvent);
+    cudaEventElapsedTime(&totalTime, startEvent, endEvent);
+
+    printf("Initialization time: %f ms\n", initializationTime);
+    printf("Execution time: %f ms\n", executionTime);
+    printf("Total time: %f ms\n", totalTime);
+
+    // Distruzione degli eventi
+    cudaEventDestroy(startEvent);
+    cudaEventDestroy(endInitializationEvent);
+    cudaEventDestroy(endEvent);
     
     // Liberazione memoria device
     HANDLE_ERROR(cudaFree(d_height));
