@@ -262,11 +262,20 @@ int executePushRelabel(std::string filename, std::string output){
 
     pushRelabel(V,source,sink,capacities,residual,height,excess,totalExcess,d_capacities,d_residual,d_height,d_excess);
     
-
-    // Stampa del flusso massimo
-    printf("The maximum flow value of this flow network as calculated by the parallel implementation is %d\n",excess[sink]);
+    //TODO: cambiare i valori con misurazioni effettive
+    auto start = std::chrono::high_resolution_clock::now();
+    auto endInitialization = std::chrono::high_resolution_clock::now();
+    auto end = std::chrono::high_resolution_clock::now();
     
-
+    auto initializationTime = std::chrono::duration_cast<std::chrono::microseconds>(endInitialization - start);
+    auto executionTime = std::chrono::duration_cast<std::chrono::microseconds>(end - endInitialization);
+    auto totalTime = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
+    
+    //std::vector<int> minCut = findMinCutSetFromT(V, sink, residual);
+    //TODO: cambiare mincut con valori effettivi
+    std::vector<int> minCut = {0};
+    writeResultsToFile(output, excess[sink], minCut, initializationTime, executionTime, totalTime);
+    
     // Liberazione della memoria
     cudaFree(d_capacities);
     cudaFree(d_residual);
