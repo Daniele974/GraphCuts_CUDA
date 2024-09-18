@@ -131,7 +131,7 @@ int readBCSRGraphFromFile(std::string filename, int &V, int &E, int &source, int
     return 0;
 }
 
-int readBCSRGraphFromDIMACS(std::string filename, int &V, int &E, int &source, int &sink, int **offset, int **column, int **capacities, int **forwardFlow){
+int readBCSRGraphFromDIMACSFile(std::string filename, int &V, int &E, int &source, int &sink, int **offset, int **column, int **capacities, int **forwardFlow){
     /// Apertura file
     std::ifstream file(filename);
     if (!file.is_open()) {
