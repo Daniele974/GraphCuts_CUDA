@@ -410,24 +410,29 @@ int pushRelabel(int V, int E, int source, int sink, int *height, int *excess, in
     return excess[sink];
 }
 
-// TODO: da rivedere e adattare
 std::vector<int> findMinCutSetFromSink(int V, int sink, int *offset, int *column, int *forwardFlow){
     std::vector<int> minCutSet;
     std::queue<int> q;
     std::vector<bool> visited(V, false);
+
+    // BFS per trovare il taglio minimo a partire dal nodo sink
     minCutSet.push_back(sink);
     q.push(sink);
     visited[sink] = true;
+
     while (!q.empty()) {
         int u = q.front();
         q.pop();
-        for (int i = offset[u]; i < offset[u+1]; i++) {
-            int v = column[i];
-            if (!visited[v] && forwardFlow[i] > 0) {
-                minCutSet.push_back(v);
-                q.push(v);
-                visited[v] = true;
-            }
+
+        // Scansione dei vicini di u che hanno flusso verso u
+        for (int v = 0; v < V; v++) {
+            for (int i = offset[v]; i < offset[v+1]; i++) {
+                if(column[i] == u && forwardFlow[i] > 0 && !visited[v]) {
+                    minCutSet.push_back(v);
+                    q.push(v);
+                    visited[v] = true;
+                }
+            }    
         }
     }
 
@@ -522,7 +527,7 @@ int executePushRelabel(std::string filename, std::string output){
 
     // Calcolo del taglio minimo
     std::vector<int> minCut = findMinCutSetFromSink(V, sink, offset, column, forwardFlow);
-    //std::vector<int> minCut = {0};
+
     // Scrittura risultati su file
     writeResultsToFile(output, maxFlow, minCut, initializationTime, executionTime, totalTime);
 
