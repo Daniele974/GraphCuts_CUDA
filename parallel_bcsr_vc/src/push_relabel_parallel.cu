@@ -410,23 +410,29 @@ int pushRelabel(int V, int E, int source, int sink, int *height, int *excess, in
     return excess[sink];
 }
 
-// TODO: da rivedere e adattare
-std::vector<int> findMinCutSetFromT(int n, int t, int *residual){
+std::vector<int> findMinCutSetFromSink(int V, int sink, int *offset, int *column, int *forwardFlow){
     std::vector<int> minCutSet;
     std::queue<int> q;
-    std::vector<bool> visited(n, false);
-    minCutSet.push_back(t);
-    q.push(t);
-    visited[t] = true;
+    std::vector<bool> visited(V, false);
+
+    // BFS per trovare il taglio minimo a partire dal nodo sink
+    minCutSet.push_back(sink);
+    q.push(sink);
+    visited[sink] = true;
+
     while (!q.empty()) {
         int u = q.front();
         q.pop();
-        for (int v = 0; v < n; ++v) {
-            if (!visited[v] && residual[v*n + u] > 0) {
-                minCutSet.push_back(v);
-                q.push(v);
-                visited[v] = true;
-            }
+
+        // Scansione dei vicini di u che hanno flusso verso u
+        for (int v = 0; v < V; v++) {
+            for (int i = offset[v]; i < offset[v+1]; i++) {
+                if(column[i] == u && forwardFlow[i] > 0 && !visited[v]) {
+                    minCutSet.push_back(v);
+                    q.push(v);
+                    visited[v] = true;
+                }
+            }    
         }
     }
 
@@ -504,16 +510,13 @@ int executePushRelabel(std::string filename, std::string output){
     cudaEventRecord(endInitializationEvent, 0);
 
     // Algoritmo push-relabel
-    int maxFlow = pushRelabel(V, E, source, sink, height, excess, offset, column, capacities, forwardFlow, totalExcess, d_height, d_excess, d_offset, d_column, d_capacities, d_flows, d_avq);//, d_cycle); //TODO: rimuovere
+    int maxFlow = pushRelabel(V, E, source, sink, height, excess, offset, column, capacities, forwardFlow, totalExcess, d_height, d_excess, d_offset, d_column, d_capacities, d_flows, d_avq);
     
     // Terzo evento per la misurazione del tempo
     cudaEventRecord(endEvent, 0);
     
     // Attendo la fine dell'evento endEvent
     cudaEventSynchronize(endEvent);
-
-    // Calcolo del taglio minimo
-    std::vector<int> minCut = {0};  //TODO: implementare funzione per trovare il taglio minimo
     
     // Misurazione del tempo
     float initializationTime = 0.0f;
@@ -527,7 +530,10 @@ int executePushRelabel(std::string filename, std::string output){
     cudaEventDestroy(startEvent);
     cudaEventDestroy(endInitializationEvent);
     cudaEventDestroy(endEvent);
-    
+
+    // Calcolo del taglio minimo
+    std::vector<int> minCut = findMinCutSetFromSink(V, sink, offset, column, forwardFlow);
+
     // Scrittura risultati su file
     writeResultsToFile(output, maxFlow, minCut, initializationTime, executionTime, totalTime);
 
