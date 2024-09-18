@@ -47,6 +47,38 @@ parallel/file_manager.o: parallel/src/file_manager.cpp
 parallel/file_manager2.o: parallel/src/file_manager2.cu
 	$(NVCC) $(NVCCOPTS) -c parallel/src/file_manager2.cu -o parallel/file_manager2.o
 
+# PARALLEL BCSR
+prparallelbcsr: parallel_bcsr_vc/main.o parallel_bcsr_vc/push_relabel_parallel.o parallel_bcsr_vc/utils.o parallel_bcsr_vc/file_manager.o
+	$(NVCC) $(NVCCOPTS) parallel_bcsr_vc/main.o parallel_bcsr_vc/push_relabel_parallel.o parallel_bcsr_vc/utils.o parallel_bcsr_vc/file_manager.o -o parallel_bcsr_vc/prparallelbcsr
+
+parallel_bcsr_vc/main.o: parallel_bcsr_vc/main.cu
+	$(NVCC) $(NVCCOPTS) -c parallel_bcsr_vc/main.cu -o parallel_bcsr_vc/main.o
+
+parallel_bcsr_vc/push_relabel_parallel.o: parallel_bcsr_vc/src/push_relabel_parallel.cu
+	$(NVCC) $(NVCCOPTS) -c parallel_bcsr_vc/src/push_relabel_parallel.cu -o parallel_bcsr_vc/push_relabel_parallel.o
+
+parallel_bcsr_vc/utils.o: parallel_bcsr_vc/src/utils.cpp
+	$(CC) $(CCOPTS) -c parallel_bcsr_vc/src/utils.cpp -o parallel_bcsr_vc/utils.o
+
+parallel_bcsr_vc/file_manager.o: parallel_bcsr_vc/src/file_manager.cpp
+	$(CC) $(CCOPTS) -c parallel_bcsr_vc/src/file_manager.cpp -o parallel_bcsr_vc/file_manager.o
+
+# PARALLEL 3
+prparallel3: parallel3/main.o parallel3/push_relabel_parallel.o parallel3/utils.o parallel3/file_manager.o
+	$(NVCC) $(NVCCOPTS) parallel3/main.o parallel3/push_relabel_parallel.o parallel3/utils.o parallel3/file_manager.o -o parallel3/prparallel3
+
+parallel3/main.o: parallel3/main.cu
+	$(NVCC) $(NVCCOPTS) -c parallel3/main.cu -o parallel3/main.o
+
+parallel3/push_relabel_parallel.o: parallel3/src/push_relabel_parallel.cu
+	$(NVCC) $(NVCCOPTS) -c parallel3/src/push_relabel_parallel.cu -o parallel3/push_relabel_parallel.o
+
+parallel3/utils.o: parallel3/src/utils.cpp
+	$(CC) $(CCOPTS) -c parallel3/src/utils.cpp -o parallel3/utils.o
+
+parallel3/file_manager.o: parallel3/src/file_manager.cpp
+	$(CC) $(CCOPTS) -c parallel3/src/file_manager.cpp -o parallel3/file_manager.o
+
 # TEST
 n ?= 1
 
@@ -87,6 +119,8 @@ clean:
 	find . -name "prserial" -type f -delete 
 	find . -name "prparallel" -type f -delete
 	find . -name "prparallel2" -type f -delete
+	find . -name "prparallel3" -type f -delete
+	find . -name "prparallelbcsr" -type f -delete
 
 cleanwin:
 	del /s *.o *.exe *.exp *.lib 

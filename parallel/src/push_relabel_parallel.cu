@@ -1,5 +1,22 @@
 #include "../include/push_relabel_parallel.cuh"
 
+static void HandleError(cudaError_t err, const char *file, int line) {
+    if (err != cudaSuccess) {
+        printf("%s in %s at line %d\n", cudaGetErrorString(err), file, line);
+        exit(EXIT_FAILURE);
+    }
+}
+ 
+#define HANDLE_ERROR(err) (HandleError(err, __FILE__, __LINE__))
+
+void checkCUDAError(const char *msg) {
+    cudaError_t err = cudaGetLastError();
+    if (err != cudaSuccess) {
+        fprintf(stderr, "CUDA error: %s: %s.\n", msg, cudaGetErrorString(err));
+        exit(EXIT_FAILURE);
+    }
+}
+
 void initialize(int *capacity, int *excess, int *height, int *residual, int *totalExcess, int n, int s){
     for (int i = 0; i < n; i++){
         height[i] = 0;
@@ -127,16 +144,20 @@ int pushRelabel(int *capacity, int *excess, int *height, int *residual, int *d_c
     dim3 gridSize((n + blockSize.x - 1) / blockSize.x);
     
     while ((excess[s]+excess[t])<*totalExcess){
-        
+
+        std::cout << "Source excess: " << excess[s] << " Sink excess: " << excess[t] << " Total excess: " << *totalExcess << std::endl;
+
         if(_DEBUG) std::cout << "Push..." << std::endl;
-        cudaMemcpy(d_height, height, n*sizeof(int), cudaMemcpyHostToDevice);
+        //HANDLE_ERROR(cudaMemcpy(d_excess, excess, n*sizeof(int), cudaMemcpyHostToDevice));
+        HANDLE_ERROR(cudaMemcpy(d_height, height, n*sizeof(int), cudaMemcpyHostToDevice));
+        //HANDLE_ERROR(cudaMemcpy(d_residual, residual, n*n*sizeof(int), cudaMemcpyHostToDevice));
         pushKernel<<<gridSize, blockSize>>>(d_capacity, d_excess, d_height, d_residual, n);
         cudaDeviceSynchronize();
         if(_DEBUG) std::cout << "Push done" << std::endl;
 
-        cudaMemcpy(excess, d_excess, n*sizeof(int), cudaMemcpyDeviceToHost);
-        cudaMemcpy(height, d_height, n*sizeof(int), cudaMemcpyDeviceToHost);
-        cudaMemcpy(residual, d_residual, n*n*sizeof(int), cudaMemcpyDeviceToHost);
+        HANDLE_ERROR(cudaMemcpy(excess, d_excess, n*sizeof(int), cudaMemcpyDeviceToHost));
+        HANDLE_ERROR(cudaMemcpy(height, d_height, n*sizeof(int), cudaMemcpyDeviceToHost));
+        HANDLE_ERROR(cudaMemcpy(residual, d_residual, n*n*sizeof(int), cudaMemcpyDeviceToHost));
 
         if(_DEBUG) printStatus(capacity, excess, height, residual, totalExcess, n);
 
@@ -191,10 +212,10 @@ int executePushRelabel(std::string filename, std::string output){
 
     int *d_capacity, *d_excess, *d_height, *d_residual;    
 
-    cudaMalloc((void**)&d_capacity, n*n*sizeof(int));
-    cudaMalloc((void**)&d_excess, n*sizeof(int));
-    cudaMalloc((void**)&d_height, n*sizeof(int));
-    cudaMalloc((void**)&d_residual, n*n*sizeof(int));
+    HANDLE_ERROR(cudaMalloc((void**)&d_capacity, n*n*sizeof(int)));
+    HANDLE_ERROR(cudaMalloc((void**)&d_excess, n*sizeof(int)));
+    HANDLE_ERROR(cudaMalloc((void**)&d_height, n*sizeof(int)));
+    HANDLE_ERROR(cudaMalloc((void**)&d_residual, n*n*sizeof(int)));
 
     initialize(capacity, excess, height, residual, totalExcess, n, s);
 
@@ -203,10 +224,10 @@ int executePushRelabel(std::string filename, std::string output){
     
     const auto endInitialization = std::chrono::high_resolution_clock::now();
 
-    cudaMemcpy(d_capacity, capacity, n*n*sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_excess, excess, n*sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_height, height, n*sizeof(int), cudaMemcpyHostToDevice);
-    cudaMemcpy(d_residual, residual, n*n*sizeof(int), cudaMemcpyHostToDevice);
+    HANDLE_ERROR(cudaMemcpy(d_capacity, capacity, n*n*sizeof(int), cudaMemcpyHostToDevice));
+    HANDLE_ERROR(cudaMemcpy(d_excess, excess, n*sizeof(int), cudaMemcpyHostToDevice));
+    HANDLE_ERROR(cudaMemcpy(d_height, height, n*sizeof(int), cudaMemcpyHostToDevice));
+    HANDLE_ERROR(cudaMemcpy(d_residual, residual, n*n*sizeof(int), cudaMemcpyHostToDevice));
     
     if(_DEBUG) std::cout << "Push relabel..." << std::endl;
     int maxFlow = pushRelabel(capacity, excess, height, residual, d_capacity, d_excess, d_height, d_residual, totalExcess, n, s, t);
