@@ -46,7 +46,7 @@ int readGraphFromFile(string filename, int &n, vector<vector<int>> &capacity)
     return 0;
 }
 
-int writeResultsToFile(string filename, int maxFlow, vector<int> minCut, chrono::duration<double> initializationTime, chrono::duration<double> executionTime, chrono::duration<double> totalTime){
+int writeResultsToFile(string filename, int maxFlow, vector<int> minCut, double initializationTime, double executionTime, double totalTime){
     // Creazione del documento JSON 
     Document d; 
     d.SetObject(); 
@@ -56,9 +56,9 @@ int writeResultsToFile(string filename, int maxFlow, vector<int> minCut, chrono:
     Value minCutSet(kArrayType);
     for (int i = 0; i < minCut.size(); i++) minCutSet.PushBack(minCut[i], d.GetAllocator());
     d.AddMember("minCut", minCutSet, d.GetAllocator());
-    d.AddMember("initializationTime", initializationTime.count(), d.GetAllocator());
-    d.AddMember("executionTime", executionTime.count(), d.GetAllocator());
-    d.AddMember("totalTime", totalTime.count(), d.GetAllocator());
+    d.AddMember("initializationTime", initializationTime, d.GetAllocator());
+    d.AddMember("executionTime", executionTime, d.GetAllocator());
+    d.AddMember("totalTime", totalTime, d.GetAllocator());
     
     // Apertura file di output
     ofstream file(filename); 
