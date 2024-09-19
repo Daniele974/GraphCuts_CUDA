@@ -12,12 +12,13 @@
 
 ./parallel/prparallel "input_data/graph7.txt" "results/graph7_parallel_results.json"
 
-#./parallel/prparallel "input_data/graph8.txt" "results/graph8_parallel_results.json"
+./parallel/prparallel "input_data/graph3b.txt" "results/graph3b_parallel_results.json"
 
-#./parallel/prparallel "input_data/graph9.txt" "results/graph9_parallel_results.json"
+./parallel/prparallel "input_data/graph4b.txt" "results/graph4b_parallel_results.json"
 
-#./parallel/prparallel "input_data/graph10.txt" "results/graph10_parallel_results.json"
+./parallel/prparallel "input_data/graph5b.txt" "results/graph5b_parallel_results.json"
 
-#./parallel/prparallel "input_data/graph11.txt" "results/graph11_parallel_results.json"
+./parallel/prparallel "input_data/graph6b.txt" "results/graph6b_parallel_results.json"
 
-#./parallel/prparallel "input_data/graph12.txt" "results/graph12_parallel_results.json"
+./parallel/prparallel "input_data/graph7b.txt" "results/graph7b_parallel_results.json"
+

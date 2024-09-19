@@ -83,9 +83,10 @@ parallel_old/utils.o: parallel_old/src/utils.cpp
 # TEST
 n ?= 1
 
-test: test.sh all
-	chmod +x test.sh
-	./test.sh
+test: 
+	make testserial
+	make testparallel
+	make testparallelbcsr
 
 testserial: prserial serial/testserial.sh
 	chmod +x ./serial/testserial.sh
@@ -105,14 +106,14 @@ testparallel: prparallel parallel/testparallel.sh
 	done; \
 	true
 
-# testparallel2: prparallel2 parallel/testparallel2.sh
-# 	chmod +x ./parallel/testparallel2.sh
-# 	n=$(n); \
-# 	while [ $${n} -gt 0 ] ; do \
-# 		./parallel/testparallel2.sh; \
-# 		n=`expr $$n - 1`; \
-# 	done; \
-# 	true
+testparallelbcsr: prparallelbcsr parallel_bcsr_vc/testparallelbcsr.sh
+	chmod +x ./parallel_bcsr_vc/testparallelbcsr.sh
+	n=$(n); \
+	while [ $${n} -gt 0 ] ; do \
+		./parallel_bcsr_vc/testparallelbcsr.sh; \
+		n=`expr $$n - 1`; \
+	done; \
+	true
 
 # CLEAN
 clean:
@@ -135,5 +136,5 @@ cleanserialresults:
 cleanparallelresults:
 	find ./results -name "*parallel_*.json" -type f -delete
 
-# cleanparallel2results:
-# 	find ./results -name "*parallel2_*.json" -type f -delete
+cleanparallelbcsrresults:
+	find ./results -name "*parallelbcsr_*.json" -type f -delete
