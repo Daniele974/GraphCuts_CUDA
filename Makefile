@@ -89,6 +89,7 @@ test:
 	make testparallelbcsr
 
 testserial: prserial serial/testserial.sh
+	if [ ! -d "./results" ]; then mkdir results; fi
 	chmod +x ./serial/testserial.sh
 	n=$(n); \
 	while [ $${n} -gt 0 ] ; do \
@@ -98,6 +99,7 @@ testserial: prserial serial/testserial.sh
 	true
 
 testparallel: prparallel parallel/testparallel.sh
+	if [ ! -d "./results" ]; then mkdir results; fi
 	chmod +x ./parallel/testparallel.sh
 	n=$(n); \
 	while [ $${n} -gt 0 ] ; do \
@@ -107,6 +109,7 @@ testparallel: prparallel parallel/testparallel.sh
 	true
 
 testparallelbcsr: prparallelbcsr parallel_bcsr_vc/testparallelbcsr.sh
+	if [ ! -d "./results" ]; then mkdir results; fi
 	chmod +x ./parallel_bcsr_vc/testparallelbcsr.sh
 	n=$(n); \
 	while [ $${n} -gt 0 ] ; do \
