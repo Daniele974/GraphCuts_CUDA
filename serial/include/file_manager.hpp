@@ -13,4 +13,4 @@ using namespace std;
 
 int readGraphFromFile(string, int&, vector<vector<int>>&);
 
-int writeResultsToFile(string, int, vector<int>, chrono::duration<double>, chrono::duration<double>, chrono::duration<double>);
+int writeResultsToFile(string, int, vector<int>, double, double, double);

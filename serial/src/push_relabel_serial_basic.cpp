@@ -173,14 +173,14 @@ int executePushRelabel(string filename, string outputFilename){
     // Restituzione flusso massimo
     if(debug) cout << "Flusso massimo: " << excess[t] << endl;
 
-    auto initializationTime = chrono::duration_cast<chrono::microseconds>(endInitialization - start);
-    if(debug) cout<<"Tempo inizializzazione: "<<initializationTime.count()<<" us"<<endl;
+    double initializationTime = chrono::duration_cast<chrono::microseconds>(endInitialization - start).count()/1000.0;
+    if(debug) cout<<"Tempo inizializzazione: "<<initializationTime<<" ms"<<endl;
 
-    auto executionTime = chrono::duration_cast<chrono::microseconds>(end - endInitialization);
-    if(debug) cout<<"Tempo esecuzione: "<<executionTime.count()<<" us"<<endl;
+    double executionTime = chrono::duration_cast<chrono::microseconds>(end - endInitialization).count()/1000.0;
+    if(debug) cout<<"Tempo esecuzione: "<<executionTime<<" ms"<<endl;
 
-    auto totalTime = chrono::duration_cast<chrono::microseconds>(end - start);
-    if(debug) cout<<"Tempo totale: "<<totalTime.count()<<" us"<<endl;
+    double totalTime = chrono::duration_cast<chrono::microseconds>(end - start).count()/1000.0;
+    if(debug) cout<<"Tempo totale: "<<totalTime<<" ms"<<endl;
 
     writeResultsToFile(outputFilename, excess[t], minCut, initializationTime, executionTime, totalTime);
     
