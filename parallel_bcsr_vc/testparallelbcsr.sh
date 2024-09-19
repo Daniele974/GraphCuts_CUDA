@@ -42,8 +42,8 @@
 
 ./parallel_bcsr_vc/prparallelbcsr "input_data/graph9b.txt" "results/graph9b_parallelbcsr_results.json"
 
-./parallel_bcsr_vc/prparallelbcsr "input_data/graph10b.txt" "results/graph10b_parallelbcsr_results.json"
+#./parallel_bcsr_vc/prparallelbcsr "input_data/graph10b.txt" "results/graph10b_parallelbcsr_results.json"
 
-./parallel_bcsr_vc/prparallelbcsr "input_data/graph11b.txt" "results/graph11b_parallelbcsr_results.json"
+#./parallel_bcsr_vc/prparallelbcsr "input_data/graph11b.txt" "results/graph11b_parallelbcsr_results.json"
 
-./parallel_bcsr_vc/prparallelbcsr "input_data/graph12b.txt" "results/graph12b_parallelbcsr_results.json"
+#./parallel_bcsr_vc/prparallelbcsr "input_data/graph12b.txt" "results/graph12b_parallelbcsr_results.json"
