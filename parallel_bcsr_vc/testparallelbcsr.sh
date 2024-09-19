@@ -1,3 +1,5 @@
+# TEST SU GRAFI DIRETTI GENERATI CASUALMENTE
+
 ./parallel_bcsr_vc/prparallelbcsr "input_data/graph1.txt" "results/graph1_parallelbcsr_results.json"
 
 ./parallel_bcsr_vc/prparallelbcsr "input_data/graph2.txt" "results/graph2_parallelbcsr_results.json"
@@ -13,6 +15,18 @@
 ./parallel_bcsr_vc/prparallelbcsr "input_data/graph7.txt" "results/graph7_parallelbcsr_results.json"
 
 ./parallel_bcsr_vc/prparallelbcsr "input_data/graph8.txt" "results/graph8_parallelbcsr_results.json"
+
+# TEST SU GRAFI DIRETTI DA REPOSITORY ONLINE (FORMATO DIMACS)
+
+./parallel_bcsr_vc/prparallelbcsr "input_data/dimacs/BVZ-tsukuba0.max" "results/BVZ-tsukuba0_parallelbcsr_results.json"
+
+./parallel_bcsr_vc/prparallelbcsr "input_data/dimacs/BVZ-tsukuba1.max" "results/BVZ-tsukuba1_parallelbcsr_results.json"
+
+./parallel_bcsr_vc/prparallelbcsr "input_data/dimacs/BVZ-tsukuba2.max" "results/BVZ-tsukuba2_parallelbcsr_results.json"
+
+./parallel_bcsr_vc/prparallelbcsr "input_data/dimacs/BVZ-tsukuba3.max" "results/BVZ-tsukuba3_parallelbcsr_results.json"
+
+# TEST SU GRAFI INDIRETTI GENERATI CASUALMENTE
 
 ./parallel_bcsr_vc/prparallelbcsr "input_data/graph3b.txt" "results/graph3b_parallelbcsr_results.json"
 
