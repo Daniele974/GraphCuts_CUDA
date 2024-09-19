@@ -4,6 +4,7 @@
 #include <vector>
 #include <regex>
 #include <chrono>
+#include <ctime>
 #include "rapidjson/document.h" 
 #include "rapidjson/filewritestream.h" 
 #include "rapidjson/writer.h" 
