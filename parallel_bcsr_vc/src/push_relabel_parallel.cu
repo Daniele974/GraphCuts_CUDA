@@ -535,7 +535,7 @@ int executePushRelabel(std::string filename, std::string output){
     std::vector<int> minCut = findMinCutSetFromSink(V, sink, offset, column, forwardFlow);
 
     // Scrittura risultati su file
-    writeResultsToFile(output, maxFlow, minCut, initializationTime, executionTime, totalTime);
+    writeResultsToFile(output, maxFlow, minCut, initializationTime, executionTime, totalTime, V, E/2);
 
     // Liberazione memoria device
     HANDLE_ERROR(cudaFree(d_height));

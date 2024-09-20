@@ -3,7 +3,7 @@
 using namespace std;
 using namespace rapidjson;
 
-int readGraphFromFile(string filename, int &n, vector<vector<int>> &capacity)
+int readGraphFromFile(string filename, int &n, int &e, vector<vector<int>> &capacity)
 {
     /// Apertura file
     ifstream file(filename);
@@ -18,10 +18,9 @@ int readGraphFromFile(string filename, int &n, vector<vector<int>> &capacity)
     
     // Espressione regolare per trovare numeri
     regex number_regex(R"(\d+)");
-    
-    while (file)
+    e = 0;
+    while (getline(file, line))
     {
-        getline(file, line);
         lineno++;
         auto words_begin = sregex_iterator(line.begin(), line.end(), number_regex);
         auto words_end = sregex_iterator();
@@ -35,6 +34,7 @@ int readGraphFromFile(string filename, int &n, vector<vector<int>> &capacity)
             capacity.resize(n, vector<int>(n, 0));
         }else if(line[0] == 'e' && numbers.size() > 2){ 
             capacity[numbers[0]][numbers[1]] = numbers[2];
+            e++;
         }else{
             if(!line.empty()) cout << "Error in line " << lineno << endl;
         }
@@ -46,7 +46,7 @@ int readGraphFromFile(string filename, int &n, vector<vector<int>> &capacity)
     return 0;
 }
 
-int writeResultsToFile(string filename, int maxFlow, vector<int> minCut, double initializationTime, double executionTime, double totalTime){
+int writeResultsToFile(string filename, int maxFlow, vector<int> minCut, double initializationTime, double executionTime, double totalTime, int n, int e){
     // Creazione del documento JSON 
     Document d; 
     d.SetObject(); 
@@ -59,6 +59,8 @@ int writeResultsToFile(string filename, int maxFlow, vector<int> minCut, double 
     d.AddMember("initializationTime", initializationTime, d.GetAllocator());
     d.AddMember("executionTime", executionTime, d.GetAllocator());
     d.AddMember("totalTime", totalTime, d.GetAllocator());
+    d.AddMember("V", n, d.GetAllocator());
+    d.AddMember("E", e, d.GetAllocator());
     
     // Generazione del timestamp
     std::time_t t = std::time(nullptr);

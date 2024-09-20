@@ -10,4 +10,4 @@
 
 int readGraphFromFile(std::string filename, int &n, int **capacity);
 
-int writeResultsToFile(std::string, int, std::vector<int>, float, float, float);
+int writeResultsToFile(std::string, int, std::vector<int>, float, float, float, int, int);
