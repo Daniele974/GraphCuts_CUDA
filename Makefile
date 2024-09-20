@@ -93,7 +93,7 @@ testserial: prserial serial/testserial.sh
 	chmod +x ./serial/testserial.sh
 	n=$(n); \
 	while [ $${n} -gt 0 ] ; do \
-		echo "Cycle: $$n"; \
+		echo "Cicli rimanenti: $$n"; \
 		./serial/testserial.sh; \
 		n=`expr $$n - 1`; \
 	done; \
@@ -104,7 +104,7 @@ testparallel: prparallel parallel/testparallel.sh
 	chmod +x ./parallel/testparallel.sh
 	n=$(n); \
 	while [ $${n} -gt 0 ] ; do \
-		echo "Cycle: $$n"; \
+		echo "Cicli rimanenti: $$n"; \
 		./parallel/testparallel.sh; \
 		n=`expr $$n - 1`; \
 	done; \
@@ -115,7 +115,7 @@ testparallelbcsr: prparallelbcsr parallel_bcsr_vc/testparallelbcsr.sh
 	chmod +x ./parallel_bcsr_vc/testparallelbcsr.sh
 	n=$(n); \
 	while [ $${n} -gt 0 ] ; do \
-		echo "Cycle: $$n"; \
+		echo "Cicli rimanenti: $$n"; \
 		./parallel_bcsr_vc/testparallelbcsr.sh; \
 		n=`expr $$n - 1`; \
 	done; \
