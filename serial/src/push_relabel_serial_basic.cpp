@@ -6,7 +6,7 @@ const int inf = 1000000000;
 
 int debug = 0;
 
-int n, s, t;
+int n, e, s, t;
 vector<vector<int>> capacity, flow;
 vector<int> height, excess, seen;
 queue<int> active_nodes;
@@ -124,7 +124,7 @@ vector<int> findMinCutSetFromT() {
 int executePushRelabel(string filename, string outputFilename){
 
     // Inizializzazione grafo
-    readGraphFromFile(filename, n, capacity);
+    readGraphFromFile(filename, n, e, capacity);
 
     const auto start = chrono::high_resolution_clock::now();
 
@@ -182,7 +182,7 @@ int executePushRelabel(string filename, string outputFilename){
     double totalTime = chrono::duration_cast<chrono::microseconds>(end - start).count()/1000.0;
     if(debug) cout<<"Tempo totale: "<<totalTime<<" ms"<<endl;
 
-    writeResultsToFile(outputFilename, excess[t], minCut, initializationTime, executionTime, totalTime);
+    writeResultsToFile(outputFilename, excess[t], minCut, initializationTime, executionTime, totalTime, n, e);
     
     return excess[t];
 }

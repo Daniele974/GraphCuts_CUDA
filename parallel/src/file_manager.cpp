@@ -62,7 +62,7 @@ int readGraphFromFile(std::string filename, int &n, int **capacity){
     return 0;
 }
 
-int writeResultsToFile(std::string filename, int maxFlow, std::vector<int> minCut, float initializationTime, float executionTime, float totalTime){
+int writeResultsToFile(std::string filename, int maxFlow, std::vector<int> minCut, float initializationTime, float executionTime, float totalTime, int V, int E){
     // Creazione del documento JSON 
     rapidjson::Document d; 
     d.SetObject(); 
@@ -75,6 +75,8 @@ int writeResultsToFile(std::string filename, int maxFlow, std::vector<int> minCu
     d.AddMember("initializationTime", initializationTime, d.GetAllocator());
     d.AddMember("executionTime", executionTime, d.GetAllocator());
     d.AddMember("totalTime", totalTime, d.GetAllocator());
+    d.AddMember("V", V, d.GetAllocator());
+    d.AddMember("E", E, d.GetAllocator());
 
     // Generazione del timestamp
     std::time_t t = std::time(nullptr);

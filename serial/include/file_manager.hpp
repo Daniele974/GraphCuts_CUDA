@@ -12,6 +12,6 @@
 
 using namespace std;
 
-int readGraphFromFile(string, int&, vector<vector<int>>&);
+int readGraphFromFile(string, int&, int&, vector<vector<int>>&);
 
-int writeResultsToFile(string, int, vector<int>, double, double, double);
+int writeResultsToFile(string, int, vector<int>, double, double, double, int, int);
