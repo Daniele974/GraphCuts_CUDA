@@ -26,6 +26,30 @@
 
 ./parallel_bcsr_vc/prparallelbcsr "input_data/dimacs/BVZ-tsukuba3.max" "results/BVZ-tsukuba3_parallelbcsr_results.json"
 
+./parallel_bcsr_vc/prparallelbcsr "input_data/dimacs/BVZ-tsukuba4.max" "results/BVZ-tsukuba4_parallelbcsr_results.json"
+
+./parallel_bcsr_vc/prparallelbcsr "input_data/dimacs/BVZ-tsukuba5.max" "results/BVZ-tsukuba5_parallelbcsr_results.json"
+
+./parallel_bcsr_vc/prparallelbcsr "input_data/dimacs/BVZ-tsukuba6.max" "results/BVZ-tsukuba6_parallelbcsr_results.json"
+
+./parallel_bcsr_vc/prparallelbcsr "input_data/dimacs/BVZ-tsukuba7.max" "results/BVZ-tsukuba7_parallelbcsr_results.json"
+
+./parallel_bcsr_vc/prparallelbcsr "input_data/dimacs/BVZ-tsukuba8.max" "results/BVZ-tsukuba8_parallelbcsr_results.json"
+
+./parallel_bcsr_vc/prparallelbcsr "input_data/dimacs/BVZ-tsukuba9.max" "results/BVZ-tsukuba9_parallelbcsr_results.json"
+
+./parallel_bcsr_vc/prparallelbcsr "input_data/dimacs/BVZ-tsukuba10.max" "results/BVZ-tsukuba10_parallelbcsr_results.json"
+
+./parallel_bcsr_vc/prparallelbcsr "input_data/dimacs/BVZ-tsukuba11.max" "results/BVZ-tsukuba11_parallelbcsr_results.json"
+
+./parallel_bcsr_vc/prparallelbcsr "input_data/dimacs/BVZ-tsukuba12.max" "results/BVZ-tsukuba12_parallelbcsr_results.json"
+
+./parallel_bcsr_vc/prparallelbcsr "input_data/dimacs/BVZ-tsukuba13.max" "results/BVZ-tsukuba13_parallelbcsr_results.json"
+
+./parallel_bcsr_vc/prparallelbcsr "input_data/dimacs/BVZ-tsukuba14.max" "results/BVZ-tsukuba14_parallelbcsr_results.json"
+
+./parallel_bcsr_vc/prparallelbcsr "input_data/dimacs/BVZ-tsukuba15.max" "results/BVZ-tsukuba15_parallelbcsr_results.json"
+
 # TEST SU GRAFI INDIRETTI GENERATI CASUALMENTE
 
 ./parallel_bcsr_vc/prparallelbcsr "input_data/graph3b.txt" "results/graph3b_parallelbcsr_results.json"
