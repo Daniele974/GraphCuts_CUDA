@@ -9,6 +9,7 @@
 *.lib
 *.o
 *.vscode
+*.DS_Store
 graph10b.txt
 graph11b.txt
 graph12b.txt
