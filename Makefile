@@ -121,6 +121,28 @@ testparallelbcsr: prparallelbcsr parallel_bcsr_vc/testparallelbcsr.sh
 	done; \
 	true
 
+testdensityparallel: prparallel parallel/testparalleldensity.sh
+	if [ ! -d "./results" ]; then mkdir results; fi
+	chmod +x ./parallel/testparalleldensity.sh
+	n=$(n); \
+	while [ $${n} -gt 0 ] ; do \
+		echo "Cicli rimanenti: $$n"; \
+		./parallel/testparalleldensity.sh; \
+		n=`expr $$n - 1`; \
+	done; \
+	true
+
+testdensityparallelbcsr: prparallelbcsr parallel_bcsr_vc/testparallelbcsrdensity.sh
+	if [ ! -d "./results" ]; then mkdir results; fi
+	chmod +x ./parallel_bcsr_vc/testparallelbcsrdensity.sh
+	n=$(n); \
+	while [ $${n} -gt 0 ] ; do \
+		echo "Cicli rimanenti: $$n"; \
+		./parallel_bcsr_vc/testparallelbcsrdensity.sh; \
+		n=`expr $$n - 1`; \
+	done; \
+	true
+
 # CLEAN
 clean:
 	find . -name "*.o" -type f -delete 
