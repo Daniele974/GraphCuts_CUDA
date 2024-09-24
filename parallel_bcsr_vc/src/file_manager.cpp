@@ -2,7 +2,7 @@
 
 bool debug = false;
 
-int readBCSRGraphFromFile(std::string filename, int &V, int &E, int &source, int &sink, int **offset, int **column, int **capacities, int **forwardFlow){
+int readBCSRGraphFromFile(std::string filename, int &V, int &E, int &realE, int &source, int &sink, int **offset, int **column, int **capacities, int **forwardFlow){
     /// Apertura file
     std::ifstream file(filename);
     if (!file.is_open()) {
@@ -19,6 +19,7 @@ int readBCSRGraphFromFile(std::string filename, int &V, int &E, int &source, int
     std::vector<std::vector<std::pair<int, int>>> graph;
 
     int numEdges = 0;
+    int realEdges = 0;
 
     while (std::getline(file, line))
     {
@@ -59,9 +60,11 @@ int readBCSRGraphFromFile(std::string filename, int &V, int &E, int &source, int
             if(graph[u].empty()){
                 graph[u].push_back(std::make_pair(v, c));
                 numEdges++;
+                realEdges++;
             }else if(graph[u].back().first < v){
                 graph[u].push_back(std::make_pair(v, c));
                 numEdges++;
+                realEdges++;
             }else{
                 for (int i = 0; i < graph[u].size(); i++){   
                     if(graph[u][i].first == v){
@@ -72,6 +75,7 @@ int readBCSRGraphFromFile(std::string filename, int &V, int &E, int &source, int
                         insertIndex = i;
                         graph[u].insert(graph[u].begin() + insertIndex, std::make_pair(v, c));
                         numEdges++;
+                        realEdges++;
                         break;
                     }
                 }
@@ -106,6 +110,7 @@ int readBCSRGraphFromFile(std::string filename, int &V, int &E, int &source, int
     }
 
     E = numEdges;
+    realE = realEdges;
 
     (*offset) = (int *)malloc((V + 1) * sizeof(int));
     (*column) = (int *)malloc(E * sizeof(int));
@@ -131,7 +136,7 @@ int readBCSRGraphFromFile(std::string filename, int &V, int &E, int &source, int
     return 0;
 }
 
-int readBCSRGraphFromDIMACSFile(std::string filename, int &V, int &E, int &source, int &sink, int **offset, int **column, int **capacities, int **forwardFlow){
+int readBCSRGraphFromDIMACSFile(std::string filename, int &V, int &E, int &realE, int &source, int &sink, int **offset, int **column, int **capacities, int **forwardFlow){
     /// Apertura file
     std::ifstream file(filename);
     if (!file.is_open()) {
@@ -148,6 +153,7 @@ int readBCSRGraphFromDIMACSFile(std::string filename, int &V, int &E, int &sourc
     std::vector<std::vector<std::pair<int, int>>> graph;
 
     int numEdges = 0;
+    int realEdges = 0;
 
     while(std::getline(file, line)){
         lineno++;
@@ -173,7 +179,7 @@ int readBCSRGraphFromDIMACSFile(std::string filename, int &V, int &E, int &sourc
 
         if(linewords[0] == "p" && linewords.size() >= 4){
             V = std::stoi(linewords[2]);
-            E = std::stoi(linewords[3]);
+            realE = std::stoi(linewords[3]);
             if (debug)std::cout << "V: " << V <<std::endl;
             if (debug)std::cout << "E: " << E <<std::endl;
             graph.resize(V);
