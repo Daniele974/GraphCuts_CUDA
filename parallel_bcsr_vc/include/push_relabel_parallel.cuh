@@ -42,4 +42,4 @@ int pushRelabel(int V, int E, int source, int sink, int *height, int *excess, in
 
 std::vector<int> findMinCutSetFromSink(int V, int sink, int *offset, int *column, int *forwardFlow);
 
-int executePushRelabel(std::string filename, std::string output);
+int executePushRelabel(std::string filename, std::string output, bool computeMinCut);

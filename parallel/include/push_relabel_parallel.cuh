@@ -34,4 +34,4 @@ void pushRelabel(int V, int source, int sink, int *capacities, int *residual, in
 
 std::vector<int> findMinCutSetFromT(int n, int t, int *residual);
 
-int executePushRelabel(std::string filename, std::string output);
+int executePushRelabel(std::string filename, std::string output, bool computeMinCut);

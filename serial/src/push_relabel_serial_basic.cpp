@@ -121,7 +121,7 @@ vector<int> findMinCutSetFromT() {
     return minCutSet;
 }
 
-int executePushRelabel(string filename, string outputFilename){
+int executePushRelabel(string filename, string outputFilename, bool computeMinCut){
 
     // Inizializzazione grafo
     readGraphFromFile(filename, n, e, capacity);
@@ -166,7 +166,10 @@ int executePushRelabel(string filename, string outputFilename){
     
     const auto end = chrono::high_resolution_clock::now();
     
-    vector<int> minCut = findMinCutSetFromT();
+    vector<int> minCut = {};
+    if(computeMinCut){
+        minCut = findMinCutSetFromT();
+    }
     
     if(debug) cout << "Calcolo flusso massimo completato" << endl;
 
