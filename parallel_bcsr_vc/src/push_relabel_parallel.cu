@@ -448,15 +448,15 @@ int executePushRelabel(std::string filename, std::string output, bool computeMin
     cudaEventCreate(&endEvent);
     
     // Dichiarazione variabili host
-    int V, E, source, sink;
+    int V, E, realE, source, sink;
     int *offset, *column, *capacities, *forwardFlow;
     int *height, *excess,  *totalExcess, *avq;
 
     // Controllo estensione file e lettura grafo
     if(filename.find(".txt") != std::string::npos){
-        readBCSRGraphFromFile(filename, V, E, source, sink, &offset, &column, &capacities, &forwardFlow);
+        readBCSRGraphFromFile(filename, V, E, realE, source, sink, &offset, &column, &capacities, &forwardFlow);
     }else if(filename.find(".max") != std::string::npos){
-        readBCSRGraphFromDIMACSFile(filename, V, E, source, sink, &offset, &column, &capacities, &forwardFlow);
+        readBCSRGraphFromDIMACSFile(filename, V, E, realE, source, sink, &offset, &column, &capacities, &forwardFlow);
     }else{
         std::cerr << "Error: file format not supported" << std::endl;
         return 1;
@@ -538,7 +538,7 @@ int executePushRelabel(std::string filename, std::string output, bool computeMin
     }
 
     // Scrittura risultati su file
-    writeResultsToFile(output, maxFlow, minCut, initializationTime, executionTime, totalTime, V, E/2);
+    writeResultsToFile(output, maxFlow, minCut, initializationTime, executionTime, totalTime, V, realE);
 
     // Liberazione memoria device
     HANDLE_ERROR(cudaFree(d_height));
