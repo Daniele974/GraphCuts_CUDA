@@ -233,7 +233,7 @@ std::vector<int> findMinCutSetFromT(int n, int t, int *residual){
     return minCutSet;
 }
 
-int executePushRelabel(std::string filename, std::string output){
+int executePushRelabel(std::string filename, std::string output, bool computeMinCut){
     //Dichiarazione degli eventi per la misurazione del tempo
     cudaEvent_t startEvent, endInitializationEvent, endEvent;
     cudaEventCreate(&startEvent);
@@ -307,7 +307,10 @@ int executePushRelabel(std::string filename, std::string output){
     cudaEventDestroy(endEvent);
     
     // Calcolo del min cut set
-    std::vector<int> minCut = findMinCutSetFromT(V, sink, residual);
+    std::vector<int> minCut = {};
+    if(computeMinCut){
+        minCut = findMinCutSetFromT(V, sink, residual);
+    }
 
     // Scrittura dei risultati su file
     writeResultsToFile(output, excess[sink], minCut, initializationTime, executionTime, totalTime, V, E);
