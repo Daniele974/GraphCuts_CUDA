@@ -12,4 +12,4 @@ void relabel(int);
 void pushRelabel(int);
 vector<int> findMinCutSetFromS();
 vector<int> findMinCutSetFromT();
-int executePushRelabel(string, string);
+int executePushRelabel(string, string, bool);
