@@ -439,7 +439,7 @@ std::vector<int> findMinCutSetFromSink(int V, int sink, int *offset, int *column
     return minCutSet;
 }
 
-int executePushRelabel(std::string filename, std::string output){
+int executePushRelabel(std::string filename, std::string output, bool computeMinCut){
 
     //Dichiarazione degli eventi per la misurazione del tempo
     cudaEvent_t startEvent, endInitializationEvent, endEvent;
@@ -532,7 +532,10 @@ int executePushRelabel(std::string filename, std::string output){
     cudaEventDestroy(endEvent);
 
     // Calcolo del taglio minimo
-    std::vector<int> minCut = findMinCutSetFromSink(V, sink, offset, column, forwardFlow);
+    std::vector<int> minCut = {};
+    if(computeMinCut){
+        minCut = findMinCutSetFromSink(V, sink, offset, column, forwardFlow);
+    }
 
     // Scrittura risultati su file
     writeResultsToFile(output, maxFlow, minCut, initializationTime, executionTime, totalTime, V, E/2);
