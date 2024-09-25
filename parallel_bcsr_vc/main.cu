@@ -3,7 +3,7 @@
 int main(int argc, char **argv){
     if (argc < 3)
     {
-        std::cout << "Utilizzo: ./prparallelbcsr <input_file> <output_file> <mincut flag 0/1>" << std::endl;
+        std::cout << "Utilizzo: ./prparallelbcsr <input_file> <output_file> <mincut flag 0/1 facoltativo default=1>" << std::endl;
         return 1;
     }
     

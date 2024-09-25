@@ -32,8 +32,6 @@ void preflow(int V, int source, int sink, int *height, int *excess, int *offset,
 
             excess[neighbor] = capacities[i];
             *totalExcess = *totalExcess + excess[neighbor];
-        }else{
-            continue;
         }
     }
 }
@@ -47,7 +45,10 @@ __device__ void scanActiveVertices(int V, int source, int sink, int *d_height, i
     }
     grid.sync();
     
+    // Scansione dei nodi attivi
     for(int u = idx; u < V; u += blockDim.x * gridDim.x){
+
+        // Controllo se u è attivo e interno
         if(d_excess[u] > 0 && d_height[u] < V && u != source && u != sink){
             int pos = atomicAdd(&avqSize, 1);
             d_avq[pos] = u;
@@ -56,11 +57,11 @@ __device__ void scanActiveVertices(int V, int source, int sink, int *d_height, i
 }
 
 template <unsigned int tileSize> __device__  int tiledSearchNeighbor(thread_block_tile <tileSize> tile, int pos, int *s_height, int *s_vid, int *s_vidx, int *Vindex, int V, int source, int sink, int *d_height, int *d_excess, int *d_offset, int *d_column, int *d_capacities, int *d_flows, int *d_avq){
-    unsigned int idx = tile.thread_rank();
+    unsigned int idx = tile.thread_rank(); // indice del thread all'interno della tile
 
     int u = d_avq[pos];
     int degree = d_offset[u+1] - d_offset[u];
-    int numIters = (int)ceilf((float)degree / (float)tileSize);
+    int numIters = (int)ceilf((float)degree / (float)tileSize); // numero di iterazioni necessarie per scansionare tutti i vicini di u
 
     // Inizializzazione variabili per ricerca vicino con altezza minima
     int minH = INF;
@@ -76,8 +77,12 @@ template <unsigned int tileSize> __device__  int tiledSearchNeighbor(thread_bloc
     for(int i = 0; i < numIters; i++){
         int vPos, v;
         if(i*tileSize + idx < degree){
+
+            // Calcolo posizione del vicino
             vPos = d_offset[u] + i*tileSize + idx;
             v = d_column[vPos];
+
+            // Controllo presenza di flusso tra u e v
             if(d_flows[vPos] > 0 && v != source){
                 s_height[threadIdx.x] = d_height[v];
                 s_vid[threadIdx.x] = v;
@@ -96,7 +101,7 @@ template <unsigned int tileSize> __device__  int tiledSearchNeighbor(thread_bloc
 
         // Reduction per trovare altezza minima (e nodo associato)
         for(int s = tile.size() / 2; s > 0; s >>= 1){
-            if(idx < s){
+            if(idx < s){ 
                 if(s_height[threadIdx.x + s] < s_height[threadIdx.x]){
                     s_height[threadIdx.x] = s_height[threadIdx.x + s];
                     s_vid[threadIdx.x] = s_vid[threadIdx.x + s];
@@ -137,9 +142,9 @@ __global__ void pushKernel(int V, int source, int sink, int *d_height, int *d_ex
     int numTilesPerGrid = numTilesPerBlock * gridDim.x;
     int tileIdx = blockIdx.x * numTilesPerBlock + block.thread_rank() / tileSize;
 
-    // Inizializzazione variabili per vicino con altezza minima verso cui eseguire push
-    int minV = -1;
-    int Vindex = -1;
+    // Inizializzazione variabili per vicino con altezza minima
+    int minV = -1; // id nodo con altezza minima
+    int Vindex = -1; // indice del nodo con altezza minima
 
     int cycle = V;
 
@@ -177,6 +182,7 @@ __global__ void pushKernel(int V, int source, int sink, int *d_height, int *d_ex
                         int d;
                         int backwardIdx = -1;
 
+                        // Ricerca arco di ritorno
                         for(int j = d_offset[minV]; j < d_offset[minV+1]; j++){
                             if(d_column[j] == u){
                                 backwardIdx = j;
@@ -184,17 +190,20 @@ __global__ void pushKernel(int V, int source, int sink, int *d_height, int *d_ex
                             }
                         }
 
+                        // Se l'arco di ritorno non è stato trovato, errore
                         if(backwardIdx == -1){
                             printf("Error: backward edge not found\n");
                             return;
                         }
 
+                        // Calcolo flusso da spostare (delta)
                         if(d_excess[u] > d_flows[Vindex]){
                             d = d_flows[Vindex];
                         } else {
                             d = d_excess[u];
                         }
-
+                        
+                        //Push
                         atomicAdd(&d_flows[backwardIdx], d);
                         atomicSub(&d_flows[Vindex], d);
                         atomicAdd(&d_excess[minV], d);
@@ -236,8 +245,12 @@ __global__ void globalRelabelKernel(int V, int E, int source, int sink, int *d_h
         // Elaborazione dei nodi nella coda
         for(int i = idx; i < *d_queueSize; i+= blockDim.x * gridDim.x){
             int u = d_queue[i];
+
+            // Ricerca vicini di u
             for(int j = d_offset[u]; j < d_offset[u+1]; j++){
                 int v = d_column[j];
+
+                // Aggiornamento altezza e status di u
                 if(d_status[v] >= 0 && d_flows[j] > 0){
                     d_status[u] = *d_level + 1;
                     d_height[u] = d_status[u];
@@ -332,6 +345,8 @@ void globalRelabel(int V, int E, int source, int sink, int *height, int *excess,
     // Lancio kernel global relabel
     cudaError_t cudaStatus;
     cudaStatus = cudaLaunchCooperativeKernel((void*)globalRelabelKernel, num_blocks, block_size, kernel_args, 0, 0);
+
+    // Controllo errori
     if (cudaStatus != cudaSuccess) {
         fprintf(stderr, "cudaLaunchCooperativeKernel failed: %s\n", cudaGetErrorString(cudaStatus));
         exit(1);
@@ -361,6 +376,7 @@ int pushRelabel(int V, int E, int source, int sink, int *height, int *excess, in
     mark = (bool *)malloc(V*sizeof(bool));
     scanned = (bool *)malloc(V*sizeof(bool));
 
+    // Inizializzazione variabile mark
     for(int i = 0; i < V; i++){
         mark[i] = false;
     }
@@ -380,7 +396,7 @@ int pushRelabel(int V, int E, int source, int sink, int *height, int *excess, in
     void* kernel_args[] = {&V, &source, &sink, &d_height, &d_excess, 
                         &d_offset, &d_column, &d_capacities, &d_flows, &d_avq};
     
-
+    // Esecuzione algoritmo push-relabel
     while(excess[source] + excess[sink] < *totalExcess){
 
         // Trasferimento dati da host a device
@@ -391,6 +407,8 @@ int pushRelabel(int V, int E, int source, int sink, int *height, int *excess, in
         // Lancio kernel push
         cudaError_t cudaStatus;
         cudaStatus = cudaLaunchCooperativeKernel((void*)pushKernel, num_blocks, block_size, kernel_args, sharedMemSize, 0);
+        
+        // Controllo errori
         if (cudaStatus != cudaSuccess) {
             fprintf(stderr, "cudaLaunchCooperativeKernel failed: %s\n", cudaGetErrorString(cudaStatus));
             exit(1);
@@ -471,6 +489,7 @@ int executePushRelabel(std::string filename, std::string output, bool computeMin
     totalExcess = (int *)malloc(sizeof(int));
     avq = (int *)malloc(V*sizeof(int));
     
+    // Inizializzazione coda avq (coda vertici attivi)
     for (int i = 0; i < V; i++)
     {
         avq[i] = 0;
@@ -487,17 +506,11 @@ int executePushRelabel(std::string filename, std::string output, bool computeMin
     HANDLE_ERROR(cudaMalloc((void**)&d_capacities, E*sizeof(int)));
     HANDLE_ERROR(cudaMalloc((void**)&d_flows, E*sizeof(int)));
     HANDLE_ERROR(cudaMalloc((void**)&d_avq, V*sizeof(int)));
-    
-    /* Dati di esempio  
-    int e_offset[] = {0,2,4,7,11,14,16};
-    int e_column[] = {1,2,0,3,0,3,4,1,2,4,5,2,3,5,3,4};
-    int e_capacities[] = {3,7,0,4,0,2,5,0,0,0,9,0,3,2,0,0};
-    int e_forwardFlow[] = {3,7,0,4,0,2,5,0,0,0,9,0,3,2,0,0};
-    */
    
     // Preflow
     preflow(V, source, sink, height, excess, offset, column, capacities, forwardFlow, totalExcess);
 
+    // Trasferimento dati da host a device
     HANDLE_ERROR(cudaMemcpy(d_height, height, V*sizeof(int), cudaMemcpyHostToDevice));
     HANDLE_ERROR(cudaMemcpy(d_excess, excess, V*sizeof(int), cudaMemcpyHostToDevice));
     HANDLE_ERROR(cudaMemcpy(d_offset, offset, (V+1)*sizeof(int), cudaMemcpyHostToDevice));

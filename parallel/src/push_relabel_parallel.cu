@@ -14,7 +14,7 @@ void preflow(int V, int source, int sink, int *capacities, int *residual, int *h
     height[source] = V;
     *totalExcess = 0;
 
-    // Inizializzazione del preflow da source a tutti i nodi adiacenti
+    // Inizializzazione del preflow da source a tutti i nodi adiacenti (push)
     for(int i = 0; i < V; i++)
     {
         if(capacities[source*V + i] > 0)
@@ -30,23 +30,26 @@ void preflow(int V, int source, int sink, int *capacities, int *residual, int *h
 }
 
 __global__ void pushRelabelKernel(int V, int source, int sink, int *d_capacities, int *d_residual, int *d_height,int *d_excess){
+    // Cooperative groups
     grid_group grid = this_grid();
     unsigned int idx = (blockIdx.x*blockDim.x) + threadIdx.x;
 
     int cycle = V;
 
     while (cycle > 0) {
-
+        
         for (int u = idx; u < V; u += blockDim.x * gridDim.x) {
 
             int e1, h1, h2, delta;
             int v,v1;
 
-            if( (d_excess[u] > 0) && (d_height[u] < V) && u != source && u != sink){
+            // Se u è un nodo interno e ha un eccesso di flusso (nodo attivo)
+            if((d_excess[u] > 0) && (d_height[u] < V) && u != source && u != sink){
                 e1 = d_excess[u];
                 h1 = INF;
                 v1 = -1;
 
+                // Ricerca nodo adiacente con altezza minore
                 for(v = 0; v < V; v++){
 
                     if(d_residual[u*V + v] > 0){
@@ -57,17 +60,21 @@ __global__ void pushRelabelKernel(int V, int source, int sink, int *d_capacities
                         }
                     }
                 }
+
+                // Se non è stato trovato un nodo adiacente con altezza minore
                 if (v1 == -1) {
                     d_height[u] = V;
-                } else {
+                } else { 
+
                     if(d_height[u] > h1){
-                        
-                        //TODO: usare min
+                        // Push
+                        // Calcolo del delta (quantità di flusso da spostare)
                         delta = e1;
                         if(e1 > d_residual[u*V + v1]){
                             delta = d_residual[u*V + v1];
                         }
 
+                        // Aggiornamento dei valori di residual ed excess
                         atomicAdd(&d_residual[v1*V + u],delta);
                         atomicSub(&d_residual[u*V + v1],delta);
 
@@ -86,6 +93,7 @@ __global__ void pushRelabelKernel(int V, int source, int sink, int *d_capacities
 }
 
 void globalRelabel(int V, int source, int sink, int *capacities, int *residual, int *height, int *excess, int *totalExcess, bool *mark, bool *scanned){
+    
     for(int u = 0; u < V; u++){
         for(int v = 0; v < V; v++){
             if(capacities[u*V + v] > 0)
@@ -101,10 +109,11 @@ void globalRelabel(int V, int source, int sink, int *capacities, int *residual, 
         }
     }
 
-    // BFS
+    // BFS da sink per ricalcolare le altezze
     std::list<int> Queue;
     int x,y,current;
-        
+    
+    // Inizializzazione della variabile scanned
     for(int i = 0; i < V; i++)
     {
         scanned[i] = false;
@@ -145,6 +154,7 @@ void globalRelabel(int V, int source, int sink, int *capacities, int *residual, 
 
     // Se non tutti i nodi sono stati scansionati...
     if(allScanned == false){
+        // Marca i nodi non scansionati e aggiorna il valore di totalExcess
         for(int i = 0; i < V; i++){
 
             if(!(scanned[i] || mark[i])){
@@ -162,7 +172,7 @@ void pushRelabel(int V, int source, int sink, int *capacities, int *residual, in
     mark = (bool*)malloc(V*sizeof(bool));
     scanned = (bool*)malloc(V*sizeof(bool));
 
-    // Configure the GPU
+    // Configurazione della GPU
     int device = -1;
     cudaGetDevice(&device);
     cudaDeviceProp deviceProp;
@@ -172,12 +182,13 @@ void pushRelabel(int V, int source, int sink, int *capacities, int *residual, in
 
     void* kernel_args[] = {&V,&source,&sink,&d_capacities,&d_residual,&d_height,&d_excess};
 
-    // initialising mark values to false for all nodes
+    // Inizializzazione dei valori di mark
     for(int i = 0; i < V; i++)
     {
         mark[i] = false;
     }
 
+    // Esecuzione dell'algoritmo push-relabel
     while((excess[source] + excess[sink]) < *totalExcess)
     {
         // Trasferimento dati da host a device
@@ -185,16 +196,17 @@ void pushRelabel(int V, int source, int sink, int *capacities, int *residual, in
         HANDLE_ERROR(cudaMemcpy(d_excess, excess,V*sizeof(int), cudaMemcpyHostToDevice));
         HANDLE_ERROR(cudaMemcpy(d_residual,residual,V*V*sizeof(int),cudaMemcpyHostToDevice));
 
+        // Esecuzione del kernel
         cudaError_t cudaStatus;
         cudaStatus = cudaLaunchCooperativeKernel((void*)pushRelabelKernel, num_blocks, block_size, kernel_args, 0, 0);
         if (cudaStatus != cudaSuccess) {
             fprintf(stderr, "cudaLaunchCooperativeKernel failed: %s\n", cudaGetErrorString(cudaStatus));
-            // Handle the error, for example, by cleaning up resources and exiting
             exit(1);
         }
 
         cudaDeviceSynchronize();
 
+        // Controllo errori
         cudaError_t err = cudaGetLastError();
         if (err != cudaSuccess) {
             fprintf(stderr, "CUDA error: %s.\n", cudaGetErrorString(err));
@@ -270,7 +282,7 @@ int executePushRelabel(std::string filename, std::string output, bool computeMin
         }
     }
 
-    // Inizializzazione delle variabili height e excess
+    // Inizializzazione delle variabili height, excess e totalExcess
     height = (int*)malloc(V*sizeof(int));
     excess = (int*)malloc(V*sizeof(int));
     totalExcess = (int*)malloc(sizeof(int));
@@ -291,6 +303,7 @@ int executePushRelabel(std::string filename, std::string output, bool computeMin
     HANDLE_ERROR(cudaMemcpy(d_residual,residual,V*V*sizeof(int),cudaMemcpyHostToDevice));
 
     cudaEventRecord(endInitializationEvent, 0);
+    // Esecuzione dell'algoritmo push-relabel
     pushRelabel(V,source,sink,capacities,residual,height,excess,totalExcess,d_capacities,d_residual,d_height,d_excess);
     cudaEventRecord(endEvent, 0);
 
