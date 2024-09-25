@@ -55,16 +55,16 @@ int readBCSRGraphFromFile(std::string filename, int &V, int &E, int &realE, int 
             int u = std::stoi(linewords[1]);
             int v = std::stoi(linewords[2]);
             int c = std::stoi(linewords[3]);
-            
+    
+            realEdges++;
+
             int insertIndex = -1;
             if(graph[u].empty()){
                 graph[u].push_back(std::make_pair(v, c));
                 numEdges++;
-                realEdges++;
             }else if(graph[u].back().first < v){
                 graph[u].push_back(std::make_pair(v, c));
                 numEdges++;
-                realEdges++;
             }else{
                 for (int i = 0; i < graph[u].size(); i++){   
                     if(graph[u][i].first == v){
@@ -75,7 +75,6 @@ int readBCSRGraphFromFile(std::string filename, int &V, int &E, int &realE, int 
                         insertIndex = i;
                         graph[u].insert(graph[u].begin() + insertIndex, std::make_pair(v, c));
                         numEdges++;
-                        realEdges++;
                         break;
                     }
                 }
@@ -153,7 +152,6 @@ int readBCSRGraphFromDIMACSFile(std::string filename, int &V, int &E, int &realE
     std::vector<std::vector<std::pair<int, int>>> graph;
 
     int numEdges = 0;
-    int realEdges = 0;
 
     while(std::getline(file, line)){
         lineno++;
