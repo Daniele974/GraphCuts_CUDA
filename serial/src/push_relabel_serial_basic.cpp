@@ -11,6 +11,8 @@ vector<vector<int>> capacity, flow;
 vector<int> height, excess, seen;
 queue<int> active_nodes;
 
+// Funzioni per l'algoritmo di Push-Relabel
+
 void push(int u, int v)
 {
     int d = min(excess[u], capacity[u][v] - flow[u][v]);    // Calcolo il flusso da spingere
@@ -23,7 +25,7 @@ void push(int u, int v)
     excess[u] -= d;
     excess[v] += d;
 
-    // Aggiungo il nodo v alla lista dei nodi attivi
+    // Aggiungo il nodo v alla lista dei nodi attivi se non è già presente
     if (d && excess[v] == d)
         active_nodes.push(v);
 }
@@ -32,7 +34,7 @@ void relabel(int u)
 {
     int d = inf;
     
-    // Cerco il minimo tra le altezze dei nodi adiacenti
+    // Cerco il minimo tra le altezze dei nodi adiacenti di u
     for (int i = 0; i < n; i++) {
         if (capacity[u][i] - flow[u][i] > 0)
             d = min(d, height[i]);
@@ -54,7 +56,7 @@ void pushRelabel(int u)
             if (seen[u] < n) {
                 int v = seen[u];    // Nodo adiacente
 
-                // Se la capacità è maggiore di 0 e l'altezza del nodo u è maggiore di quella del nodo v, eseuguo push
+                // Se la capacità residua è maggiore di 0 (presenza arco residuo da u a v) e l'altezza del nodo u è maggiore di quella del nodo v, eseguo push 
                 // Altrimenti incremento il contatore dei nodi visti (passo al nodo successivo)
                 if (capacity[u][v] - flow[u][v] > 0 && height[u] > height[v])
                     push(u, v);
@@ -70,13 +72,14 @@ void pushRelabel(int u)
         }
     }
 
-    // Eseguo push dopo relabel su tutti i nodi adiacenti con altezza inferiore
+    // Eseguo ultimo push dopo relabel su tutti i nodi adiacenti con altezza inferiore
     for (int i = 0; i < n; i++) {
         if (capacity[u][i] - flow[u][i] > 0 && height[u] == height[i] + 1)
             push(u, i);
     }
 }
 
+// BFS per trovare il min cut set partendo dalla sorgente
 vector<int> findMinCutSetFromS() {
     vector<int> minCutSet;
     queue<int> q;
@@ -99,6 +102,7 @@ vector<int> findMinCutSetFromS() {
     return minCutSet;
 }
 
+// BFS per trovare il min cut set partendo dal pozzo
 vector<int> findMinCutSetFromT() {
     vector<int> minCutSet;
     queue<int> q;
@@ -147,7 +151,7 @@ int executePushRelabel(string filename, string outputFilename, bool computeMinCu
 
     if(debug) cout << "Inizializzazione grafo completata" << endl;
 
-    // Inizializzazione flusso
+    // Preflow
     for (int i = 0; i < n; i++) {
         if (i != s)
             push(s, i);
