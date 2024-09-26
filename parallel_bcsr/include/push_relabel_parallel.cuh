@@ -24,13 +24,13 @@ static void HandleError(cudaError_t err, const char *file, int line) {
 
 #define INF 1000000000
 
-void preflow(int V, int source, int sink, int *capacities, int *residual, int *height, int *excess, int *totalExcess);
+void preflow(int V, int source, int sink, int *offset, int *column, int *capacities, int *residual, int *height, int *excess, int *totalExcess);
 
-__global__ void pushRelabelKernel(int V, int source, int sink, int *d_capacities, int *d_residual, int *d_height,int *d_excess);
+__global__ void pushRelabelKernel(int V, int source, int sink, int *d_offset, int *d_column, int *d_capacities, int *d_residual, int *d_height,int *d_excess);
 
-void globalRelabel(int V, int source, int sink, int *capacities, int *residual, int *height, int *excess, int *totalExcess, bool *mark, bool *scanned);
+void globalRelabel(int V, int source, int sink, int *offset, int *column, int *capacities, int *residual, int *height, int *excess, int *totalExcess, bool *mark, bool *scanned);
 
-void pushRelabel(int V, int source, int sink, int *capacities, int *residual, int *height, int *excess, int *totalExcess, int *d_capacities, int *d_residual, int *d_height, int *d_excess);
+void pushRelabel(int V, int source, int sink, int *offset, int *column, int *capacities, int *residual, int *height, int *excess, int *totalExcess, int *d_offset, int *d_column, int *d_capacities, int *d_residual, int *d_height, int *d_excess);
 
 std::vector<int> findMinCutSetFromT(int n, int t, int *residual);
 

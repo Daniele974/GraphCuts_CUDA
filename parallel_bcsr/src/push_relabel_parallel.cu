@@ -2,7 +2,7 @@
 
 using namespace cooperative_groups;
 
-void preflow(int V, int source, int sink, int *capacities, int *residual, int *height, int *excess, int *totalExcess){
+void preflow(int V, int source, int sink, int *offset, int *column, int *capacities, int *residual, int *height, int *excess, int *totalExcess){
 
     // Inizializzazione di height e excess flow
     for(int i = 0; i < V; i++)
@@ -15,21 +15,25 @@ void preflow(int V, int source, int sink, int *capacities, int *residual, int *h
     *totalExcess = 0;
 
     // Inizializzazione del preflow da source a tutti i nodi adiacenti (push)
-    for(int i = 0; i < V; i++)
-    {
-        if(capacities[source*V + i] > 0)
-        {
-            residual[source*V + i] = 0;
-            residual[i*V + source] = capacities[source*V + i] + capacities[i*V + source];
-            
-            excess[i] = capacities[source*V + i];
-            *totalExcess += excess[i];
-        } 
-    }
+    for(int i = offset[source]; i < offset[source+1]; i++){
+        int neighbor = column[i];
+        if(capacities[i] > 0){
+            residual[i] = 0;
 
+            for(int j = offset[neighbor]; j < offset[neighbor+1]; j++){
+                if(column[j] == source){
+                    residual[j] = capacities[i];
+                    break;
+                }
+            }
+
+            excess[neighbor] = capacities[i];
+            *totalExcess = *totalExcess + excess[neighbor];
+        }
+    }
 }
 
-__global__ void pushRelabelKernel(int V, int source, int sink, int *d_capacities, int *d_residual, int *d_height,int *d_excess){
+__global__ void pushRelabelKernel(int V, int source, int sink, int *d_offset, int *d_column, int *d_capacities, int *d_residual, int *d_height,int *d_excess){
     // Cooperative groups
     grid_group grid = this_grid();
     unsigned int idx = (blockIdx.x*blockDim.x) + threadIdx.x;
@@ -41,24 +45,27 @@ __global__ void pushRelabelKernel(int V, int source, int sink, int *d_capacities
         for (int u = idx; u < V; u += blockDim.x * gridDim.x) {
 
             int e1, h1, h2, delta;
-            int v,v1;
+            int v,v1,v1idx;
 
             // Se u è un nodo interno e ha un eccesso di flusso (nodo attivo)
             if((d_excess[u] > 0) && (d_height[u] < V) && u != source && u != sink){
                 e1 = d_excess[u];
                 h1 = INF;
                 v1 = -1;
+                v1idx = -1;
 
                 // Ricerca nodo adiacente con altezza minore
-                for(v = 0; v < V; v++){
-
-                    if(d_residual[u*V + v] > 0){
+                for(int i = d_offset[u]; i < d_offset[u+1]; i++){
+                    v = d_column[i];
+                    if(d_residual[i] > 0){
                         h2 = d_height[v];
                         if(h2 < h1){
                             v1 = v;
                             h1 = h2;
+                            v1idx = i;
                         }
                     }
+                    
                 }
 
                 // Se non è stato trovato un nodo adiacente con altezza minore
@@ -67,16 +74,33 @@ __global__ void pushRelabelKernel(int V, int source, int sink, int *d_capacities
                 } else { 
 
                     if(d_height[u] > h1){
+
+                        int backwardIdx = -1;
+
+                        // Ricerca arco di ritorno
+                        for(int j = d_offset[v1]; j < d_offset[v1+1]; j++){
+                            if(d_column[j] == u){
+                                backwardIdx = j;
+                                break;
+                            }
+                        }
+
+                        // Se l'arco di ritorno non è stato trovato, errore
+                        if(backwardIdx == -1){
+                            printf("Error: backward edge not found\n");
+                            return;
+                        }
+
                         // Push
                         // Calcolo del delta (quantità di flusso da spostare)
                         delta = e1;
-                        if(e1 > d_residual[u*V + v1]){
-                            delta = d_residual[u*V + v1];
+                        if(e1 > d_residual[v1idx]){
+                            delta = d_residual[v1idx];
                         }
 
                         // Aggiornamento dei valori di residual ed excess
-                        atomicAdd(&d_residual[v1*V + u],delta);
-                        atomicSub(&d_residual[u*V + v1],delta);
+                        atomicAdd(&d_residual[backwardIdx],delta);
+                        atomicSub(&d_residual[v1idx],delta);
 
                         atomicAdd(&d_excess[v1],delta);
                         atomicSub(&d_excess[u],delta);
@@ -92,19 +116,21 @@ __global__ void pushRelabelKernel(int V, int source, int sink, int *d_capacities
     }
 }
 
-void globalRelabel(int V, int source, int sink, int *capacities, int *residual, int *height, int *excess, int *totalExcess, bool *mark, bool *scanned){
+void globalRelabel(int V, int source, int sink, int *offset, int *column, int *capacities, int *residual, int *height, int *excess, int *totalExcess, bool *mark, bool *scanned){
     
     for(int u = 0; u < V; u++){
-        for(int v = 0; v < V; v++){
-            if(capacities[u*V + v] > 0)
-            {
-                if(height[u] > height[v] + 1)
-                {
-                    excess[u] = excess[u] - residual[u*V + v];
-                    excess[v] = excess[v] + residual[u*V + v];
-                    residual[v*V + u] = residual[v*V + u] + residual[u*V + v];
-                    residual[u*V + v] = 0;
+        for(int i = offset[u]; i < offset[u+1]; i++){
+            int v = column[i];
+            if(height[u] > height[v]+1){
+                int flow;
+                if(excess[u] < residual[i]){
+                    flow = excess[u];
+                }else{
+                    flow = residual[i];
                 }
+                excess[u] -= flow;
+                excess[v] += flow;
+                residual[i] -= flow;
             }
         }
     }
@@ -132,12 +158,14 @@ void globalRelabel(int V, int source, int sink, int *capacities, int *residual, 
         current = height[x];
         current = current + 1;
 
-        for(y = 0; y < V; y++){
-            if(residual[y*V+x] > 0){
-                if(scanned[y] == false){
-                    height[y] = current;
-                    scanned[y] = true;
-                    Queue.push_back(y);
+        for(int y = 0; y < V; y++){
+            for(int i = offset[i]; i < offset[i+1]; i++){
+                if(column[i] == x && residual[i] > 0){
+                    if(scanned[y] == false){
+                        height[y] = current;
+                        scanned[y] = true;
+                        Queue.push_back(y);
+                    }
                 }
             }
         }
@@ -165,7 +193,7 @@ void globalRelabel(int V, int source, int sink, int *capacities, int *residual, 
     }
 }
 
-void pushRelabel(int V, int source, int sink, int *capacities, int *residual, int *height, int *excess, int *totalExcess, int *d_capacities, int *d_residual, int *d_height, int *d_excess){
+void pushRelabel(int V, int source, int sink, int *offset, int *column, int *capacities, int *residual, int *height, int *excess, int *totalExcess, int *d_offset, int *d_column, int *d_capacities, int *d_residual, int *d_height, int *d_excess){
     
     // Dichiarazione delle variabili per global relabel
     bool *mark,*scanned;
@@ -180,7 +208,7 @@ void pushRelabel(int V, int source, int sink, int *capacities, int *residual, in
     dim3 num_blocks(deviceProp.multiProcessorCount); // un blocco per ogni SM
     dim3 block_size(256); // 256 threads per blocco
 
-    void* kernel_args[] = {&V,&source,&sink,&d_capacities,&d_residual,&d_height,&d_excess};
+    void* kernel_args[] = {&V,&source,&sink,&d_offset,&d_column,&d_capacities,&d_residual,&d_height,&d_excess};
 
     // Inizializzazione dei valori di mark
     for(int i = 0; i < V; i++)
@@ -219,7 +247,7 @@ void pushRelabel(int V, int source, int sink, int *capacities, int *residual, in
         HANDLE_ERROR(cudaMemcpy(residual,d_residual,V*V*sizeof(int),cudaMemcpyDeviceToHost));
         
         // Global relabel
-        globalRelabel(V,source,sink,capacities,residual,height,excess,totalExcess,mark,scanned);
+        globalRelabel(V,source,sink,offset,column,capacities,residual,height,excess,totalExcess,mark,scanned);
     }
 }
 
@@ -254,33 +282,26 @@ int executePushRelabel(std::string filename, std::string output, bool computeMin
 
 
     // Dichiarazione delle variabili host
-    int V, E, source, sink;
-    int *capacities, *residual, *height, *excess;
+    int V, E, realE, source, sink;
+    int *offset, *column, *capacities, *residual;
+    int *height, *excess;
     int *totalExcess;
 
     // Dichiarazione delle variabili device
-    int *d_capacities, *d_residual, *d_height, *d_excess;
+    int *d_offset, *d_column, *d_capacities, *d_residual, *d_height, *d_excess;
 
     // Lettura del grafo da file
-    readGraphFromFile(filename, V, &capacities);
+    // Controllo estensione file e lettura grafo
+    if(filename.find(".txt") != std::string::npos){
+        readBCSRGraphFromFile(filename, V, E, realE, source, sink, &offset, &column, &capacities, &residual);
+    }else if(filename.find(".max") != std::string::npos){
+        readBCSRGraphFromDIMACSFile(filename, V, E, realE, source, sink, &offset, &column, &capacities, &residual);
+    }else{
+        std::cerr << "Error: file format not supported" << std::endl;
+        return 1;
+    }
 
     cudaEventRecord(startEvent, 0);
-    
-    // Inizializzazione delle variabili source e sink
-    source = 0;
-    sink = V - 1;
-
-    // Inizializzazione delle variabili E e residual
-    residual = (int*)malloc(V*V*sizeof(int));
-
-    for(int i = 0; i < V; i++){
-        for(int j = 0; j < V; j++){
-            residual[i*V + j] = capacities[i*V + j];
-            if(capacities[i*V + j] > 0){
-                E = E + 1;
-            }
-        }
-    }
 
     // Inizializzazione delle variabili height, excess e totalExcess
     height = (int*)malloc(V*sizeof(int));
@@ -288,23 +309,27 @@ int executePushRelabel(std::string filename, std::string output, bool computeMin
     totalExcess = (int*)malloc(sizeof(int));
 
     // Allocazione delle variabili device
+    HANDLE_ERROR(cudaMalloc((void**)&d_offset, (V+1)*sizeof(int)));
+    HANDLE_ERROR(cudaMalloc((void**)&d_column, E*sizeof(int)));
     HANDLE_ERROR(cudaMalloc((void**)&d_capacities,V*V*sizeof(int)));
     HANDLE_ERROR(cudaMalloc((void**)&d_residual,V*V*sizeof(int)));
     HANDLE_ERROR(cudaMalloc((void**)&d_height,V*sizeof(int)));
     HANDLE_ERROR(cudaMalloc((void**)&d_excess,V*sizeof(int)));
 
     // Calcolo preflow
-    preflow(V,source,sink,capacities,residual,height,excess,totalExcess);
+    preflow(V,source,sink,offset,column,capacities,residual,height,excess,totalExcess);
 
     // Trasferimento dati da host a device
-    HANDLE_ERROR(cudaMemcpy(d_height,height,V*sizeof(int),cudaMemcpyHostToDevice));
-    HANDLE_ERROR(cudaMemcpy(d_excess,excess,V*sizeof(int),cudaMemcpyHostToDevice));
+    HANDLE_ERROR(cudaMemcpy(d_offset, offset, (V+1)*sizeof(int), cudaMemcpyHostToDevice));
+    HANDLE_ERROR(cudaMemcpy(d_column, column, E*sizeof(int), cudaMemcpyHostToDevice));
     HANDLE_ERROR(cudaMemcpy(d_capacities,capacities,V*V*sizeof(int),cudaMemcpyHostToDevice));
     HANDLE_ERROR(cudaMemcpy(d_residual,residual,V*V*sizeof(int),cudaMemcpyHostToDevice));
+    HANDLE_ERROR(cudaMemcpy(d_height,height,V*sizeof(int),cudaMemcpyHostToDevice));
+    HANDLE_ERROR(cudaMemcpy(d_excess,excess,V*sizeof(int),cudaMemcpyHostToDevice));
 
     cudaEventRecord(endInitializationEvent, 0);
     // Esecuzione dell'algoritmo push-relabel
-    pushRelabel(V,source,sink,capacities,residual,height,excess,totalExcess,d_capacities,d_residual,d_height,d_excess);
+    pushRelabel(V,source,sink,offset,column,capacities,residual,height,excess,totalExcess,d_offset,d_column,d_capacities,d_residual,d_height,d_excess);
     cudaEventRecord(endEvent, 0);
 
     // Misurazione del tempo
@@ -329,11 +354,15 @@ int executePushRelabel(std::string filename, std::string output, bool computeMin
     writeResultsToFile(output, excess[sink], minCut, initializationTime, executionTime, totalTime, V, E);
     
     // Liberazione della memoria
+    cudaFree(d_offset);
+    cudaFree(d_column);
     cudaFree(d_capacities);
     cudaFree(d_residual);
     cudaFree(d_height);
     cudaFree(d_excess);
     
+    free(offset);
+    free(column);
     free(capacities);
     free(residual);
     free(height);

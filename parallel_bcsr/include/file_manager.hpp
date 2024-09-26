@@ -8,6 +8,8 @@
 #include "rapidjson/writer.h" 
 #include "rapidjson/ostreamwrapper.h"
 
-int readGraphFromFile(std::string filename, int &n, int **capacity);
+int readBCSRGraphFromFile(std::string filename, int &V, int &E, int &realE, int &source, int &sink, int **offset, int **column, int **capacities, int **forwardFlow);
+
+int readBCSRGraphFromDIMACSFile(std::string filename, int &V, int &E, int &realE, int &source, int &sink, int **offset, int **column, int **capacities, int **forwardFlow);
 
 int writeResultsToFile(std::string, int, std::vector<int>, float, float, float, int, int);
