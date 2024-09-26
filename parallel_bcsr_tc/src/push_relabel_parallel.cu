@@ -158,8 +158,8 @@ void globalRelabel(int V, int source, int sink, int *offset, int *column, int *c
         current = height[x];
         current = current + 1;
 
-        for(int y = 0; y < V; y++){
-            for(int i = offset[i]; i < offset[i+1]; i++){
+        for(y = 0; y < V; y++){
+            for(int i = offset[y]; i < offset[y+1]; i++){
                 if(column[i] == x && residual[i] > 0){
                     if(scanned[y] == false){
                         height[y] = current;
@@ -193,7 +193,7 @@ void globalRelabel(int V, int source, int sink, int *offset, int *column, int *c
     }
 }
 
-void pushRelabel(int V, int source, int sink, int *offset, int *column, int *capacities, int *residual, int *height, int *excess, int *totalExcess, int *d_offset, int *d_column, int *d_capacities, int *d_residual, int *d_height, int *d_excess){
+void pushRelabel(int V, int E, int source, int sink, int *offset, int *column, int *capacities, int *residual, int *height, int *excess, int *totalExcess, int *d_offset, int *d_column, int *d_capacities, int *d_residual, int *d_height, int *d_excess){
     
     // Dichiarazione delle variabili per global relabel
     bool *mark,*scanned;
@@ -222,7 +222,7 @@ void pushRelabel(int V, int source, int sink, int *offset, int *column, int *cap
         // Trasferimento dati da host a device
         HANDLE_ERROR(cudaMemcpy(d_height,height,V*sizeof(int),cudaMemcpyHostToDevice));
         HANDLE_ERROR(cudaMemcpy(d_excess, excess,V*sizeof(int), cudaMemcpyHostToDevice));
-        HANDLE_ERROR(cudaMemcpy(d_residual,residual,V*V*sizeof(int),cudaMemcpyHostToDevice));
+        HANDLE_ERROR(cudaMemcpy(d_residual,residual,E*sizeof(int),cudaMemcpyHostToDevice));
 
         // Esecuzione del kernel
         cudaError_t cudaStatus;
@@ -244,7 +244,7 @@ void pushRelabel(int V, int source, int sink, int *offset, int *column, int *cap
         // Trasferimento dati da device a host
         HANDLE_ERROR(cudaMemcpy(height,d_height,V*sizeof(int),cudaMemcpyDeviceToHost));
         HANDLE_ERROR(cudaMemcpy(excess,d_excess,V*sizeof(int),cudaMemcpyDeviceToHost));
-        HANDLE_ERROR(cudaMemcpy(residual,d_residual,V*V*sizeof(int),cudaMemcpyDeviceToHost));
+        HANDLE_ERROR(cudaMemcpy(residual,d_residual,E*sizeof(int),cudaMemcpyDeviceToHost));
         
         // Global relabel
         globalRelabel(V,source,sink,offset,column,capacities,residual,height,excess,totalExcess,mark,scanned);
@@ -318,8 +318,8 @@ int executePushRelabel(std::string filename, std::string output, bool computeMin
     // Allocazione delle variabili device
     HANDLE_ERROR(cudaMalloc((void**)&d_offset, (V+1)*sizeof(int)));
     HANDLE_ERROR(cudaMalloc((void**)&d_column, E*sizeof(int)));
-    HANDLE_ERROR(cudaMalloc((void**)&d_capacities,V*V*sizeof(int)));
-    HANDLE_ERROR(cudaMalloc((void**)&d_residual,V*V*sizeof(int)));
+    HANDLE_ERROR(cudaMalloc((void**)&d_capacities,E*sizeof(int)));
+    HANDLE_ERROR(cudaMalloc((void**)&d_residual,E*sizeof(int)));
     HANDLE_ERROR(cudaMalloc((void**)&d_height,V*sizeof(int)));
     HANDLE_ERROR(cudaMalloc((void**)&d_excess,V*sizeof(int)));
 
@@ -327,16 +327,17 @@ int executePushRelabel(std::string filename, std::string output, bool computeMin
     preflow(V,source,sink,offset,column,capacities,residual,height,excess,totalExcess);
 
     // Trasferimento dati da host a device
-    HANDLE_ERROR(cudaMemcpy(d_offset, offset, (V+1)*sizeof(int), cudaMemcpyHostToDevice));
-    HANDLE_ERROR(cudaMemcpy(d_column, column, E*sizeof(int), cudaMemcpyHostToDevice));
-    HANDLE_ERROR(cudaMemcpy(d_capacities,capacities,V*V*sizeof(int),cudaMemcpyHostToDevice));
-    HANDLE_ERROR(cudaMemcpy(d_residual,residual,V*V*sizeof(int),cudaMemcpyHostToDevice));
+    HANDLE_ERROR(cudaMemcpy(d_offset,offset,(V+1)*sizeof(int), cudaMemcpyHostToDevice));
+    HANDLE_ERROR(cudaMemcpy(d_column,column,E*sizeof(int), cudaMemcpyHostToDevice));
+    HANDLE_ERROR(cudaMemcpy(d_capacities,capacities,E*sizeof(int),cudaMemcpyHostToDevice));
+    HANDLE_ERROR(cudaMemcpy(d_residual,residual,E*sizeof(int),cudaMemcpyHostToDevice));
     HANDLE_ERROR(cudaMemcpy(d_height,height,V*sizeof(int),cudaMemcpyHostToDevice));
     HANDLE_ERROR(cudaMemcpy(d_excess,excess,V*sizeof(int),cudaMemcpyHostToDevice));
 
+
     cudaEventRecord(endInitializationEvent, 0);
     // Esecuzione dell'algoritmo push-relabel
-    pushRelabel(V,source,sink,offset,column,capacities,residual,height,excess,totalExcess,d_offset,d_column,d_capacities,d_residual,d_height,d_excess);
+    pushRelabel(V,E,source,sink,offset,column,capacities,residual,height,excess,totalExcess,d_offset,d_column,d_capacities,d_residual,d_height,d_excess);
     cudaEventRecord(endEvent, 0);
 
     // Misurazione del tempo
@@ -358,7 +359,7 @@ int executePushRelabel(std::string filename, std::string output, bool computeMin
     }
 
     // Scrittura dei risultati su file
-    writeResultsToFile(output, excess[sink], minCut, initializationTime, executionTime, totalTime, V, E);
+    writeResultsToFile(output, excess[sink], minCut, initializationTime, executionTime, totalTime, V, realE);
     
     // Liberazione della memoria
     cudaFree(d_offset);
