@@ -32,6 +32,6 @@ void globalRelabel(int V, int source, int sink, int *offset, int *column, int *c
 
 void pushRelabel(int V, int source, int sink, int *offset, int *column, int *capacities, int *residual, int *height, int *excess, int *totalExcess, int *d_offset, int *d_column, int *d_capacities, int *d_residual, int *d_height, int *d_excess);
 
-std::vector<int> findMinCutSetFromT(int n, int t, int *residual);
+std::vector<int> findMinCutSetFromSink(int V, int sink, int *offset, int *column, int *residual);
 
 int executePushRelabel(std::string filename, std::string output, bool computeMinCut);

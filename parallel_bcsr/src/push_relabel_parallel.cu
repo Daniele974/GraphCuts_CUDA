@@ -251,22 +251,29 @@ void pushRelabel(int V, int source, int sink, int *offset, int *column, int *cap
     }
 }
 
-std::vector<int> findMinCutSetFromT(int n, int t, int *residual){
+std::vector<int> findMinCutSetFromSink(int V, int sink, int *offset, int *column, int *residual){
     std::vector<int> minCutSet;
     std::queue<int> q;
-    std::vector<bool> visited(n, false);
-    minCutSet.push_back(t);
-    q.push(t);
-    visited[t] = true;
+    std::vector<bool> visited(V, false);
+
+    // BFS per trovare il taglio minimo a partire dal nodo sink
+    minCutSet.push_back(sink);
+    q.push(sink);
+    visited[sink] = true;
+
     while (!q.empty()) {
         int u = q.front();
         q.pop();
-        for (int v = 0; v < n; ++v) {
-            if (!visited[v] && residual[v*n + u] > 0) {
-                minCutSet.push_back(v);
-                q.push(v);
-                visited[v] = true;
-            }
+
+        // Scansione dei vicini di u che hanno flusso verso u
+        for (int v = 0; v < V; v++) {
+            for (int i = offset[v]; i < offset[v+1]; i++) {
+                if(column[i] == u && residual[i] > 0 && !visited[v]) {
+                    minCutSet.push_back(v);
+                    q.push(v);
+                    visited[v] = true;
+                }
+            }    
         }
     }
 
@@ -347,7 +354,7 @@ int executePushRelabel(std::string filename, std::string output, bool computeMin
     // Calcolo del min cut set
     std::vector<int> minCut = {};
     if(computeMinCut){
-        minCut = findMinCutSetFromT(V, sink, residual);
+        minCut = findMinCutSetFromSink(V,sink,offset,column,residual);
     }
 
     // Scrittura dei risultati su file
