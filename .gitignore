@@ -9,6 +9,7 @@
 *.lib
 *.o
 *.vscode
+*.conda
 *.DS_Store
 graph10b.txt
 graph11b.txt
