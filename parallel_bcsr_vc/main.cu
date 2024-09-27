@@ -16,7 +16,7 @@ int main(int argc, char **argv){
         }
     }
 
-    std::cout<<"Parallelo BCSR - Eseguendo file: " <<filename <<"...";
+    std::cout<<"Parallelo BCSR VC - Eseguendo file: " <<filename <<"...";
     std::cout.flush(); //per "forzare" la stampa su terminale
     int maxflow = executePushRelabel(filename, output, computeMinCut);
     std::cout<<"Finito!"<<std::endl;
