@@ -4,6 +4,7 @@
 #include <vector>
 #include <queue>
 #include <algorithm>
+#include <omp.h>
 
 #include <iostream>
 #include <string.h>
@@ -32,6 +33,6 @@ void globalRelabel(int V, int source, int sink, int *capacities, int *residual, 
 
 void pushRelabel(int V, int source, int sink, int *capacities, int *residual, int *height, int *excess, int *totalExcess, int *d_capacities, int *d_residual, int *d_height, int *d_excess);
 
-std::vector<int> findMinCutSetFromT(int n, int t, int *residual);
+std::vector<int> findMinCutSetFromSinkOMP(int n, int t, int *residual);
 
 int executePushRelabel(std::string filename, std::string output, bool computeMinCut);

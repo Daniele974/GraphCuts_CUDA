@@ -251,7 +251,7 @@ void pushRelabel(int V, int E, int source, int sink, int *offset, int *column, i
     }
 }
 
-std::vector<int> findMinCutSetFromSink(int V, int sink, int *offset, int *column, int *residual){
+std::vector<int> findMinCutSetFromSinkOMP(int V, int sink, int *offset, int *column, int *forwardFlow){
     std::vector<int> minCutSet;
     std::queue<int> q;
     std::vector<bool> visited(V, false);
@@ -266,12 +266,16 @@ std::vector<int> findMinCutSetFromSink(int V, int sink, int *offset, int *column
         q.pop();
 
         // Scansione dei vicini di u che hanno flusso verso u
+        #pragma omp parallel for
         for (int v = 0; v < V; v++) {
             for (int i = offset[v]; i < offset[v+1]; i++) {
-                if(column[i] == u && residual[i] > 0 && !visited[v]) {
-                    minCutSet.push_back(v);
-                    q.push(v);
-                    visited[v] = true;
+                if(column[i] == u && forwardFlow[i] > 0 && !visited[v]) {
+                    #pragma omp critical
+                    {
+                        minCutSet.push_back(v);
+                        q.push(v);
+                        visited[v] = true;
+                    }
                 }
             }    
         }
@@ -355,7 +359,7 @@ int executePushRelabel(std::string filename, std::string output, bool computeMin
     // Calcolo del min cut set
     std::vector<int> minCut = {};
     if(computeMinCut){
-        minCut = findMinCutSetFromSink(V,sink,offset,column,residual);
+        minCut = findMinCutSetFromSinkOMP(V,sink,offset,column,residual);
     }
 
     // Scrittura dei risultati su file
