@@ -2,7 +2,7 @@ CC = g++
 CCOPTS = 
 
 NVCC = nvcc
-NVCCOPTS = -std=c++14
+NVCCOPTS = -std=c++14 -Xcompiler -fopenmp -lgomp
 
 all: prserial prparallel prparallelbcsr
 
