@@ -35,9 +35,25 @@ parallel/utils.o: parallel/src/utils.cpp
 parallel/file_manager.o: parallel/src/file_manager.cpp
 	$(CC) $(CCOPTS) -c parallel/src/file_manager.cpp -o parallel/file_manager.o
 
-# PARALLEL BCSR
-prparallelbcsr: parallel_bcsr_vc/main.o parallel_bcsr_vc/push_relabel_parallel.o parallel_bcsr_vc/utils.o parallel_bcsr_vc/file_manager.o
-	$(NVCC) $(NVCCOPTS) parallel_bcsr_vc/main.o parallel_bcsr_vc/push_relabel_parallel.o parallel_bcsr_vc/utils.o parallel_bcsr_vc/file_manager.o -o parallel_bcsr_vc/prparallelbcsr
+# PARALLEL BCSR TC
+prparallelbcsrtc: parallel_bcsr_tc/main.o parallel_bcsr_tc/push_relabel_parallel.o parallel_bcsr_tc/utils.o parallel_bcsr_tc/file_manager.o
+	$(NVCC) $(NVCCOPTS) parallel_bcsr_tc/main.o parallel_bcsr_tc/push_relabel_parallel.o parallel_bcsr_tc/utils.o parallel_bcsr_tc/file_manager.o -o parallel_bcsr_tc/prparallelbcsrtc
+
+parallel_bcsr_tc/main.o: parallel_bcsr_tc/main.cu
+	$(NVCC) $(NVCCOPTS) -c parallel_bcsr_tc/main.cu -o parallel_bcsr_tc/main.o
+
+parallel_bcsr_tc/push_relabel_parallel.o: parallel_bcsr_tc/src/push_relabel_parallel.cu
+	$(NVCC) $(NVCCOPTS) -c parallel_bcsr_tc/src/push_relabel_parallel.cu -o parallel_bcsr_tc/push_relabel_parallel.o
+
+parallel_bcsr_tc/utils.o: parallel_bcsr_tc/src/utils.cpp
+	$(CC) $(CCOPTS) -c parallel_bcsr_tc/src/utils.cpp -o parallel_bcsr_tc/utils.o
+
+parallel_bcsr_tc/file_manager.o: parallel_bcsr_tc/src/file_manager.cpp
+	$(CC) $(CCOPTS) -c parallel_bcsr_tc/src/file_manager.cpp -o parallel_bcsr_tc/file_manager.o
+
+# PARALLEL BCSR VC
+prparallelbcsrvc: parallel_bcsr_vc/main.o parallel_bcsr_vc/push_relabel_parallel.o parallel_bcsr_vc/utils.o parallel_bcsr_vc/file_manager.o
+	$(NVCC) $(NVCCOPTS) parallel_bcsr_vc/main.o parallel_bcsr_vc/push_relabel_parallel.o parallel_bcsr_vc/utils.o parallel_bcsr_vc/file_manager.o -o parallel_bcsr_vc/prparallelbcsrvc
 
 parallel_bcsr_vc/main.o: parallel_bcsr_vc/main.cu
 	$(NVCC) $(NVCCOPTS) -c parallel_bcsr_vc/main.cu -o parallel_bcsr_vc/main.o
@@ -86,7 +102,7 @@ n ?= 1
 test: 
 	make testserial
 	make testparallel
-	make testparallelbcsr
+	make testparallelbcsrvc
 
 testserial: prserial serial/testserial.sh
 	if [ ! -d "./results" ]; then mkdir results; fi
@@ -110,13 +126,24 @@ testparallel: prparallel parallel/testparallel.sh
 	done; \
 	true
 
-testparallelbcsr: prparallelbcsr parallel_bcsr_vc/testparallelbcsr.sh
+testparallelbcsrtc: prparallelbcsrtc parallel_bcsr_tc/testparallelbcsrtc.sh
 	if [ ! -d "./results" ]; then mkdir results; fi
-	chmod +x ./parallel_bcsr_vc/testparallelbcsr.sh
+	chmod +x ./parallel_bcsr_tc/testparallelbcsrtc.sh
 	n=$(n); \
 	while [ $${n} -gt 0 ] ; do \
 		echo "Cicli rimanenti: $$n"; \
-		./parallel_bcsr_vc/testparallelbcsr.sh; \
+		./parallel_bcsr_tc/testparallelbcsrtc.sh; \
+		n=`expr $$n - 1`; \
+	done; \
+	true
+
+testparallelbcsrvc: prparallelbcsrvc parallel_bcsr_vc/testparallelbcsrvc.sh
+	if [ ! -d "./results" ]; then mkdir results; fi
+	chmod +x ./parallel_bcsr_vc/testparallelbcsrvc.sh
+	n=$(n); \
+	while [ $${n} -gt 0 ] ; do \
+		echo "Cicli rimanenti: $$n"; \
+		./parallel_bcsr_vc/testparallelbcsrvc.sh; \
 		n=`expr $$n - 1`; \
 	done; \
 	true
@@ -132,13 +159,24 @@ testdensityparallel: prparallel parallel/testparalleldensity.sh
 	done; \
 	true
 
-testdensityparallelbcsr: prparallelbcsr parallel_bcsr_vc/testparallelbcsrdensity.sh
+testdensityparallelbcsrtc: prparallelbcsrtc parallel_bcsr_tc/testparallelbcsrtcdensity.sh
 	if [ ! -d "./results" ]; then mkdir results; fi
-	chmod +x ./parallel_bcsr_vc/testparallelbcsrdensity.sh
+	chmod +x ./parallel_bcsr_tc/testparallelbcsrtcdensity.sh
 	n=$(n); \
 	while [ $${n} -gt 0 ] ; do \
 		echo "Cicli rimanenti: $$n"; \
-		./parallel_bcsr_vc/testparallelbcsrdensity.sh; \
+		./parallel_bcsr_tc/testparallelbcsrtcdensity.sh; \
+		n=`expr $$n - 1`; \
+	done; \
+	true
+
+testdensityparallelbcsrvc: prparallelbcsrvc parallel_bcsr_vc/testparallelbcsrvcdensity.sh
+	if [ ! -d "./results" ]; then mkdir results; fi
+	chmod +x ./parallel_bcsr_vc/testparallelbcsrvcdensity.sh
+	n=$(n); \
+	while [ $${n} -gt 0 ] ; do \
+		echo "Cicli rimanenti: $$n"; \
+		./parallel_bcsr_vc/testparallelbcsrvcdensity.sh; \
 		n=`expr $$n - 1`; \
 	done; \
 	true
@@ -148,7 +186,8 @@ clean:
 	find . -name "*.o" -type f -delete 
 	find . -name "prserial" -type f -delete 
 	find . -name "prparallel" -type f -delete
-	find . -name "prparallelbcsr" -type f -delete
+	find . -name "prparallelbcsrtc" -type f -delete
+	find . -name "prparallelbcsrvc" -type f -delete
 	find . -name "prparallelOld" -type f -delete
 	find . -name "prparallel2" -type f -delete
 
@@ -164,5 +203,8 @@ cleanserialresults:
 cleanparallelresults:
 	find ./results -name "*parallel_*.json" -type f -delete
 
-cleanparallelbcsrresults:
-	find ./results -name "*parallelbcsr_*.json" -type f -delete
+cleanparallelbcsrtcresults:
+	find ./results -name "*parallelbcsrtc_*.json" -type f -delete
+
+cleanparallelbcsrvcresults:
+	find ./results -name "*parallelbcsrvc_*.json" -type f -delete
