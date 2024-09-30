@@ -15,3 +15,5 @@ graph10b.txt
 graph11b.txt
 graph12b.txt
 input_data/densitytest10K/*
+result_analysis_old.ipynb
+result_analysis.ipynb
