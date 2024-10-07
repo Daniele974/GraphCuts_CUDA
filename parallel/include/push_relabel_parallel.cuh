@@ -12,6 +12,10 @@
 #include "utils.hpp"
 #include "file_manager.hpp"
 
+//TODO RIMUOVERE
+#include <thread>
+#include <chrono>
+
 #define _DEBUG 0
 
 static void HandleError(cudaError_t err, const char *file, int line) {
