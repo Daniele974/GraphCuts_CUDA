@@ -225,35 +225,6 @@ void pushRelabel(int V, int source, int sink, int *capacities, int *residual, in
 
 std::vector<int> findMinCutSetFromSinkOMP(int n, int t, int *residual){
     std::vector<int> minCutSet;
-    std::queue<int> q;
-    std::vector<bool> visited(n, false);
-
-    minCutSet.push_back(t);
-    q.push(t);
-    visited[t] = true;
-    while (!q.empty()) {
-        int u = q.front();
-        q.pop();
-        
-        #pragma omp parallel for
-        for (int v = 0; v < n; ++v) {
-            if (!visited[v] && residual[v*n + u] > 0) {
-                
-                #pragma omp critical
-                {
-                    minCutSet.push_back(v);
-                    q.push(v);
-                    visited[v] = true;
-                }
-            }
-        }
-    }
-
-    return minCutSet;
-}
-
-std::vector<int> findMinCutSetFromSinkOMPV2(int n, int t, int *residual){
-    std::vector<int> minCutSet;
     std::vector<int> vertexList;
     std::vector<bool> visited(n, false);
 
@@ -370,32 +341,9 @@ int executePushRelabel(std::string filename, std::string output, bool computeMin
     cudaEventDestroy(endEvent);
     
     // Calcolo del min cut set
-    /*
     std::vector<int> minCut = {};
     if(computeMinCut){
         minCut = findMinCutSetFromSinkOMP(V, sink, residual);
-    }*/
-
-    std::vector<int> minCut = {};
-    std::vector<int> minCutOMPV2 = {};
-
-    if(computeMinCut){
-        std::chrono::high_resolution_clock::time_point startS = std::chrono::high_resolution_clock::now();
-        minCutOMPV2 = findMinCutSetFromSinkOMP(V, sink, residual);
-        std::chrono::high_resolution_clock::time_point endS = std::chrono::high_resolution_clock::now();
-        double executionTimeS = std::chrono::duration_cast<std::chrono::microseconds>(endS - startS).count()/1000.0;
-        std::cout << "Min cut time (OMP): "<< executionTimeS << " ms" << std::endl;
-    }
-
-    //TODO: da rimuovere
-    std::this_thread::sleep_for(std::chrono::seconds(3));
-
-    if(computeMinCut){
-        std::chrono::high_resolution_clock::time_point startS = std::chrono::high_resolution_clock::now();
-        minCut = findMinCutSetFromSinkOMPV2(V, sink, residual);
-        std::chrono::high_resolution_clock::time_point endS = std::chrono::high_resolution_clock::now();
-        double executionTimeS = std::chrono::duration_cast<std::chrono::microseconds>(endS - startS).count()/1000.0;
-        std::cout << "Min cut time (OMP V2): "<< executionTimeS << " ms" << std::endl;
     }
 
     // Scrittura dei risultati su file

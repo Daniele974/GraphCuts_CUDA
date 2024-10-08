@@ -134,6 +134,49 @@ std::vector<int> findMinCutSetFromSinkOMPV3(int V, int sink, int *offset, int *c
     return minCutSet;
 }
 
+// VERSIONE MIGLIORE
+std::vector<int> findMinCutSetFromSinkOMPV2(int n, int t, int *residual){
+    std::vector<int> minCutSet;
+    std::vector<int> vertexList;
+    std::vector<bool> visited(n, false);
+
+    minCutSet.push_back(t);
+    vertexList.push_back(t);
+    visited[t] = true;
+    while (!vertexList.empty()) {
+        std::vector<int> newVertexList;
+        
+        #pragma omp parallel
+        {
+            std::vector<int> localVertexList;
+            std::vector<int> localMinCutSet;
+            #pragma omp for nowait schedule(dynamic)
+            for (int i = 0; i < vertexList.size(); i++) {
+                int u = vertexList[i];
+                for (int v = 0; v < n; v++) {
+                    if (!visited[v] && residual[v*n + u] > 0) {
+                        #pragma omp critical
+                        {
+                            localMinCutSet.push_back(v);
+                            localVertexList.push_back(v);                            
+                            visited[v] = true;
+                        }
+                    }
+                }
+            }
+
+            #pragma omp critical
+            {
+                minCutSet.insert(minCutSet.end(), localMinCutSet.begin(), localMinCutSet.end());
+                newVertexList.insert(newVertexList.end(), localVertexList.begin(), localVertexList.end());
+            }
+        }
+        vertexList = newVertexList;
+    }
+
+    return minCutSet;
+}
+
 
 //--------------------------------------
 
