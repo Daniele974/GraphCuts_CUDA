@@ -428,34 +428,93 @@ int pushRelabel(int V, int E, int source, int sink, int *height, int *excess, in
     return excess[sink];
 }
 
-std::vector<int> findMinCutSetFromSinkOMP(int V, int sink, int *offset, int *column, int *forwardFlow){
-    std::vector<int> minCutSet;
-    std::queue<int> q;
-    std::vector<bool> visited(V, false);
+void computeTranspose(int V, int E, int *offset, int *column, int *forwardFlow, int *t_offset, int *t_column, int *t_forwardFlow) {
 
-    // BFS per trovare il taglio minimo a partire dal nodo sink
+    for(int i = 0; i < E; i++) {
+        t_offset[column[i]+2]++;
+    }
+    
+    for(int i = 2; i < V+1; i++) {
+        t_offset[i] += t_offset[i-1];
+    }
+    
+    for(int i = 0; i < V; i++) {
+        for(int j = offset[i]; j < offset[i+1]; j++) {
+            int v = column[j];
+            int newIndex = t_offset[v+1]++;
+            t_column[newIndex] = i;
+            t_forwardFlow[newIndex] = forwardFlow[j];
+        }
+    }
+}
+
+std::vector<int> findMinCutSetFromSinkOMP(int V, int E, int sink, int *offset, int *column, int *forwardFlow){
+
+    int *t_offset = (int*)malloc((V+1)*sizeof(int));
+    int *t_column = (int*)malloc(E*sizeof(int));
+    int *t_forwardFlow = (int*)malloc(E*sizeof(int));
+
+    for(int i = 0; i < V+1; i++){
+        t_offset[i] = 0;
+    }
+
+    for(int i = 0; i < E; i++){
+        t_column[i]= 0;
+        t_forwardFlow[i] = 0;
+    }
+
+    computeTranspose(V, E, offset, column, forwardFlow, t_offset, t_column, t_forwardFlow);
+
+    std::vector<int> minCutSet;
+    std::vector<int> vertexList;
+    bool *visited = (bool*)malloc(V*sizeof(bool));
+
+    for(int i = 0; i < V; i++) {
+        visited[i] = false;
+    }
+
     minCutSet.push_back(sink);
-    q.push(sink);
+    vertexList.push_back(sink);
     visited[sink] = true;
 
-    while (!q.empty()) {
-        int u = q.front();
-        q.pop();
+    while (!vertexList.empty()) {
+        std::vector<int> newVertexList;
+        
+        #pragma omp parallel
+        {
+            std::vector<int> localVertexList;
+            std::vector<int> localMinCutSet;
+            
+            #pragma omp for nowait schedule(dynamic)
+            for (int i = 0; i < vertexList.size(); i++) {
+                int u = vertexList[i];
+                
+                for (int j = t_offset[u]; j < t_offset[u+1]; j++) {
+                    int v = t_column[j];
+                    bool shouldAdd = false;
 
-        // Scansione dei vicini di u che hanno flusso verso u
-        #pragma omp parallel for
-        for (int v = 0; v < V; v++) {
-            for (int i = offset[v]; i < offset[v+1]; i++) {
-                if(column[i] == u && forwardFlow[i] > 0 && !visited[v]) {
-                    #pragma omp critical
+                    #pragma omp critical (checkVisited)
                     {
-                        minCutSet.push_back(v);
-                        q.push(v);
-                        visited[v] = true;
+                        if(!visited[v] && t_forwardFlow[j] > 0) {
+                            visited[v] = true;
+                            shouldAdd = true;
+                        }
+                    }
+                    
+                    if(shouldAdd) {
+                        localMinCutSet.push_back(v);
+                        localVertexList.push_back(v);
                     }
                 }
-            }    
+            }
+
+            #pragma omp critical (insert)
+            {
+                minCutSet.insert(minCutSet.end(), localMinCutSet.begin(), localMinCutSet.end());
+                newVertexList.insert(newVertexList.end(), localVertexList.begin(), localVertexList.end());
+            }
         }
+        vertexList = newVertexList;
     }
 
     return minCutSet;
@@ -552,7 +611,7 @@ int executePushRelabel(std::string filename, std::string output, bool computeMin
     std::vector<int> minCut = {};
     
     if(computeMinCut){
-        minCut = findMinCutSetFromSinkOMP(V, sink, offset, column, forwardFlow);
+        minCut = findMinCutSetFromSinkOMP(V, E, sink, offset, column, forwardFlow);
     }
 
     // Scrittura risultati su file

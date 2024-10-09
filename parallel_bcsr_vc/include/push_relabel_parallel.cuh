@@ -41,6 +41,8 @@ void globalRelabel(int V, int E, int source, int sink, int *height, int *excess,
 int pushRelabel(int V, int E, int source, int sink, int *height, int *excess, int *offset, int *column, int *capacities, int *forwardFlow, int *totalExcess, 
                 int *d_height, int *d_excess, int *d_offset, int *d_column, int *d_capacities, int *d_flows, int *d_avq);
 
-std::vector<int> findMinCutSetFromSinkOMP(int V, int sink, int *offset, int *column, int *forwardFlow);
+void computeTranspose(int V, int E, int *offset, int *column, int *forwardFlow, int *t_offset, int *t_column, int *t_forwardFlow);
+
+std::vector<int> findMinCutSetFromSinkOMP(int V, int E, int sink, int *offset, int *column, int *forwardFlow);
 
 int executePushRelabel(std::string filename, std::string output, bool computeMinCut);

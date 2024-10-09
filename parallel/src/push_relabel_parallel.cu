@@ -231,6 +231,7 @@ std::vector<int> findMinCutSetFromSinkOMP(int n, int t, int *residual){
     minCutSet.push_back(t);
     vertexList.push_back(t);
     visited[t] = true;
+
     while (!vertexList.empty()) {
         std::vector<int> newVertexList;
         
@@ -238,22 +239,30 @@ std::vector<int> findMinCutSetFromSinkOMP(int n, int t, int *residual){
         {
             std::vector<int> localVertexList;
             std::vector<int> localMinCutSet;
+
             #pragma omp for nowait schedule(dynamic)
             for (int i = 0; i < vertexList.size(); i++) {
                 int u = vertexList[i];
+
                 for (int v = 0; v < n; v++) {
-                    if (!visited[v] && residual[v*n + u] > 0) {
-                        #pragma omp critical
-                        {
-                            localMinCutSet.push_back(v);
-                            localVertexList.push_back(v);                            
+                    bool shouldAdd = false;
+
+                    #pragma omp critical (checkVisited)
+                    {
+                        if (!visited[v] && residual[v*n + u] > 0) {                         
                             visited[v] = true;
+                            shouldAdd = true;
                         }
+                    }
+
+                    if(shouldAdd){
+                        localMinCutSet.push_back(v);
+                        localVertexList.push_back(v);
                     }
                 }
             }
 
-            #pragma omp critical
+            #pragma omp critical (insert)
             {
                 minCutSet.insert(minCutSet.end(), localMinCutSet.begin(), localMinCutSet.end());
                 newVertexList.insert(newVertexList.end(), localVertexList.begin(), localVertexList.end());
