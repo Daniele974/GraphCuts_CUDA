@@ -225,27 +225,50 @@ void pushRelabel(int V, int source, int sink, int *capacities, int *residual, in
 
 std::vector<int> findMinCutSetFromSinkOMP(int n, int t, int *residual){
     std::vector<int> minCutSet;
-    std::queue<int> q;
+    std::vector<int> vertexList;
     std::vector<bool> visited(n, false);
+
     minCutSet.push_back(t);
-    q.push(t);
+    vertexList.push_back(t);
     visited[t] = true;
-    while (!q.empty()) {
-        int u = q.front();
-        q.pop();
+
+    while (!vertexList.empty()) {
+        std::vector<int> newVertexList;
         
-        #pragma omp parallel for
-        for (int v = 0; v < n; ++v) {
-            if (!visited[v] && residual[v*n + u] > 0) {
-                
-                #pragma omp critical
-                {
-                    minCutSet.push_back(v);
-                    q.push(v);
-                    visited[v] = true;
+        #pragma omp parallel
+        {
+            std::vector<int> localVertexList;
+            std::vector<int> localMinCutSet;
+
+            #pragma omp for nowait schedule(dynamic)
+            for (int i = 0; i < vertexList.size(); i++) {
+                int u = vertexList[i];
+
+                for (int v = 0; v < n; v++) {
+                    bool shouldAdd = false;
+
+                    #pragma omp critical (checkVisited)
+                    {
+                        if (!visited[v] && residual[v*n + u] > 0) {                         
+                            visited[v] = true;
+                            shouldAdd = true;
+                        }
+                    }
+
+                    if(shouldAdd){
+                        localMinCutSet.push_back(v);
+                        localVertexList.push_back(v);
+                    }
                 }
             }
+
+            #pragma omp critical (insert)
+            {
+                minCutSet.insert(minCutSet.end(), localMinCutSet.begin(), localMinCutSet.end());
+                newVertexList.insert(newVertexList.end(), localVertexList.begin(), localVertexList.end());
+            }
         }
+        vertexList = newVertexList;
     }
 
     return minCutSet;
