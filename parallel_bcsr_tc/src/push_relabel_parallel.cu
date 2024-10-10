@@ -77,11 +77,19 @@ __global__ void pushRelabelKernel(int V, int source, int sink, int *d_offset, in
 
                         int backwardIdx = -1;
 
-                        // Ricerca arco di ritorno
-                        for(int j = d_offset[v1]; j < d_offset[v1+1]; j++){
-                            if(d_column[j] == u){
-                                backwardIdx = j;
+                        // Ricerca arco di ritorno usando la ricerca binaria
+                        int left = d_offset[v1];
+                        int right = d_offset[v1 + 1] - 1;
+                        
+                        while (left <= right) {
+                            int mid = left + (right - left) / 2;
+                            if (d_column[mid] == u) {
+                                backwardIdx = mid;  // Arco di ritorno trovato
                                 break;
+                            } else if (d_column[mid] < u) {
+                                left = mid + 1;     // Cerca nella parte destra
+                            } else {
+                                right = mid - 1;    // Cerca nella parte sinistra
                             }
                         }
 

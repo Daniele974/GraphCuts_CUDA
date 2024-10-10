@@ -182,14 +182,22 @@ __global__ void pushKernel(int V, int source, int sink, int *d_height, int *d_ex
                         int d;
                         int backwardIdx = -1;
 
-                        // Ricerca arco di ritorno
-                        for(int j = d_offset[minV]; j < d_offset[minV+1]; j++){
-                            if(d_column[j] == u){
-                                backwardIdx = j;
+                        // Ricerca arco di ritorno usando la ricerca binaria
+                        int left = d_offset[minV];
+                        int right = d_offset[minV + 1] - 1;
+                        
+                        while (left <= right) {
+                            int mid = left + (right - left) / 2;
+                            if (d_column[mid] == u) {
+                                backwardIdx = mid;  // Arco di ritorno trovato
                                 break;
+                            } else if (d_column[mid] < u) {
+                                left = mid + 1;     // Cerca nella parte destra
+                            } else {
+                                right = mid - 1;    // Cerca nella parte sinistra
                             }
                         }
-
+                        
                         // Se l'arco di ritorno non è stato trovato, errore
                         if(backwardIdx == -1){
                             printf("Error: backward edge not found\n");
