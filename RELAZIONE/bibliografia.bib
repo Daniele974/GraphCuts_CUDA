@@ -1,0 +1,93 @@
+@inproceedings{CudaCuts2008,
+  author={Vineet, Vibhav and Narayanan, P. J.},
+  booktitle={2008 IEEE Computer Society Conference on Computer Vision and Pattern Recognition Workshops}, 
+  title={CUDA cuts: Fast graph cuts on the GPU}, 
+  year={2008},
+  volume={},
+  number={},
+  pages={1-8},
+  keywords={Computer vision;Videos;Information technology;Image segmentation;Stereo vision;Coprocessors;Application software;Computer graphics;Image restoration;Power generation economics},
+  doi={10.1109/CVPRW.2008.4563095}
+}
+
+@incollection{EfficientCUDA2012,
+    title = {Chapter 5 - Efficient CUDA Algorithms for the Maximum Network Flow Problem},
+    editor = {Wen-mei W. Hwu},
+    booktitle = {GPU Computing Gems Jade Edition},
+    publisher = {Morgan Kaufmann},
+    address = {Boston},
+    pages = {55-66},
+    year = {2012},
+    series = {Applications of GPU Computing Series},
+    isbn = {978-0-12-385963-1},
+    doi = {10.1016/B978-0-12-385963-1.00005-8},
+    author = {Jiadong Wu and Zhengyu He and Bo Hong},
+    abstract = {Publisher Summary
+    This chapter presents graphical processing unit (GPU) algorithms for the maximum network flow problem. Maximum network flow is a fundamental graph theory problem with applications in many areas. Compared with data-parallel problems that have been deployed onto GPUs, the maximum network flow problem is more challenging for GPUs owing to intensive data and control dependencies. Two GPU-based maximum flow algorithms are presented in this chapter—the first one is asynchronous and lock free, whereas the second one is synchronized through the precoloring technique. The first algorithm solves the maximum flow problem by using atomic operations to perform the push and relabel operations asynchronously. The second algorithm works on precolored graphs and avoids race condition through barriers. Experiments using the NVIDIA C1060 GPU show that, despite the intrinsic challenges of data dependencies and divergent execution paths, both algorithms are able to achieve at least 3 times, and up to 8 times, speed-ups over implementations on a quad-core Intel Xeon CPU. It also demonstrates algorithm design and implementation, GPUs are also capable of accelerating intrinsically data-dependent problems.}
+}
+
+@misc{EngineeringWorkload2024,
+    title={Engineering A Workload-balanced Push-Relabel Algorithm for Massive Graphs on GPUs}, 
+    author={Chou-Ying Hsieh and Po-Chieh Lin and Sy-Yen Kuo},
+    year={2024},
+    doi = {10.48550/arXiv.2404.00270} 
+}
+
+@misc{ParallelImp2011,
+    title={Parallel implematation of flow and matching algorithms}, 
+    author={Agnieszka Łupińska},
+    year={2011},
+    doi = {10.48550/arXiv.1110.6231}
+}
+
+@article{SimpleMinCut1997,
+    author = {Stoer, Mechthild and Wagner, Frank},
+    title = {A simple min-cut algorithm},
+    year = {1997},
+    issue_date = {July 1997},
+    publisher = {Association for Computing Machinery},
+    address = {New York, NY, USA},
+    volume = {44},
+    number = {4},
+    issn = {0004-5411},
+    url = {https://doi.org/10.1145/263867.263872},
+    doi = {10.1145/263867.263872},
+    abstract = {We present an algorithm for finding the minimum cut of an undirected edge-weighted graph. It is simple in every respect. It has a short and compact description, is easy to implement, and has a surprisingly simple proof of correctness. Its runtime matches that of the fastest algorithm known. The runtime analysis is straightforward. In contrast to nearly all approaches so far, the algorithm uses no flow techniques. Roughly speaking, the algorithm consists of about |V| nearly identical phases each of which is a maximum adjacency search.},
+    journal = {J. ACM},
+    month = jul,
+    pages = {585–591},
+    numpages = {7},
+    keywords = {min-cut}
+}
+
+@book{Lancia2022,
+  title={A First Course in Operations Research: Lecture Notes for CS Students},
+  author={Lancia, G.},
+  year={2022},
+  publisher={Independently Published}
+}
+
+@article{PushRelabel,
+author = {Goldberg, Andrew V. and Tarjan, Robert E.},
+title = {A new approach to the maximum-flow problem},
+year = {1988},
+issue_date = {Oct. 1988},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+volume = {35},
+number = {4},
+issn = {0004-5411},
+doi = {10.1145/48014.61051},
+abstract = {All previously known efficient maximum-flow algorithms work by finding augmenting paths, either one path at a time (as in the original Ford and Fulkerson algorithm) or all shortest-length augmenting paths at once (using the layered network approach of Dinic). An alternative method based on the preflow concept of Karzanov is introduced. A preflow is like a flow, except that the total amount flowing into a vertex is allowed to exceed the total amount flowing out. The method maintains a preflow in the original network and pushes local flow excess toward the sink along what are estimated to be shortest paths. The algorithm and its analysis are simple and intuitive, yet the algorithm runs as fast as any other known method on dense graphs, achieving an O(n3) time bound on an n-vertex graph. By incorporating the dynamic tree data structure of Sleator and Tarjan, we obtain a version of the algorithm running in O(nm log(n2/m)) time on an n-vertex, m-edge graph. This is as fast as any known method for any graph density and faster on graphs of moderate density. The algorithm also admits efficient distributed and parallel implementations. A parallel implementation running in O(n2log n) time using n processors and O(m) space is obtained. This time bound matches that of the Shiloach-Vishkin algorithm, which also uses n processors but requires O(n2) space.},
+journal = {J. ACM},
+month = oct,
+pages = {921–940},
+numpages = {20}
+}
+
+@misc{NvidiaWebsite,
+  title        = {Sparse Matrix Formats},
+  author       = {Nvidia},
+  year         = 2024,
+  note         = {\url{https://docs.nvidia.com/nvpl/_static/sparse/storage_format/sparse_matrix.html} [Accessed: 10/10/2024]}
+}

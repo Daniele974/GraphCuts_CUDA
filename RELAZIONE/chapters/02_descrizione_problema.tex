@@ -1,0 +1,154 @@
+% Descrizione problema mincut (informale)
+% descrizione formale
+% reti di flusso (intro breve)
+% collegamento con maxflow (teorema)
+% algoritmi maxflow
+% push-relabel (perché?) parallelizzabile meglio
+% pseudo-codice e descrizione algoritmo (seriale)
+% implementazione seriale ???
+
+
+\chapter{Descrizione del problema}\label{chap:DescrizioneProblema}
+
+    \section{Minimum Cut Set}
+        Un \textit{taglio} $S$ di un grafo non orientato $G = (V,E)$ è un sottoinsieme proprio di $V$ ($S \in V$ e $S \neq \emptyset ,V$). 
+        La dimensione del taglio $S$ è il numero di archi tra $S$ e il resto del grafo $V \setminus S$. 
+        Se il grafo è pesato, allora la dimensione del taglio corrisponde alla somma dei pesi degli archi che collegano le due parti.
+    
+        Il taglio $S$ è detto \textit{minimo} se, tra tutti i tagli possibili all'interno del grafo $G$, è quello di dimensione minima.
+        
+        Trovare il taglio minimo di un grafo non orientato e pesato sugli archi è un problema algoritmico fondamentale.
+        Le sue applicazioni sono varie in campi come il routing nelle reti di telecomunicazione, la progettazione di circuiti, l'ottimizzazione delle risorse e la segmentazione di immagini.
+
+        \subsection{Definizione formale}
+            Il problema del taglio minimo (anche detto \textit{Min Cut Problem}) è definito come segue:
+    
+            \textbf{Input:} un grafo non orientato $G = (V, E)$. Due vertici $s,t \in V$. Pesi $w_{ij} \ge 0$ per ogni arco $ij \in E$.
+            
+            \textbf{Goal:} trovare $S \in V$ tale che $s \in S, t \notin S$ e 
+            
+            \begin{equation}
+                \sum_{\mathclap{\substack{ij \in E : \\ i\in S \land j \notin S}}}w(i,j)
+            \end{equation}
+    
+            ha valore minimo. Un caso speciale si verifica quando $w_{ij} = 1$ per tutti gli archi $ij \in E$ e, quindi, siamo interessati a trovare un taglio di cardinalità minima \cite{Lancia2022}.
+    
+    \section{Maximum Flow Problem}
+
+        Il \textit{Minimum Cut} si connette al problema del \textit{Maximum Flow} attraverso il teorema del max-flow/min-cut, il quale afferma che il valore del flusso massimo da $s$ a $t$ è uguale al peso del taglio minimo che separa $s$ da $t$ nel grafo. Quindi, risolvere il problema del \textit{Minimum Cut} può essere ricondotto a calcolare il flusso massimo attraverso il grafo.
+
+        Il problema del massimo flusso è formalizzato come segue:
+        
+        \textbf{Input:} una rete di flusso $G = (V, A, k)$ con $k$ capacità degli archi. Due vertici $s,t \in V$.
+        
+        \textbf{Goal:} trovare un flusso $s$-$t$ di valore massimo.
+
+    \section{Algoritmi}\label{sec:algoritmi}
+
+        Per risolvere il problema del \textit{Minimum Cut} e del \textit{Maximum Flow}, sono stati sviluppati diversi algoritmi che sfruttano approcci diversi per migliorare l'efficienza e l'accuratezza nella risoluzione.
+    
+        Gli algoritmi per il \textit{Maximum Flow} sono tra i più studiati in informatica teorica e applicata, poiché risolvere questo problema consente di ottenere informazioni utili anche per il \textit{Minimum Cut}, grazie al teorema del max-flow/min-cut. Alcuni dei principali algoritmi sono:
+
+        \begin{itemize}
+            \item \textbf{Algoritmo di Ford-Fulkerson}: è uno degli approcci più classici per risolvere il problema del massimo flusso. L'algoritmo costruisce incrementi di flusso lungo percorsi migliorativi fino a quando non è più possibile trovare percorsi che aumentino il flusso totale. L'implementazione di base ha complessità $O(|E| \cdot f)$, dove $f$ è il valore del massimo flusso. Tuttavia, con l'uso della versione basata sull'algoritmo di Edmonds-Karp, che utilizza la ricerca in ampiezza (BFS) per trovare i percorsi migliorativi, la complessità diventa $O(|V| \cdot |E|^2)$.
+            
+            \item \textbf{Algoritmo di Push-Relabel}: invece di basarsi su percorsi migliorativi come Ford-Fulkerson, questo algoritmo si concentra su un nodo alla volta. La complessità è $O(|V|^2 \cdot |E|)$.
+        \end{itemize}
+
+        Grazie al teorema del max-flow/min-cut, risolvere il problema del \textit{Maximum Flow} consente anche di risolvere il problema del \textit{Minimum Cut}. Gli algoritmi di flusso massimo possono essere modificati per trovare direttamente il taglio minimo associato al flusso massimo. In particolare, al termine dell'algoritmo del massimo flusso, è possibile identificare il taglio minimo osservando i vertici raggiungibili dalla sorgente (o dal pozzo) nel grafo residuo. Per maggiori dettagli riguardo le reti di flusso si veda l'Appendice \ref{app:flownet}.
+        
+    \section{Algoritmo Push-Relabel}
+
+        %Per questo progetto abbiamo deciso di trattare l'algoritmo Push-Relabel proposto da Goldberg, Tarjan et al. \cite{PushRelabel} in quanto è relativamente più facile da parallelizzare rispetto ad altri algoritmi basati su cammini aumentanti \cite{EfficientCUDA2012, EngineeringWorkload2024}.
+
+        Per questo progetto abbiamo deciso di trattare l'algoritmo Push-Relabel proposto da Goldberg e Tarjan \cite{PushRelabel}, in quanto non solo ha la migliore complessità teorica e pratica, ma è anche particolarmente adatto alla parallelizzazione grazie alla sua struttura intrinseca e alla natura locale delle sue operazioni, risultando relativamente più facile da parallelizzare rispetto ad altri algoritmi basati su cammini aumentanti \cite{EngineeringWorkload2024, EfficientCUDA2012}.
+        
+        L'algoritmo, conosciuto anche come preflow-push algorithm, si concentra su operazioni locali per aggiustare il flusso \cite{EngineeringWorkload2024}.
+
+        L'idea di base dell'algoritmo push-relabel è generare il maggior flusso possibile alla sorgente e gradualmente spingerlo verso il pozzo. Introduce il concetto di \textit{excess flow} (flusso in eccesso), che consente a un vertice di ricevere più flussi in ingresso; in altre parole, consente a un vertice di avere più flusso in entrata di quanto ne esca durante la procedura push-relabel, e tale vertice viene chiamato \textit{attivo}. Denotiamo con $e(v)$ il valore del flusso in eccesso sul vertice $v$. La procedura dell'algoritmo push-relabel consiste nel trovare i vertici attivi e applicare su di essi le operazioni di \textit{push} e \textit{relabel} fino a quando non rimangono più vertici attivi. Per trovare i vertici attivi iniziali, l'algoritmo spinge il maggiori quantitativo di flusso possibile dalla sorgente a tutti i vertici adiacenti, operazione chiamata \textit{preflow} (preflusso). Un'operazione di push poi forza un vertice attivo a scaricare il suo flusso in eccesso e lo spinge verso i suoi vicini in $G_f$ (grafo residuo). Per evitare infiniti push, l'algoritmo introduce anche la funzione altezza $h$ su ciascun vertice. Inizialmente, l'altezza della sorgente è $|V|$, mentre l'altezza dei vertici rimanenti è 0. L'algoritmo, poi, forza un vertice attivo $u$ a spingere il flusso verso il vertice $v$ solo se $h(u) = h(v) + 1$. Se nessun vertice vicino soddisfa il vincolo, il vertice attivo aggiornerà la sua altezza trovando l'altezza minima $h'$ dei suoi vicini e aggiornando $h(u) \leftarrow h' + 1$. Con l'operazione di relabel, l'altezza di un vertice attivo, che non può spingere il suo flusso in eccesso, aumenterà. Il vertice attivo verrà disattivato una volta che la sua altezza supererà $|V|$. L'intera procedura termina quando non ci sono più vertici attivi \cite{EngineeringWorkload2024}.
+
+        \begin{algorithm}
+            \caption{Funzione \textit{Init} per l'algoritmo push-relabel}\label{alg:cap}
+            \begin{algorithmic}
+            \ForAll{$(x,y) \in E$}
+                \State $f(x,y) \gets 1$
+                \State $f(y,x) \gets 0$
+            \EndFor
+
+            \ForAll{$x \in V \setminus \{s\}$}
+                \State $e(x) \gets 0$
+                \State $h(x) \gets 1$
+            \EndFor
+            
+            \State $e(s) \gets \infty$
+            \State $h(s) \gets |V|$
+            
+            \end{algorithmic}
+        \end{algorithm}
+
+        \begin{algorithm}
+            \caption{Funzione \textit{discharge(x)}}
+            \begin{algorithmic}
+                \If {($\exists\ (x,y) \in E_f : h(x)=h(y)+1$}
+                    \State $push(x,y)$
+                \Else
+                    \State $relabel(x)$
+                \EndIf
+            \end{algorithmic}
+        \end{algorithm}
+
+        \begin{algorithm}
+            \caption{Funzione \textit{push(x, y)}}
+            \begin{algorithmic}
+                \State $\delta \gets min\{u_f(x,y),\ e(x)\}$
+                \State $e(x) \gets e(x) - \delta$
+                \State $e(y) \gets e(x) + \delta$
+                \State $f(x,y) \gets f(x,y) - \delta$
+                \State $f(y,x) \gets f(y,x) + \delta$
+            \end{algorithmic}
+        \end{algorithm}
+
+        \begin{algorithm}
+            \caption{Funzione \textit{relabel(x)}}
+            \begin{algorithmic}
+                \State $h(x) \gets min\{h[y]:(x,y) \in E_f \} + 1$
+            \end{algorithmic}
+        \end{algorithm}
+
+        \begin{algorithm}
+            \caption{Algoritmo \textit{push-relabel}}
+            \begin{algorithmic}
+                \State \textit{Init()}
+                \State make set $S$ empty
+                \State $S \gets s$
+                \While {($S$ is not empty)}
+                    \State $x \gets S.$pop()
+                    \State \textit{discharge(x)}
+                    \If {($x$ is active node)}
+                        \State $S.$push($x$)
+                    \EndIf
+                \EndWhile
+            \end{algorithmic}
+        \end{algorithm}
+
+        \begin{algorithm}
+            \caption{Algoritmo \textit{findMinCutSet($G_f$,s)}}
+            \begin{algorithmic}
+                \ForAll{$v \in V$}
+                    \State $visited[v] \gets false$
+                \EndFor
+                \State $visited[s] \gets true$
+                \State make queue $Q$ with $s$
+                \While{$Q \neq \emptyset$}
+                    \State $u \gets Q$.front()
+                    \State $Q$.pop()
+                    \ForAll{$v$ adjacent to $u$} \qquad \Comment{$(v,u) \in E_f$}
+                        \If{not $visited[v]$}
+                            \State $visited[v] \gets true$
+                            \State $Q$.push(v)
+                        \EndIf
+                    \EndFor
+                \EndWhile
+            \end{algorithmic}
+        \end{algorithm}
+
