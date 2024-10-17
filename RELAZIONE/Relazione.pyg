@@ -1,0 +1,36 @@
+//Dichiarazione degli eventi per la misurazione del tempo
+cudaEvent_t startEvent, endInitializationEvent, endEvent;
+cudaEventCreate(&startEvent);
+cudaEventCreate(&endInitializationEvent);
+cudaEventCreate(&endEvent);
+
+...
+
+// Primo evento per la misurazione del tempo
+cudaEventRecord(startEvent, 0);
+
+[inizializzazione]
+
+// Secondo evento per la misurazione del tempo
+cudaEventRecord(endInitializationEvent, 0);
+
+[Esecuzione algoritmo push-relabel]
+
+// Terzo evento per la misurazione del tempo
+cudaEventRecord(endEvent, 0);
+
+// Attendo la fine dell'evento endEvent
+cudaEventSynchronize(endEvent);
+
+// Misurazione del tempo
+float initializationTime = 0.0f;
+float executionTime = 0.0f;
+float totalTime = 0.0f;
+cudaEventElapsedTime(&initializationTime, startEvent, endInitializationEvent);
+cudaEventElapsedTime(&executionTime, endInitializationEvent, endEvent);
+cudaEventElapsedTime(&totalTime, startEvent, endEvent);
+
+// Distruzione degli eventi
+cudaEventDestroy(startEvent);
+cudaEventDestroy(endInitializationEvent);
+cudaEventDestroy(endEvent);

@@ -1,0 +1,43 @@
+\babel@toc {italian}{}\relax 
+\babel@toc {italian}{}\relax 
+\contentsline {chapter}{\numberline {1}Introduzione}{2}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Descrizione del progetto}{2}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Gruppo}{2}{section.1.2}%
+\contentsline {section}{\numberline {1.3}Consegna}{2}{section.1.3}%
+\contentsline {chapter}{\numberline {2}Descrizione del problema}{3}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Minimum Cut Set}{3}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Definizione formale}{3}{subsection.2.1.1}%
+\contentsline {section}{\numberline {2.2}Maximum Flow Problem}{3}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Algoritmi}{4}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Algoritmo Push-Relabel}{4}{section.2.4}%
+\contentsline {chapter}{\numberline {3}Implementazione e ottimizzazioni}{6}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Versione seriale}{6}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Prima versione parallela}{6}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Implementazione kernel Push-Relabel}{7}{subsection.3.2.1}%
+\contentsline {subsubsection}{Gestione della memoria}{9}{section*.2}%
+\contentsline {subsubsection}{Kernel}{9}{section*.3}%
+\contentsline {subsubsection}{Sincronizzazione e gestione errori}{9}{section*.4}%
+\contentsline {subsection}{\numberline {3.2.2}Test e miglioramenti}{9}{subsection.3.2.2}%
+\contentsline {section}{\numberline {3.3}Seconda versione parallela}{10}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Bidirectional Compressed Sparse Representation}{10}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Modifiche al codice}{11}{subsection.3.3.2}%
+\contentsline {section}{\numberline {3.4}Terza versione parallela}{12}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Approccio vertex-centric}{12}{subsection.3.4.1}%
+\contentsline {section}{\numberline {3.5}Parallelizzazione ricerca del taglio minimo}{15}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Versione seriale}{15}{subsection.3.5.1}%
+\contentsline {subsection}{\numberline {3.5.2}Versione parallela su matrice di adiacenza}{15}{subsection.3.5.2}%
+\contentsline {subsection}{\numberline {3.5.3}Versione parallela su rappresentazione BCSR}{16}{subsection.3.5.3}%
+\contentsline {section}{\numberline {3.6}Test e analisi delle performance}{19}{section.3.6}%
+\contentsline {subsection}{\numberline {3.6.1}Dati di input}{19}{subsection.3.6.1}%
+\contentsline {subsection}{\numberline {3.6.2}Misurazione tempi}{20}{subsection.3.6.2}%
+\contentsline {subsection}{\numberline {3.6.3}Esecuzione e analisi}{21}{subsection.3.6.3}%
+\contentsline {chapter}{\numberline {4}Risultati}{23}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Risultati per quantità nodi variabile}{23}{section.4.1}%
+\contentsline {section}{\numberline {4.2}Risultati per densità variabile}{24}{section.4.2}%
+\contentsline {chapter}{\numberline {5}Conclusioni}{27}{chapter.5}%
+\contentsline {chapter}{\numberline {A}Reti di flusso}{28}{appendix.1.Alph1}%
+\contentsline {section}{\numberline {A.1}Flusso}{28}{section.1.Alph1.1}%
+\contentsline {section}{\numberline {A.2}Rete residua}{29}{section.1.Alph1.2}%
+\contentsline {chapter}{\numberline {B}Tecniche di Rappresentazione di Grafi}{30}{appendix.1.Alph2}%
+\contentsline {section}{\numberline {B.1}Rappresentazione dei Grafi con Matrici di Adiacenza}{30}{section.1.Alph2.1}%
+\contentsline {section}{\numberline {B.2}Compressed Sparse Row}{30}{section.1.Alph2.2}%

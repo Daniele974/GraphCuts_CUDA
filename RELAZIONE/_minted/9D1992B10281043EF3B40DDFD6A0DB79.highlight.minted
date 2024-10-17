@@ -1,0 +1,20 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{k}{const}\PYG{+w}{ }\PYG{k}{auto}\PYG{+w}{ }\PYG{n}{start}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{chrono}\PYG{o}{:}\PYG{o}{:}\PYG{n}{high\PYGZus{}resolution\PYGZus{}clock}\PYG{o}{:}\PYG{o}{:}\PYG{n}{now}\PYG{p}{(}\PYG{p}{)}\PYG{p}{;}
+
+\PYG{p}{[}\PYG{n}{inizializzazione}\PYG{p}{]}
+
+\PYG{k}{const}\PYG{+w}{ }\PYG{k}{auto}\PYG{+w}{ }\PYG{n}{endInitialization}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{chrono}\PYG{o}{:}\PYG{o}{:}\PYG{n}{high\PYGZus{}resolution\PYGZus{}clock}\PYG{o}{:}\PYG{o}{:}\PYG{n}{now}\PYG{p}{(}\PYG{p}{)}\PYG{p}{;}
+
+\PYG{p}{[}\PYG{n}{Esecuzione}\PYG{+w}{ }\PYG{n}{algoritmo}\PYG{+w}{ }\PYG{n}{push}\PYG{o}{\PYGZhy{}}\PYG{n}{relabel}\PYG{p}{]}
+
+\PYG{k}{const}\PYG{+w}{ }\PYG{k}{auto}\PYG{+w}{ }\PYG{n}{end}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{chrono}\PYG{o}{:}\PYG{o}{:}\PYG{n}{high\PYGZus{}resolution\PYGZus{}clock}\PYG{o}{:}\PYG{o}{:}\PYG{n}{now}\PYG{p}{(}\PYG{p}{)}\PYG{p}{;}
+
+\PYG{k+kt}{double}\PYG{+w}{ }\PYG{n}{initializationTime}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{chrono}\PYG{o}{:}\PYG{o}{:}\PYG{n}{duration\PYGZus{}cast}\PYG{o}{\PYGZlt{}}\PYG{n}{chrono}\PYG{o}{:}\PYG{o}{:}\PYG{n}{microseconds}\PYG{o}{\PYGZgt{}}
+\PYG{+w}{                                }\PYG{p}{(}\PYG{n}{endInitialization}\PYG{+w}{ }\PYG{o}{\PYGZhy{}}\PYG{+w}{ }\PYG{n}{start}\PYG{p}{)}\PYG{p}{.}\PYG{n}{count}\PYG{p}{(}\PYG{p}{)}\PYG{o}{/}\PYG{l+m+mf}{1000.0}\PYG{p}{;}
+\PYG{k+kt}{double}\PYG{+w}{ }\PYG{n}{executionTime}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{chrono}\PYG{o}{:}\PYG{o}{:}\PYG{n}{duration\PYGZus{}cast}\PYG{o}{\PYGZlt{}}\PYG{n}{chrono}\PYG{o}{:}\PYG{o}{:}\PYG{n}{microseconds}\PYG{o}{\PYGZgt{}}
+\PYG{+w}{                                }\PYG{p}{(}\PYG{n}{end}\PYG{+w}{ }\PYG{o}{\PYGZhy{}}\PYG{+w}{ }\PYG{n}{endInitialization}\PYG{p}{)}\PYG{p}{.}\PYG{n}{count}\PYG{p}{(}\PYG{p}{)}\PYG{o}{/}\PYG{l+m+mf}{1000.0}\PYG{p}{;}
+\PYG{k+kt}{double}\PYG{+w}{ }\PYG{n}{totalTime}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{chrono}\PYG{o}{:}\PYG{o}{:}\PYG{n}{duration\PYGZus{}cast}\PYG{o}{\PYGZlt{}}\PYG{n}{chrono}\PYG{o}{:}\PYG{o}{:}\PYG{n}{microseconds}\PYG{o}{\PYGZgt{}}
+\PYG{+w}{                                }\PYG{p}{(}\PYG{n}{end}\PYG{+w}{ }\PYG{o}{\PYGZhy{}}\PYG{+w}{ }\PYG{n}{start}\PYG{p}{)}\PYG{p}{.}\PYG{n}{count}\PYG{p}{(}\PYG{p}{)}\PYG{o}{/}\PYG{l+m+mf}{1000.0}\PYG{p}{;}
+
+
+\end{MintedVerbatim}
