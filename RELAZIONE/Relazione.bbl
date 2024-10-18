@@ -1,0 +1,213 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.3 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated by
+% biber as required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+
+\refsection{0}
+  \datalist[entry]{nty/global//global/global/global}
+    \entry{PushRelabel}{article}{}{}
+      \name{author}{2}{}{%
+        {{hash=575546439bd6e9b2cbc49d9c92ced13f}{%
+           family={Goldberg},
+           familyi={G\bibinitperiod},
+           given={Andrew\bibnamedelima V.},
+           giveni={A\bibinitperiod\bibinitdelim V\bibinitperiod}}}%
+        {{hash=5db7b92ac36b92505a52cbe66bcce4d6}{%
+           family={Tarjan},
+           familyi={T\bibinitperiod},
+           given={Robert\bibnamedelima E.},
+           giveni={R\bibinitperiod\bibinitdelim E\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {New York, NY, USA}%
+      }
+      \list{publisher}{1}{%
+        {Association for Computing Machinery}%
+      }
+      \strng{namehash}{0c5f1d0c7d47338a0051a6ca3a2dfb2e}
+      \strng{fullhash}{0c5f1d0c7d47338a0051a6ca3a2dfb2e}
+      \strng{fullhashraw}{0c5f1d0c7d47338a0051a6ca3a2dfb2e}
+      \strng{bibnamehash}{0c5f1d0c7d47338a0051a6ca3a2dfb2e}
+      \strng{authorbibnamehash}{0c5f1d0c7d47338a0051a6ca3a2dfb2e}
+      \strng{authornamehash}{0c5f1d0c7d47338a0051a6ca3a2dfb2e}
+      \strng{authorfullhash}{0c5f1d0c7d47338a0051a6ca3a2dfb2e}
+      \strng{authorfullhashraw}{0c5f1d0c7d47338a0051a6ca3a2dfb2e}
+      \field{sortinit}{G}
+      \field{sortinithash}{32d67eca0634bf53703493fb1090a2e8}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{All previously known efficient maximum-flow algorithms work by finding augmenting paths, either one path at a time (as in the original Ford and Fulkerson algorithm) or all shortest-length augmenting paths at once (using the layered network approach of Dinic). An alternative method based on the preflow concept of Karzanov is introduced. A preflow is like a flow, except that the total amount flowing into a vertex is allowed to exceed the total amount flowing out. The method maintains a preflow in the original network and pushes local flow excess toward the sink along what are estimated to be shortest paths. The algorithm and its analysis are simple and intuitive, yet the algorithm runs as fast as any other known method on dense graphs, achieving an O(n3) time bound on an n-vertex graph. By incorporating the dynamic tree data structure of Sleator and Tarjan, we obtain a version of the algorithm running in O(nm log(n2/m)) time on an n-vertex, m-edge graph. This is as fast as any known method for any graph density and faster on graphs of moderate density. The algorithm also admits efficient distributed and parallel implementations. A parallel implementation running in O(n2log n) time using n processors and O(m) space is obtained. This time bound matches that of the Shiloach-Vishkin algorithm, which also uses n processors but requires O(n2) space.}
+      \field{issn}{0004-5411}
+      \field{journaltitle}{J. ACM}
+      \field{month}{10}
+      \field{number}{4}
+      \field{title}{A new approach to the maximum-flow problem}
+      \field{volume}{35}
+      \field{year}{1988}
+      \field{pages}{921\bibrangedash 940}
+      \range{pages}{20}
+      \verb{doi}
+      \verb 10.1145/48014.61051
+      \endverb
+    \endentry
+    \entry{EngineeringWorkload2024}{misc}{}{}
+      \name{author}{3}{}{%
+        {{hash=50be332106566dd8d690bf8c99ab029d}{%
+           family={Hsieh},
+           familyi={H\bibinitperiod},
+           given={Chou-Ying},
+           giveni={C\bibinithyphendelim Y\bibinitperiod}}}%
+        {{hash=bb4034f29fc9023cde0324e5816c2fbd}{%
+           family={Lin},
+           familyi={L\bibinitperiod},
+           given={Po-Chieh},
+           giveni={P\bibinithyphendelim C\bibinitperiod}}}%
+        {{hash=8d82ffd15122ec28200738ef50f432b8}{%
+           family={Kuo},
+           familyi={K\bibinitperiod},
+           given={Sy-Yen},
+           giveni={S\bibinithyphendelim Y\bibinitperiod}}}%
+      }
+      \strng{namehash}{440248bb39cc4bfca0bd5c44b324724b}
+      \strng{fullhash}{440248bb39cc4bfca0bd5c44b324724b}
+      \strng{fullhashraw}{440248bb39cc4bfca0bd5c44b324724b}
+      \strng{bibnamehash}{440248bb39cc4bfca0bd5c44b324724b}
+      \strng{authorbibnamehash}{440248bb39cc4bfca0bd5c44b324724b}
+      \strng{authornamehash}{440248bb39cc4bfca0bd5c44b324724b}
+      \strng{authorfullhash}{440248bb39cc4bfca0bd5c44b324724b}
+      \strng{authorfullhashraw}{440248bb39cc4bfca0bd5c44b324724b}
+      \field{sortinit}{H}
+      \field{sortinithash}{23a3aa7c24e56cfa16945d55545109b5}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Engineering A Workload-balanced Push-Relabel Algorithm for Massive Graphs on GPUs}
+      \field{year}{2024}
+      \verb{doi}
+      \verb 10.48550/arXiv.2404.00270
+      \endverb
+    \endentry
+    \entry{Lancia2022}{book}{}{}
+      \name{author}{1}{}{%
+        {{hash=a5995a752862768994e35e0bb6c3182d}{%
+           family={Lancia},
+           familyi={L\bibinitperiod},
+           given={G.},
+           giveni={G\bibinitperiod}}}%
+      }
+      \list{publisher}{1}{%
+        {Independently Published}%
+      }
+      \strng{namehash}{a5995a752862768994e35e0bb6c3182d}
+      \strng{fullhash}{a5995a752862768994e35e0bb6c3182d}
+      \strng{fullhashraw}{a5995a752862768994e35e0bb6c3182d}
+      \strng{bibnamehash}{a5995a752862768994e35e0bb6c3182d}
+      \strng{authorbibnamehash}{a5995a752862768994e35e0bb6c3182d}
+      \strng{authornamehash}{a5995a752862768994e35e0bb6c3182d}
+      \strng{authorfullhash}{a5995a752862768994e35e0bb6c3182d}
+      \strng{authorfullhashraw}{a5995a752862768994e35e0bb6c3182d}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{A First Course in Operations Research: Lecture Notes for CS Students}
+      \field{year}{2022}
+    \endentry
+    \entry{NvidiaWebsite}{misc}{}{}
+      \name{author}{1}{}{%
+        {{hash=2a21e2561359ebf2fb2d634ee7837a8e}{%
+           family={Nvidia},
+           familyi={N\bibinitperiod}}}%
+      }
+      \strng{namehash}{2a21e2561359ebf2fb2d634ee7837a8e}
+      \strng{fullhash}{2a21e2561359ebf2fb2d634ee7837a8e}
+      \strng{fullhashraw}{2a21e2561359ebf2fb2d634ee7837a8e}
+      \strng{bibnamehash}{2a21e2561359ebf2fb2d634ee7837a8e}
+      \strng{authorbibnamehash}{2a21e2561359ebf2fb2d634ee7837a8e}
+      \strng{authornamehash}{2a21e2561359ebf2fb2d634ee7837a8e}
+      \strng{authorfullhash}{2a21e2561359ebf2fb2d634ee7837a8e}
+      \strng{authorfullhashraw}{2a21e2561359ebf2fb2d634ee7837a8e}
+      \field{sortinit}{N}
+      \field{sortinithash}{22369a73d5f88983a108b63f07f37084}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{\url{https://docs.nvidia.com/nvpl/_static/sparse/storage_format/sparse_matrix.html} [Accessed: 10/10/2024]}
+      \field{title}{Sparse Matrix Formats}
+      \field{year}{2024}
+    \endentry
+    \entry{EfficientCUDA2012}{incollection}{}{}
+      \name{author}{3}{}{%
+        {{hash=390912053c41cca4c3cbe4bbb7d4ca55}{%
+           family={Wu},
+           familyi={W\bibinitperiod},
+           given={Jiadong},
+           giveni={J\bibinitperiod}}}%
+        {{hash=820be16b1c6b670fd5caa68efb16ecc7}{%
+           family={He},
+           familyi={H\bibinitperiod},
+           given={Zhengyu},
+           giveni={Z\bibinitperiod}}}%
+        {{hash=332f552287c706d8ec23ed8a7eb12590}{%
+           family={Hong},
+           familyi={H\bibinitperiod},
+           given={Bo},
+           giveni={B\bibinitperiod}}}%
+      }
+      \name{editor}{1}{}{%
+        {{hash=720f32a4424db239592c327c78132fda}{%
+           family={Hwu},
+           familyi={H\bibinitperiod},
+           given={Wen-mei\bibnamedelima W.},
+           giveni={W\bibinithyphendelim m\bibinitperiod\bibinitdelim W\bibinitperiod}}}%
+      }
+      \list{location}{1}{%
+        {Boston}%
+      }
+      \list{publisher}{1}{%
+        {Morgan Kaufmann}%
+      }
+      \strng{namehash}{8b8d24150bce4f24d68cfc6a4217456e}
+      \strng{fullhash}{8b8d24150bce4f24d68cfc6a4217456e}
+      \strng{fullhashraw}{8b8d24150bce4f24d68cfc6a4217456e}
+      \strng{bibnamehash}{8b8d24150bce4f24d68cfc6a4217456e}
+      \strng{authorbibnamehash}{8b8d24150bce4f24d68cfc6a4217456e}
+      \strng{authornamehash}{8b8d24150bce4f24d68cfc6a4217456e}
+      \strng{authorfullhash}{8b8d24150bce4f24d68cfc6a4217456e}
+      \strng{authorfullhashraw}{8b8d24150bce4f24d68cfc6a4217456e}
+      \strng{editorbibnamehash}{720f32a4424db239592c327c78132fda}
+      \strng{editornamehash}{720f32a4424db239592c327c78132fda}
+      \strng{editorfullhash}{720f32a4424db239592c327c78132fda}
+      \strng{editorfullhashraw}{720f32a4424db239592c327c78132fda}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Publisher Summary This chapter presents graphical processing unit (GPU) algorithms for the maximum network flow problem. Maximum network flow is a fundamental graph theory problem with applications in many areas. Compared with data-parallel problems that have been deployed onto GPUs, the maximum network flow problem is more challenging for GPUs owing to intensive data and control dependencies. Two GPU-based maximum flow algorithms are presented in this chapter—the first one is asynchronous and lock free, whereas the second one is synchronized through the precoloring technique. The first algorithm solves the maximum flow problem by using atomic operations to perform the push and relabel operations asynchronously. The second algorithm works on precolored graphs and avoids race condition through barriers. Experiments using the NVIDIA C1060 GPU show that, despite the intrinsic challenges of data dependencies and divergent execution paths, both algorithms are able to achieve at least 3 times, and up to 8 times, speed-ups over implementations on a quad-core Intel Xeon CPU. It also demonstrates algorithm design and implementation, GPUs are also capable of accelerating intrinsically data-dependent problems.}
+      \field{booktitle}{GPU Computing Gems Jade Edition}
+      \field{isbn}{978-0-12-385963-1}
+      \field{series}{Applications of GPU Computing Series}
+      \field{title}{Chapter 5 - Efficient CUDA Algorithms for the Maximum Network Flow Problem}
+      \field{year}{2012}
+      \field{pages}{55\bibrangedash 66}
+      \range{pages}{12}
+      \verb{doi}
+      \verb 10.1016/B978-0-12-385963-1.00005-8
+      \endverb
+    \endentry
+  \enddatalist
+\endrefsection
+\endinput
+

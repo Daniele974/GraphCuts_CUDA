@@ -1,0 +1,82 @@
+\documentclass[a4paper]{report}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[english,italian]{babel}
+\usepackage[a4paper,top=2cm,bottom=2cm,left=3cm,right=3cm,heightrounded,bindingoffset=5mm]{geometry}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{comment}
+\usepackage{amsmath}
+\usepackage{csvsimple}
+\usepackage{placeins}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{hyperref}
+\usepackage{minted}
+\usepackage{csquotes}
+\usepackage{mathtools}
+\usepackage{appendix}
+\usepackage{amssymb}
+\usepackage{algorithm}
+\usepackage[rightComments=false,noEnd=false,beginComment=//~]{algpseudocodex}
+\usepackage[skip=5pt plus1pt, indent=0pt]{parskip}
+
+%\usemintedstyle{borland}
+%\definecolor{bg}{rgb}{0.91,1,0.91} % light green
+\definecolor{bg}{rgb}{0.95,0.95,0.95}   % light gray
+\renewcommand{\theFancyVerbLine}{\textcolor[rgb]{0.5,0.5,0.5}{\footnotesize\arabic{FancyVerbLine}}}
+
+\renewcommand\listingscaption{Listato}
+
+\usepackage[]{biblatex} %Imports biblatex package
+\addbibresource{bibliografia.bib} %Import the bibliography file
+
+\makeatletter
+\renewcommand*{\ALG@name}{Algoritmo}
+\makeatother
+
+
+\algrenewcommand\algorithmicforall{\textbf{for each}}
+
+
+\begin{document}
+	
+	\title{
+		\includegraphics[width=35mm]{logo_UNIUD.png}\\[4mm]
+		\LARGE{UNIVERSIT\'A DEGLI STUDI DI UDINE}\\[4mm]
+		\LARGE{CORSO DI LAUREA MAGISTRALE IN INFORMATICA}\\[1cm]
+		\LARGE{Progetto}\\[2mm]
+		\Large{per il corso di}\\[2mm]
+		\LARGE{Programmazione su Architetture Parallele}\\[4mm]
+		\Large{A.A. 2023-2024}\\[1cm]
+		\LARGE{Implementazione Parallela dell'algoritmo Push-Relabel \\per il problema Max-Flow/Min-Cut}
+ 		}
+ 	\author{Claudio Lanzaro \and Daniele Milo}
+	\date{26 Settembre 2024}
+	\maketitle
+	
+	\tableofcontents	
+	
+    \input{chapters/01_introduzione}
+
+    \input{chapters/02_descrizione_problema}
+
+    \input{chapters/03_metodologia}
+
+    \input{chapters/04_risultati}
+
+    \input{chapters/05_conclusioni}
+
+    \begin{appendices}
+
+        \input{chapters/06_appendiceA}
+
+        \input{chapters/07_appendiceB}
+
+    \end{appendices}
+
+    % Creazione sezione riferimenti
+    \printbibliography[title=Riferimenti]
+    
+\end{document}

@@ -1,0 +1,38 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{c+c1}{//Dichiarazione degli eventi per la misurazione del tempo}
+\PYG{n}{cudaEvent\PYGZus{}t}\PYG{+w}{ }\PYG{n}{startEvent}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{endInitializationEvent}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{endEvent}\PYG{p}{;}
+\PYG{n}{cudaEventCreate}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{startEvent}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{cudaEventCreate}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{endInitializationEvent}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{cudaEventCreate}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{endEvent}\PYG{p}{)}\PYG{p}{;}
+
+\PYG{p}{.}\PYG{p}{.}\PYG{p}{.}
+
+\PYG{c+c1}{// Primo evento per la misurazione del tempo}
+\PYG{n}{cudaEventRecord}\PYG{p}{(}\PYG{n}{startEvent}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{)}\PYG{p}{;}
+
+\PYG{p}{[}\PYG{n}{inizializzazione}\PYG{p}{]}
+
+\PYG{c+c1}{// Secondo evento per la misurazione del tempo}
+\PYG{n}{cudaEventRecord}\PYG{p}{(}\PYG{n}{endInitializationEvent}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{)}\PYG{p}{;}
+
+\PYG{p}{[}\PYG{n}{Esecuzione}\PYG{+w}{ }\PYG{n}{algoritmo}\PYG{+w}{ }\PYG{n}{push}\PYG{o}{\PYGZhy{}}\PYG{n}{relabel}\PYG{p}{]}
+
+\PYG{c+c1}{// Terzo evento per la misurazione del tempo}
+\PYG{n}{cudaEventRecord}\PYG{p}{(}\PYG{n}{endEvent}\PYG{p}{,}\PYG{+w}{ }\PYG{l+m+mi}{0}\PYG{p}{)}\PYG{p}{;}
+
+\PYG{c+c1}{// Attendo la fine dell\PYGZsq{}evento endEvent}
+\PYG{n}{cudaEventSynchronize}\PYG{p}{(}\PYG{n}{endEvent}\PYG{p}{)}\PYG{p}{;}
+
+\PYG{c+c1}{// Misurazione del tempo}
+\PYG{k+kt}{float}\PYG{+w}{ }\PYG{n}{initializationTime}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mf}{0.0f}\PYG{p}{;}
+\PYG{k+kt}{float}\PYG{+w}{ }\PYG{n}{executionTime}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mf}{0.0f}\PYG{p}{;}
+\PYG{k+kt}{float}\PYG{+w}{ }\PYG{n}{totalTime}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mf}{0.0f}\PYG{p}{;}
+\PYG{n}{cudaEventElapsedTime}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{initializationTime}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{startEvent}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{endInitializationEvent}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{cudaEventElapsedTime}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{executionTime}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{endInitializationEvent}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{endEvent}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{cudaEventElapsedTime}\PYG{p}{(}\PYG{o}{\PYGZam{}}\PYG{n}{totalTime}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{startEvent}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{endEvent}\PYG{p}{)}\PYG{p}{;}
+
+\PYG{c+c1}{// Distruzione degli eventi}
+\PYG{n}{cudaEventDestroy}\PYG{p}{(}\PYG{n}{startEvent}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{cudaEventDestroy}\PYG{p}{(}\PYG{n}{endInitializationEvent}\PYG{p}{)}\PYG{p}{;}
+\PYG{n}{cudaEventDestroy}\PYG{p}{(}\PYG{n}{endEvent}\PYG{p}{)}\PYG{p}{;}
+\end{MintedVerbatim}

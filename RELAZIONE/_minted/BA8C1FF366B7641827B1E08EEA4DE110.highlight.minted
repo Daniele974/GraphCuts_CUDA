@@ -1,0 +1,10 @@
+\begin{MintedVerbatim}[commandchars=\\\{\}]
+\PYG{k}{def} \PYG{n+nf}{generate\PYGZus{}random\PYGZus{}graph}\PYG{p}{(}\PYG{n}{n}\PYG{p}{,} \PYG{n}{p}\PYG{p}{,} \PYG{n}{min\PYGZus{}capacity}\PYG{p}{,} \PYG{n}{max\PYGZus{}capacity}\PYG{p}{,} \PYG{n}{directed}\PYG{o}{=}\PYG{k+kc}{False}\PYG{p}{)}\PYG{p}{:}
+    \PYG{n}{G} \PYG{o}{=} \PYG{n}{nx}\PYG{o}{.}\PYG{n}{gnp\PYGZus{}random\PYGZus{}graph}\PYG{p}{(}\PYG{n}{n}\PYG{p}{,} \PYG{n}{p}\PYG{p}{,} \PYG{n}{directed}\PYG{o}{=}\PYG{n}{directed}\PYG{p}{,} \PYG{n}{seed}\PYG{o}{=}\PYG{l+m+mi}{7}\PYG{p}{)}
+
+    \PYG{k}{for} \PYG{n}{edge} \PYG{o+ow}{in} \PYG{n}{G}\PYG{o}{.}\PYG{n}{edges}\PYG{p}{:}
+        \PYG{n}{capacity} \PYG{o}{=} \PYG{n}{random}\PYG{o}{.}\PYG{n}{randint}\PYG{p}{(}\PYG{n}{min\PYGZus{}capacity}\PYG{p}{,} \PYG{n}{max\PYGZus{}capacity}\PYG{p}{)}
+        \PYG{n}{G}\PYG{o}{.}\PYG{n}{edges}\PYG{p}{[}\PYG{n}{edge}\PYG{p}{]}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}}\PYG{l+s+s1}{capacity}\PYG{l+s+s1}{\PYGZsq{}}\PYG{p}{]} \PYG{o}{=} \PYG{n}{capacity}
+
+    \PYG{k}{return} \PYG{n}{G}
+\end{MintedVerbatim}
