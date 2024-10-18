@@ -668,8 +668,10 @@ std::vector<int> findMinCutSetFromSinkOMP(int V, int E, int sink,
                 \end{itemize}
                 
                 L'esecuzione della funzione genera un grafo con capacità casuali assegnate ad ogni arco. Un aspetto cruciale della generazione dei grafi è la connettività: per ogni istanza generata ci siamo assicurati che fosse connessa.
+
+                I grafi indiretti sono stati generati tali ma durante la fase di scrittura su file sono stati simulati come diretti, duplicando ogni arco in entrambe le direzioni. Questo è stato fatto per far funzionare correttamente l'algoritmo push-relabel.
                 
-                Per il primo gruppo di grafi (nodi crescenti e densità costante) come valore di densità abbiamo scelto $p = 2(log(n)/n)$ poiché, secondo la teoria, la probabilità che un Erdős-Rényi random graph sia connesso è molto alta quando $p > log(n)/n$.
+                Per il primo gruppo di grafi (nodi crescenti e densità costante) come valore di densità abbiamo scelto $p = 2(log(n)/n)$ poiché, secondo la teoria, la probabilità che un Erdős-Rényi random graph sia connesso è molto alta quando $p > log(n)/n$. Per quanto riguarda il numero di nodi, abbiamo scelto valori di $n$ fino a 100mila.
 
                 Per il secondo gruppo, invece, i valori scelti sono stati $n = 1000$ e $p \in [0,1]$ con passo $0.1$.
 
