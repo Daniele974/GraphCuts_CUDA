@@ -568,6 +568,11 @@ INPUT ./images/csr-example.png
 INPUT ./images/csr-example.png
 INPUT ./images/csr-example.png
 INPUT ./images/csr-example.png
+INPUT ./chapters/08_appendiceC.tex
+INPUT ./chapters/08_appendiceC.tex
+INPUT ./chapters/08_appendiceC.tex
+INPUT ./chapters/08_appendiceC.tex
+INPUT chapters/08_appendiceC.tex
 INPUT /usr/local/texlive/2024/texmf-dist/fonts/tfm/jknappen/ec/eccc1000.tfm
 INPUT Relazione.aux
 INPUT ./Relazione.out

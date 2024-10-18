@@ -1,0 +1,72 @@
+\chapter{Guida all'uso}\label{app:guida}
+
+    \subsubsection*{Struttura del progetto}
+
+        Ogni implementazione è contenuta all'interndo di una cartella. 
+        \begin{description}
+            \item[\texttt{serial}] contiene l'implementazione seriale dell'algoritmo Push-Relabel;
+            \item[\texttt{parallel}] contiene la prima implementazione parallela basata sulla matrice di adiacenza;
+            \item[\texttt{parallel\_bcsr\_tc}] contiene la seconda implementazione parallela basata sulla rappresentazione BCSR;
+            \item[\texttt{parallel\_bcsr\_vc}] contiene la terza implementazione parallela basata sulla rappresentazione BCSR e ottimizzata per bilanciare il lavoro tra i vari thread della GPU.  
+        \end{description}
+
+        Il contenuto di ogni cartella è il seguente:
+        \begin{itemize}
+            \item cartella \texttt{include} contenente i file header;
+            \item cartella \texttt{src} contenente i file sorgente;
+            \item file \texttt{main.cpp} o \texttt{main.cu} contenente il main del programma;
+            \item due script per eseguire i test al variare del numero di nodi e della densità del grafo. 
+        \end{itemize}
+
+
+    \subsubsection*{Compilazione ed esecuzione}
+
+        All'esterno delle cartelle è presente un unico \texttt{Makefile} per compilare il codice sorgente delle diverse implementazioni e per eseguire gli script di test. 
+        In particolare, per la compilazione sono disponibili i seguenti comandi:
+        \begin{description}
+            \item[\texttt{make all}] compila il codice sorgente di tutte le implementazioni;
+            \item[\texttt{make prserial}] compila il codice sorgente dell'implementazione seriale;
+            \item[\texttt{make prparallel}] compila il codice sorgente dell'implementazione parallela basata sulla matrice di adiacenza;
+            \item[\texttt{make prparallelbcsrtc}] compila il codice sorgente dell'implementazione parallela basata sulla rappresentazione BCSR;
+            \item[\texttt{make prparallelbcsrvc}] compila il codice sorgente dell'implementazione parallela basata sulla rappresentazione BCSR e ottimizzata per bilanciare il lavoro tra i vari thread della GPU;
+        \end{description}
+
+        Una volta ottenuti i file eseguibili, è possibile eseguire il programma lanciando il comando \verb|[path eseguibile] [path file input] [path file output] [flag calcolo mincut]| facendo attenzione ai seguenti aspetti:
+        \begin{itemize}
+            \item il file di input deve essere un file di testo con estensione \verb|.txt| o \verb|.max| contenente la rappresentazione del grafo secondo uno dei formati descritti nella sezione \ref{sec:input-data};
+            \item se nel percorso del file di output sono presenti delle directory, queste devono essere già esistenti;
+            \item al nome del file verrà aggiunto un timestamp per evitare sovrascritture;
+            \item il flag per il calcolo del mincut è opzionale e può essere 0 o 1; se non specificato, il programma calcolerà il mincut.
+        \end{itemize}
+
+        Un esempio di esecuzione è il seguente:\\
+        \verb|./parallel/prparallel input_data/graph1.txt results/graph1_parallel_results.json 0|
+
+
+    \subsubsection*{Esecuzione script di test}
+
+        Per eseguire gli script di test sono disponibili i seguenti comandi:
+        \begin{description}
+            \item[\texttt{make test}] esegue gli script di test per le diverse implementazioni al variare del numero di nodi;
+            \item[\texttt{make testdensity}] esegue gli script di test per le diverse implementazioni al variare della densità del grafo;
+            \item[\texttt{make testserial}] esegue gli script di test per l'implementazione seriale al variare del numero di nodi;
+            \item[\texttt{make testparallel}] esegue gli script di test per l'implementazione parallela basata sulla matrice di adiacenza al variare del numero di nodi;
+            \item[\texttt{make testparallelbcsrtc}] esegue gli script di test per l'implementazione parallela basata sulla rappresentazione BCSR al variare del numero di nodi;
+            \item[\texttt{make testparallelbcsrvc}] esegue gli script di test per l'implementazione parallela basata sulla rappresentazione BCSR e ottimizzata per bilanciare il lavoro tra i vari thread della GPU al variare del numero di nodi;
+            \item[\texttt{make testdensityparallel}] esegue gli script di test per l'implementazione parallela basata sulla matrice di adiacenza al variare della densità del grafo;
+            \item[\texttt{make testdensityparallelbcsrtc}] esegue gli script di test per l'implementazione parallela basata sulla rappresentazione BCSR al variare della densità del grafo;
+            \item[\texttt{make testdensityparallelbcsrvc}] esegue gli script di test per l'implementazione parallela basata sulla rappresentazione BCSR e ottimizzata per bilanciare il lavoro tra i vari thread della GPU al variare della densità del grafo;
+        \end{description}
+
+        I risultati dei test vengono salvati in file JSON all'interno della cartella \texttt{results}.
+
+        
+    \subsubsection*{Altri comandi}
+
+        Infine, sono disponibili i seguenti comandi per la pulizia dei file generati:
+        \begin{description}
+            \item[\texttt{make clean}] elimina i file oggetto e gli eseguibili generati dalla compilazione;
+            \item[\texttt{make cleanallresults}] elimina i file contenenti i risultati dei test dalla directory \texttt{results}.
+        \end{description}
+
+        Ulteriori comandi per la pulizia dei file dei risultati sono disponibili all'interno del Makefile.
