@@ -1,1 +1,14 @@
 \chapter{Conclusioni}
+
+    Il progetto ha avuto come obiettivo principale l'implementazione parallela dell'algoritmo Push-Relabel per la risoluzione del problema Max-Flow/Min-Cut. Attraverso un approccio incrementale, abbiamo sviluppato diverse versioni dell'algoritmo, migliorandone progressivamente l'efficienza e la scalabilità, a partire da una versione seriale fino ad arrivare a soluzioni parallele ottimizzate su GPU.
+
+    Sono state proposte tre diverse implementazioni parallele, ognuna con caratteristiche e prestazioni differenti. 
+    La prima implementazione, basata sulla matrice di adiacenza, è risultata essere la più semplice da realizzare, ma anche la meno efficiente in termini di memoria utilizzata. 
+    La seconda implementazione, strutturalmente simile alla precedente ma adattata sulla rappresentazione BCSR, ha permesso di ridurre il consumo di memoria rispetto alla prima implementazione, ma non ha portato a miglioramenti significativi in termini di tempo. 
+    Infine, la terza implementazione, basata sulla rappresentazione BCSR e ottimizzata per bilanciare il lavoro tra i vari thread della GPU, ha permesso di ottenere i migliori risultati in termini di tempo di esecuzione.
+    
+    I test effettuati su diverse tipologie di grafi, sia reali che generati casualmente, hanno evidenziato significativi miglioramenti prestazionali nelle versioni parallele rispetto alla versione seriale. In particolare, l'adozione della rappresentazione Bidirectional Compressed Sparse Row (BCSR) e l'implementazione di un approccio workload-balanced hanno permesso di massimizzare l'efficienza nell'uso delle risorse computazionali.
+
+    Le analisi delle performance dimostrano che la versione parallela work-balanced si comporta in modo eccellente su grafi di grandi dimensioni e con bassa densità, pur mantenendo prestazioni competitive anche in scenari di alta densità. Tuttavia, la scelta della struttura dati più adatta, come la matrice di adiacenza o la BCSR, dipende strettamente dalle caratteristiche del grafo considerato.
+
+    In conclusione, il progetto ha dimostrato come sia possibile ottenere un'importante riduzione dei tempi di calcolo grazie alla parallelizzazione e a tecniche avanzate di rappresentazione dei dati. L'algoritmo Push-Relabel si conferma adatto a essere parallelizzato, rendendo possibili applicazioni efficienti su grafi di grandi dimensioni nel campo dell'ottimizzazione delle reti di flusso e altri ambiti correlati.

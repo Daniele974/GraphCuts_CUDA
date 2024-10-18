@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.10.17)  17 OCT 2024 17:39
+This is pdfTeX, Version 3.141592653-2.6-1.40.26 (TeX Live 2024) (preloaded format=pdflatex 2024.10.17)  18 OCT 2024 15:43
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1135,7 +1135,7 @@ Package biblatex Info: ... file 'Relazione.bbl' found.
  (./Relazione.bbl)
 Package biblatex Info: Reference section=0 on input line 43.
 Package biblatex Info: Reference segment=0 on input line 43.
-<logo_UNIUD.png, id=159, 481.8pt x 481.8pt>
+<logo_UNIUD.png, id=163, 481.8pt x 481.8pt>
 File: logo_UNIUD.png Graphic file (type png)
 <use logo_UNIUD.png>
 Package pdftex.def Info: logo_UNIUD.png  used on input line 58.
@@ -1227,7 +1227,7 @@ File: t1cmtt.fd 2023/04/13 v2.5m Standard LaTeX font definitions
 [8]
 
 [9]
-<images/bcsr-example.jpg, id=298, 1417.295pt x 710.655pt>
+<images/bcsr-example.jpg, id=303, 1417.295pt x 710.655pt>
 File: images/bcsr-example.jpg Graphic file (type jpg)
 <use images/bcsr-example.jpg>
 Package pdftex.def Info: images/bcsr-example.jpg  used on input line 258.
@@ -1239,10 +1239,10 @@ Package hyperref Info: bookmark level for unknown listing defaults to 0 on input
 \pydata@fh@_4954F4E3BD95FDE1209FDA1EB11EBF3D.data.minted=\write10
 \openout10 = `_4954F4E3BD95FDE1209FDA1EB11EBF3D.data.minted'.
 
-runsystem(latexminted config  --timestamp 20241017173939 4954F4E3BD95FDE1209FDA1EB11EBF3D)...executed safely (allowed).
+runsystem(latexminted config  --timestamp 20241018154303 4954F4E3BD95FDE1209FDA1EB11EBF3D)...executed safely (allowed).
 
  (./_4954F4E3BD95FDE1209FDA1EB11EBF3D.config.minted)
-runsystem(latexminted cleanconfig  --timestamp 20241017173939 4954F4E3BD95FDE1209FDA1EB11EBF3D)...executed safely (allowed).
+runsystem(latexminted cleanconfig  --timestamp 20241018154303 4954F4E3BD95FDE1209FDA1EB11EBF3D)...executed safely (allowed).
 
  (./_minted/default.style.minted)
 \c@minted@tmpdatabufferlength=\count610
@@ -1303,68 +1303,66 @@ Capitolo 4.
 [23
 
 ]
-<images/execution_time_directed.png, id=406, 462.528pt x 346.896pt>
+<images/execution_time_directed.png, id=411, 462.528pt x 346.896pt>
 File: images/execution_time_directed.png Graphic file (type png)
 <use images/execution_time_directed.png>
-Package pdftex.def Info: images/execution_time_directed.png  used on input line 76.
+Package pdftex.def Info: images/execution_time_directed.png  used on input line 55.
 (pdftex.def)             Requested size: 288.79422pt x 216.60303pt.
-<images/execution_time_undirected.png, id=407, 462.528pt x 346.896pt>
+<images/execution_time_undirected.png, id=412, 462.528pt x 346.896pt>
 File: images/execution_time_undirected.png Graphic file (type png)
 <use images/execution_time_undirected.png>
-Package pdftex.def Info: images/execution_time_undirected.png  used on input line 83.
+Package pdftex.def Info: images/execution_time_undirected.png  used on input line 62.
 (pdftex.def)             Requested size: 288.79422pt x 216.60303pt.
-<images/execution_time_density.png, id=408, 462.528pt x 346.896pt>
+<images/execution_time_density.png, id=414, 462.528pt x 346.896pt>
 File: images/execution_time_density.png Graphic file (type png)
 <use images/execution_time_density.png>
-Package pdftex.def Info: images/execution_time_density.png  used on input line 90.
+Package pdftex.def Info: images/execution_time_density.png  used on input line 76.
 (pdftex.def)             Requested size: 288.79422pt x 216.60303pt.
 
 
-[24 <./images/execution_time_directed.png> <./images/execution_time_undirected.png>]
+[24 <./images/execution_time_directed.png> <./images/execution_time_undirected.png>]) (./chapters/05_conclusioni.tex
 
-[25 <./images/execution_time_density.png>]) (./chapters/05_conclusioni.tex
-
-[26]
+[25 <./images/execution_time_density.png>]
 Capitolo 5.
 ) (./chapters/06_appendiceA.tex
 
-[27
+[26
 
 ]
 Appendice A.
-<images/flownet.png, id=432, 450.9347pt x 258.9675pt>
+<images/flownet.png, id=434, 450.9347pt x 258.9675pt>
 File: images/flownet.png Graphic file (type png)
 <use images/flownet.png>
 Package pdftex.def Info: images/flownet.png  used on input line 14.
 (pdftex.def)             Requested size: 247.5415pt x 142.16385pt.
 
 
-[28
+[27
 
  <./images/flownet.png>]) (./chapters/07_appendiceB.tex
 
-[29]
+[28]
 Appendice B.
 
 
-[30
+[29
 
 ]
-<images/graph.jpg, id=459, 1154.3125pt x 872.25874pt>
+<images/graph.jpg, id=460, 1154.3125pt x 872.25874pt>
 File: images/graph.jpg Graphic file (type jpg)
 <use images/graph.jpg>
 Package pdftex.def Info: images/graph.jpg  used on input line 40.
 (pdftex.def)             Requested size: 206.28249pt x 155.86848pt.
-<images/csr-example.png, id=460, 764.967pt x 384.126pt>
+<images/csr-example.png, id=461, 764.967pt x 384.126pt>
 File: images/csr-example.png Graphic file (type png)
 <use images/csr-example.png>
 Package pdftex.def Info: images/csr-example.png  used on input line 47.
 (pdftex.def)             Requested size: 371.30597pt x 186.45328pt.
 )
 
-[31 <./images/graph.jpg> <./images/csr-example.png>]
+[30 <./images/graph.jpg> <./images/csr-example.png>]
 
-[32
+[31
 
 ] (./Relazione.aux)
  ***********
@@ -1372,28 +1370,28 @@ LaTeX2e <2024-06-01> patch level 2
 L3 programming layer <2024-09-10>
  ***********
 Package rerunfilecheck Info: File `Relazione.out' has not changed.
-(rerunfilecheck)             Checksum: D0AB8025B6CC3E31D20B81E0DF35435F;6782.
+(rerunfilecheck)             Checksum: 20F8E279ED903E208CFD4D3E6A9D1AAB;6907.
 \openout10 = `_4954F4E3BD95FDE1209FDA1EB11EBF3D.data.minted'.
 
-runsystem(latexminted clean  --timestamp 20241017173939 4954F4E3BD95FDE1209FDA1EB11EBF3D)...executed safely (allowed).
+runsystem(latexminted clean  --timestamp 20241018154303 4954F4E3BD95FDE1209FDA1EB11EBF3D)...executed safely (allowed).
 
 Package logreq Info: Writing requests to 'Relazione.run.xml'.
 \openout1 = `Relazione.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 43016 strings out of 473579
- 856363 string characters out of 5728227
- 1857264 words of memory out of 5000000
- 65136 multiletter control sequences out of 15000+600000
+ 43017 strings out of 473579
+ 856380 string characters out of 5728227
+ 1858207 words of memory out of 5000000
+ 65137 multiletter control sequences out of 15000+600000
  579820 words of font info for 87 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  96i,17n,101p,2037b,2217s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfbx1000.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfbx1440.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfbx2074.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfbx2488.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfcc1000.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfit0900.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfit1000.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfrm1440.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfrm1728.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sfti1000.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sftt0800.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sftt0900.pfb></usr/local/texlive/2024/texmf-dist/fonts/type1/public/cm-super/sftt1000.pfb>
-Output written on Relazione.pdf (33 pages, 2512354 bytes).
+Output written on Relazione.pdf (32 pages, 2511638 bytes).
 PDF statistics:
- 618 PDF objects out of 1000 (max. 8388607)
- 512 compressed objects within 6 object streams
+ 620 PDF objects out of 1000 (max. 8388607)
+ 515 compressed objects within 6 object streams
  123 named destinations out of 1000 (max. 500000)
- 357 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 365 words of extra memory for PDF output out of 10000 (max. 10000000)
 
