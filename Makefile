@@ -4,7 +4,7 @@ CCOPTS =
 NVCC = nvcc
 NVCCOPTS = -std=c++14 -Xcompiler -fopenmp -lgomp
 
-all: prserial prparallel prparallelbcsr
+all: prserial prparallel prparallelbcsrtc prparallelbcsrvc
 
 # SERIAL
 prserial: serial/main.o serial/file_manager.o serial/push_relabel_serial_basic.o
@@ -67,42 +67,20 @@ parallel_bcsr_vc/utils.o: parallel_bcsr_vc/src/utils.cpp
 parallel_bcsr_vc/file_manager.o: parallel_bcsr_vc/src/file_manager.cpp
 	$(CC) $(CCOPTS) -c parallel_bcsr_vc/src/file_manager.cpp -o parallel_bcsr_vc/file_manager.o
 
-# PARALLEL OLD
-prparallelOld: parallel_old/main.o parallel_old/push_relabel_parallel.o parallel_old/utils.o parallel_old/file_manager.o
-	$(NVCC) $(NVCCOPTS) parallel_old/main.o parallel_old/push_relabel_parallel.o parallel_old/utils.o parallel_old/file_manager.o -o parallel_old/prparallel_old
-
-prparallel2: parallel_old/main2.o parallel_old/push_relabel_parallel2.o parallel_old/utils.o parallel_old/file_manager2.o
-	$(NVCC) $(NVCCOPTS) parallel_old/main2.o parallel_old/push_relabel_parallel2.o parallel_old/utils.o parallel_old/file_manager2.o -o parallel_old/prparallel2
-
-parallel_old/main.o: parallel_old/main.cu
-	$(NVCC) $(NVCCOPTS) -c parallel_old/main.cu -o parallel_old/main.o
-
-parallel_old/main2.o: parallel_old/main2.cu
-	$(NVCC) $(NVCCOPTS) -c parallel_old/main2.cu -o parallel_old/main2.o
-
-parallel_old/push_relabel_parallel.o: parallel_old/src/push_relabel_parallel.cu
-	$(NVCC) $(NVCCOPTS) -c parallel_old/src/push_relabel_parallel.cu -o parallel_old/push_relabel_parallel.o
-
-parallel_old/push_relabel_parallel2.o: parallel_old/src/push_relabel_parallel2.cu
-	$(NVCC) $(NVCCOPTS) -c parallel_old/src/push_relabel_parallel2.cu -o parallel_old/push_relabel_parallel2.o
-
-parallel_old/file_manager.o: parallel_old/src/file_manager.cpp
-	$(CC) $(CCOPTS) -c parallel_old/src/file_manager.cpp -o parallel_old/file_manager.o
-
-parallel_old/file_manager2.o: parallel_old/src/file_manager2.cu
-	$(NVCC) $(NVCCOPTS) -c parallel_old/src/file_manager2.cu -o parallel_old/file_manager2.o
-
-parallel_old/utils.o: parallel_old/src/utils.cpp
-	$(CC) $(CCOPTS) -c parallel_old/src/utils.cpp -o parallel_old/utils.o
-
-
 # TEST
 n ?= 1
 
 test: 
 	make testserial
 	make testparallel
+	make testparallelbcsrtc
 	make testparallelbcsrvc
+
+testdensity:
+	make testdensityparallel
+	make testdensityparallelbcsrtc
+	make testdensityparallelbcsrvc
+
 
 testserial: prserial serial/testserial.sh
 	if [ ! -d "./results" ]; then mkdir results; fi
@@ -188,11 +166,6 @@ clean:
 	find . -name "prparallel" -type f -delete
 	find . -name "prparallelbcsrtc" -type f -delete
 	find . -name "prparallelbcsrvc" -type f -delete
-	find . -name "prparallelOld" -type f -delete
-	find . -name "prparallel2" -type f -delete
-
-cleanwin:
-	del /s *.o *.exe *.exp *.lib 
 
 cleanallresults:
 	find ./results -name "*.json" -type f -delete
