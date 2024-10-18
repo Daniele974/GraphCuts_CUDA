@@ -59,6 +59,8 @@
             \item[\texttt{make testdensityparallelbcsrvc}] esegue gli script di test per l'implementazione parallela basata sulla rappresentazione BCSR e ottimizzata per bilanciare il lavoro tra i vari thread della GPU al variare della densità del grafo;
         \end{description}
 
+        A qualsiasi comando tra quelli sopra elencati è possibile aggiungere l'opzione \texttt{n=[numero]} per specificare il numero di volte che si vuole eseguire ogni singolo test. Ad esempio, il comando \texttt{make testdensityparallel n=10} eseguirà lo script \verb|parallel/testdensityparallel.sh| 10 volte.
+
         I risultati dei test vengono salvati in file JSON all'interno della cartella \texttt{results}.
 
 

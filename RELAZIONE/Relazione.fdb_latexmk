@@ -1,12 +1,12 @@
 # Fdb version 4
-["biber Relazione"] 1729178657.97248 "Relazione.bcf" "Relazione.bbl" "Relazione" 1729263285.84759 0
-  "Relazione.bcf" 1729263285.66552 109443 c8e6b7253a77b96340b4799cc9435b93 "pdflatex"
+["biber Relazione"] 1729178657.97248 "Relazione.bcf" "Relazione.bbl" "Relazione" 1729263942.94335 0
+  "Relazione.bcf" 1729263942.75766 109443 c8e6b7253a77b96340b4799cc9435b93 "pdflatex"
   "bibliografia.bib" 1729175084.21039 5963 ec8b12e7467d4d44ad75f1e2fdfd0d07 ""
   (generated)
   "Relazione.bbl"
   "Relazione.blg"
   (rewritten before read)
-["pdflatex"] 1729263278.13227 "/Users/milod/Developer/Repositories/GraphCuts_CUDA/RELAZIONE/Relazione.tex" "Relazione.pdf" "Relazione" 1729263285.8479 0
+["pdflatex"] 1729263934.60077 "/Users/milod/Developer/Repositories/GraphCuts_CUDA/RELAZIONE/Relazione.tex" "Relazione.pdf" "Relazione" 1729263942.94363 0
   "/Users/milod/Developer/Repositories/GraphCuts_CUDA/RELAZIONE/Relazione.tex" 1729260292.5555 2219 7d25da4f2c40c3fbeff38ce01ec9c1af ""
   "/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1136849721 2971 def0b6c1f0b107b3b936def894055589 ""
   "/usr/local/texlive/2024/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
@@ -269,12 +269,12 @@
   "/usr/local/texlive/2024/texmf-var/fonts/map/pdftex/updmap/pdftex.map" 1729178366 5475505 9858817de6e728d163c121232b884c29 ""
   "/usr/local/texlive/2024/texmf-var/web2c/pdftex/pdflatex.fmt" 1729178513 3325974 18a129fdd6975e22760c0874e71128c4 ""
   "/usr/local/texlive/2024/texmf.cnf" 1710266656 577 e590dabc9e28c5b61546e15f63eebcdf ""
-  "Relazione.aux" 1729263285.28724 90159 cb3b3d101b2c123fa9022212f2d79144 "pdflatex"
+  "Relazione.aux" 1729263942.36498 90159 cb3b3d101b2c123fa9022212f2d79144 "pdflatex"
   "Relazione.bbl" 1729178668.09213 10981 9111343e0d77b5329d3d6697cea6b5aa "biber Relazione"
-  "Relazione.out" 1729263285.2966 7026 9f46cf7c728dedbf86f438bf30ee5de6 "pdflatex"
-  "Relazione.run.xml" 1729263285.66646 2373 e77c88cf386c6d52f5d97e01bc07c12e "pdflatex"
+  "Relazione.out" 1729263942.37383 7026 9f46cf7c728dedbf86f438bf30ee5de6 "pdflatex"
+  "Relazione.run.xml" 1729263942.7586 2373 e77c88cf386c6d52f5d97e01bc07c12e "pdflatex"
   "Relazione.tex" 1729260292.5555 2219 7d25da4f2c40c3fbeff38ce01ec9c1af ""
-  "Relazione.toc" 1729263285.66659 3733 75cc06575f74fccd3f0e728369abdf61 "pdflatex"
+  "Relazione.toc" 1729263942.75873 3733 75cc06575f74fccd3f0e728369abdf61 "pdflatex"
   "_minted/1F26D742A12C7F3AFD55FCBE8D366090.highlight.minted" 1729178657.71772 2650 806e52b5417b90c526fdfa18105c7c8b ""
   "_minted/2017C9999B063B252490106C07E62349.highlight.minted" 1729178657.67931 828 08a3af0e5d51a529b158b8d0ca2809bb ""
   "_minted/20B405288440343F7ED8E7FD504B75A6.highlight.minted" 1729178657.69079 8890 5c5a9bf909d3d2c63002bd0c8ff572c4 ""
@@ -294,7 +294,7 @@
   "chapters/05_conclusioni.tex" 1729258983.50706 2473 d10801315446f184c5fb0a5cae4bbd78 ""
   "chapters/06_appendiceA.tex" 1729175084.15629 4209 eafaf350a5eb177c9834f62c17a31999 ""
   "chapters/07_appendiceB.tex" 1729175084.15837 4489 1181a6081c1637192d393bd369714467 ""
-  "chapters/08_appendiceC.tex" 1729263277.90395 5658 9df46a08fcbded4b15789ed00af2a938 ""
+  "chapters/08_appendiceC.tex" 1729263934.36926 5974 28bb5ba9044b072c70a54d0aa43a85bd ""
   "images/bcsr-example.jpg" 1729175084.18211 80736 7e0a7f98bf4aa9f8129690c76caf58e7 ""
   "images/csr-example.png" 1729175084.18299 248240 f62352cfd2d7cc8b0a683da5b6f0ca64 ""
   "images/execution_time_density.png" 1729175084.1844 606144 73dd95bdde48ae8f7da578f1c5d4d613 ""
